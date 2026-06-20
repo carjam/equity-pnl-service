@@ -29,10 +29,15 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      - name: Run tests
+      - name: Verify JDK
         run: |
+          java -version
+          javac -version
           chmod +x mvnw
-          ./mvnw test -B
+          ./mvnw -version
+
+      - name: Run tests
+        run: ./mvnw test -B
 
   dependency-check:
     name: OWASP Dependency Check
@@ -51,6 +56,13 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
           cache: maven
+
+      - name: Verify JDK
+        run: |
+          java -version
+          javac -version
+          chmod +x mvnw
+          ./mvnw -version
 
       - name: Cache OWASP NVD data
         uses: actions/cache@v4

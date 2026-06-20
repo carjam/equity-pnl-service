@@ -2,9 +2,11 @@
 
 ## Prerequisites
 
-1. **Java 17+** installed
+1. **Java 21** installed (Temurin, Oracle, etc.)
 2. **Maven 3.6+** installed (or use IDE's built-in Maven)
 3. No database required (tests use H2 in-memory)
+
+If you see `release version 21 not supported`, the build is using an older JDK. Point `JAVA_HOME` at JDK 21 and use `.\mvnw.cmd` (not a system `mvn` tied to Java 17). In Cursor/VS Code: **Java: Configure Java Runtime** → select **JavaSE-21**.
 
 ## Running All Tests
 

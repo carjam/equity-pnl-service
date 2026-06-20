@@ -27,7 +27,7 @@ All project documentation is in the [`docs/`](docs/) directory:
 ## 🚀 Quick Start
 
 ### Prerequisites
-- **Java 17+**
+- **Java 21** (required — JDK 17 cannot compile this project)
 - **Maven 3.6+**
 - **MySQL 8.0+** (or H2 for testing)
 
