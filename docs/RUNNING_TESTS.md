@@ -8,6 +8,23 @@
 
 If you see `release version 21 not supported`, the build is using an older JDK. Point `JAVA_HOME` at JDK 21 and use `.\mvnw.cmd` (not a system `mvn` tied to Java 17). In Cursor/VS Code: **Java: Configure Java Runtime** → select **JavaSE-21**.
 
+## Running the Application (dev + Swagger)
+
+**PowerShell (recommended on Windows):**
+```powershell
+$env:JAVA_HOME = "C:\Program Files\Eclipse Adoptium\jdk-21.0.7.6-hotspot"
+.\mvnw.cmd spring-boot:run -Dspring-boot.run.profiles=dev
+```
+
+**Git Bash:** use Unix-style `JAVA_HOME` and `./mvnw` (not `.\mvnw.cmd`). If you see `cannot execute: required file not found`, run `git checkout mvnw` to refresh LF line endings, or use `mvnw.cmd` from PowerShell instead.
+
+```bash
+export JAVA_HOME="/c/Program Files/Eclipse Adoptium/jdk-21.0.7.6-hotspot"
+./mvnw spring-boot:run -Dspring-boot.run.profiles=dev
+```
+
+Swagger UI: http://localhost:8080/swagger-ui.html
+
 ## Running All Tests
 
 ```bash
