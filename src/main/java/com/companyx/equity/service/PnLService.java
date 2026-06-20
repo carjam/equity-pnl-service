@@ -16,7 +16,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.security.auth.login.LoginException;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -55,10 +54,10 @@ public class PnLService {
      *  long = negative value, positive quantity
      *  short = positive value, negative quantity
      */
-    public Map<String, Position> getPositions(String uid, Date start, Date end) throws JsonProcessingException, LoginException {
+    public Map<String, Position> getPositions(String uid, Date start, Date end) throws JsonProcessingException {
         Optional<User> user = userRepository.findByUid(uid);
         if(!user.isPresent())
-            throw new LoginException();
+            throw new RuntimeException("User not found: " + uid);
 
         Map<String, Position> positions = getStartPositions(user.get(), start);
         //clone positions to calculate realized later
@@ -305,20 +304,20 @@ public class PnLService {
         return positions;
     }
 
-    public Transaction getTransactionById(String uid, String id) throws LoginException {
+    public Transaction getTransactionById(String uid, String id) {
         Optional<User> user = userRepository.findByUid(uid);
         if(!user.isPresent())
-            throw new LoginException();
+            throw new RuntimeException("User not found: " + uid);
 
         Integer transactionId = Integer.parseInt(id);
         return transactionRepository.findByUidAndId(user.get().getId(), transactionId).get();
     }
 
     public List<Transaction> getTransactionsByDates(String uid, Optional<String> from, Optional<String> to)
-            throws ParseException, LoginException {
+            throws ParseException {
         Optional<User> user = userRepository.findByUid(uid);
         if(!user.isPresent())
-            throw new LoginException();
+            throw new RuntimeException("User not found: " + uid);
 
         Date fromDate = null;
         Date toDate = null;

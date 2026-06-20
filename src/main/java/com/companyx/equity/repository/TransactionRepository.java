@@ -5,13 +5,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import javax.transaction.Transactional;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
 @Repository
-@Transactional
 public interface TransactionRepository extends JpaRepository<Transaction, Integer> {
     @Query("SELECT t FROM Transaction t WHERE t.user.id = :uid AND t.id = :id")
     Optional<Transaction> findByUidAndId(int uid, int id);

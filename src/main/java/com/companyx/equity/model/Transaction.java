@@ -1,11 +1,10 @@
 package com.companyx.equity.model;
 
-import com.sun.istack.NotNull;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import javax.persistence.*;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
