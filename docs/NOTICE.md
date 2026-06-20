@@ -1,41 +1,22 @@
 # Portfolio Project Notice
 
-## About This Repository
+This repository is a **portfolio demonstration** of enterprise-grade financial API engineering — view-only, not open source. See [LICENSE](../LICENSE).
 
-This is a **portfolio demonstration project** showcasing enterprise-grade software engineering practices and financial technology expertise.
+## Highlights
 
-### Purpose
-This codebase demonstrates:
-- ✅ Production-ready Spring Boot architecture
-- ✅ Financial calculations (P&L for equity positions)
-- ✅ Security best practices (JWT authentication)
-- ✅ Resilience patterns (circuit breaker, retry)
-- ✅ Test-driven development (~95% coverage)
-- ✅ Docker containerization
-- ✅ Enterprise code quality
+- Java 21 · Spring Boot 3.2 · JWT · Resilience4j · Docker · CI/CD
+- Equity P&L with corporate actions (splits, dividends, M&A logic)
+- **257 automated tests**
 
-### Licensing Status
-**This code is NOT open source.** It is proprietary software made available for viewing only.
+## For reviewers
 
-- **For Employers/Recruiters:** Feel free to review the code to assess technical capabilities
-- **For Developers:** This code serves as a reference for quality standards, but may not be used
-- **For Commercial Use:** Contact the author for licensing options
+Start with [PORTFOLIO_DEMO.md](PORTFOLIO_DEMO.md) and [PROJECT_STATUS.md](PROJECT_STATUS.md).
 
-### Technology Stack
-- Java 21
-- Spring Boot 3.2.5
-- MySQL 8.0
-- JWT Security
-- Resilience4j
-- Docker
-- JUnit 5 with 170+ tests
+## Licensing
 
-### Contact
-For licensing inquiries or to discuss this project:
-- **Email:** [your-email@example.com]
-- **LinkedIn:** [your-linkedin-url]
-- **GitHub:** [your-github-profile]
+- **Employers / reviewers:** Code review and technical assessment welcome
+- **Commercial use:** Contact the author
 
 ---
 
-**© 2024-2026 James Carson. All Rights Reserved.**
+**© 2024–2026 James Carson. All Rights Reserved.**

@@ -6,7 +6,7 @@
 
 [![Java](https://img.shields.io/badge/Java-21-orange.svg)](https://www.oracle.com/java/)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.2.5-brightgreen.svg)](https://spring.io/projects/spring-boot)
-[![Test Coverage](https://img.shields.io/badge/Coverage-~95%25-brightgreen.svg)](docs/TEST_COVERAGE_REPORT.md)
+[![Tests](https://img.shields.io/badge/Tests-257-brightgreen.svg)](docs/RUNNING_TESTS.md)
 [![License](https://img.shields.io/badge/License-Proprietary-red.svg)](LICENSE)
 
 ## 📚 Documentation
@@ -15,16 +15,12 @@ All project documentation is in the [`docs/`](docs/) directory:
 
 | Document | Description |
 |----------|-------------|
-| **[Documentation Index](docs/README.md)** | Complete documentation overview |
-| **[Portfolio Demo Guide](docs/PORTFOLIO_DEMO.md)** | Demo script for interviews and reviewers |
-| **[Project Status](docs/PROJECT_STATUS.md)** | Current status and next steps |
-| **[Corporate Actions](docs/corporate-actions/README.md)** | Phase 0 implementation docs |
-| **[Running Tests](docs/RUNNING_TESTS.md)** | Quick start guide for testing |
-| **[Project Status](docs/PROJECT_STATUS.md)** | Current status and next steps |
-| **[Future Enhancements](docs/FUTURE_ENHANCEMENTS.md)** | Deferred work (not blocking demo) |
-| **[Test Coverage](docs/TEST_COVERAGE_REPORT.md)** | Detailed test analysis |
-| **[Timezone Config](docs/TIMEZONE_CONFIGURATION.md)** | Configure application timezone |
-| **[Notice](docs/NOTICE.md)** | Portfolio and licensing notice |
+| **[Documentation Index](docs/README.md)** | All docs |
+| **[Portfolio Demo](docs/PORTFOLIO_DEMO.md)** | Demo script for reviewers |
+| **[Project Status](docs/PROJECT_STATUS.md)** | Current status |
+| **[Running Tests](docs/RUNNING_TESTS.md)** | `.\mvnw.cmd test` |
+| **[Corporate Actions](docs/corporate-actions/README.md)** | Phase 0 summary |
+| **[Future Enhancements](docs/FUTURE_ENHANCEMENTS.md)** | Deferred work |
 
 ## 🚀 Quick Start
 
@@ -168,18 +164,13 @@ GET  /Candle/{symbol}?from={date}&to={date}  # Historical candles
 
 ### Test Coverage
 
-- **255 test cases** — full suite green (June 20, 2026)
-- Key suites: `PnLCalculationTest`, `CorporateActionsPnLEndToEndTest`, `RealWorldCorporateActionsPnLEndToEndTest`, controller and repository tests
+- **257 tests** — full suite green
 
-```bash
-# Windows
+```powershell
 .\mvnw.cmd test
-
-# Corporate actions only
-.\mvnw.cmd test -Dtest=*CorporateAction*
 ```
 
-See [docs/TEST_COVERAGE_REPORT.md](docs/TEST_COVERAGE_REPORT.md) for detailed analysis.
+See [docs/RUNNING_TESTS.md](docs/RUNNING_TESTS.md) and [docs/TEST_COVERAGE_REPORT.md](docs/TEST_COVERAGE_REPORT.md).
 
 ## Known Issues
 
@@ -196,31 +187,13 @@ See [docs/PROJECT_STATUS.md](docs/PROJECT_STATUS.md) for current status.
 
 ```
 equity-pnl-service/
-├── docs/                          # 📚 All documentation
-│   ├── README.md                  # Documentation index
-│   ├── PORTFOLIO_DEMO.md          # Demo script
-│   ├── PROJECT_STATUS.md          # Current status
-│   ├── RUNNING_TESTS.md           # Testing guide
-│   ├── TEST_COVERAGE_REPORT.md   # Coverage analysis
-│   └── TIMEZONE_CONFIGURATION.md # Timezone setup
-├── src/
-│   ├── main/
-│   │   ├── java/com/companyx/equity/
-│   │   │   ├── config/           # Configuration classes
-│   │   │   ├── controller/       # REST controllers
-│   │   │   ├── dto/              # Data transfer objects
-│   │   │   ├── error/            # Exception handling
-│   │   │   ├── model/            # JPA entities
-│   │   │   ├── repository/       # Data access layer
-│   │   │   ├── security/         # JWT & authentication
-│   │   │   ├── service/          # Business logic
-│   │   │   └── utility/          # Helper classes
-│   │   └── resources/
-│   │       ├── application*.properties
-│   │       └── db/migration/     # Flyway migrations
-│   └── test/                     # 🧪 170+ comprehensive tests
-├── spec/                         # Technical specifications
-└── .env.template                 # Environment template
+├── docs/                   # Start: PORTFOLIO_DEMO.md
+├── postman/
+├── .github/workflows/      # CI: test, OWASP, Docker
+├── src/main · src/test/    # 257 tests
+├── spec/CHECKLIST.md
+├── Dockerfile
+└── docker-compose.staging.yml
 ```
 
 ## 🔒 Security

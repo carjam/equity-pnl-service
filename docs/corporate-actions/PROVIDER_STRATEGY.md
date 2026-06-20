@@ -124,4 +124,4 @@ Then (pick one)
 | `CompositeCorporateActionProvider` | Merges providers; secondary first when enabled |
 | `CorporateActionProviderFactory` | Exposes active provider names (`GET .../providers`) |
 
-See also: [PROGRESS.md](PROGRESS.md), [PLAN.md](PLAN.md), [spec/phase-0-corporate-actions/01-corporate-actions-support.md](../../spec/phase-0-corporate-actions/01-corporate-actions-support.md).
+See also: [PROGRESS.md](PROGRESS.md), [../archive/PLAN-corporate-actions.md](../archive/PLAN-corporate-actions.md), [spec/phase-0-corporate-actions/01-corporate-actions-support.md](../../spec/phase-0-corporate-actions/01-corporate-actions-support.md).

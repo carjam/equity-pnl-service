@@ -1,64 +1,47 @@
-# Archive - Historical Documentation
+# Documentation Archive
 
-**Last Updated:** June 20, 2026  
-**Total Files:** 24
-
-This directory contains historical progress reports and documentation that has been superseded by the consolidated **PROJECT_STATUS.md**.
-
-## Recently Archived
-
-### June 20, 2026
-- **BUG_REPORT.md** — Initial code-review bug log (all items resolved; kept for history)
-- **NIGHT_SESSION_SUMMARY.md** — Corporate actions night session summary (see `../corporate-actions/PROGRESS.md`)
-- **NEW_FILES.md** — File listing from corporate actions implementation
-
-### June 19, 2026
-- **CONSOLIDATION_REPORT.md** — Documentation cleanup report (archived post-cleanup)
-- **LICENSING_SETUP.md** — One-time license setup guide (setup complete)
-
-## What's Here
-
-These documents track the development journey from initial setup through bug fixes and testing. They're preserved for historical reference but are no longer actively maintained.
-
-### Progress Reports (Historical)
-- `WORK-PROGRESS-REPORT.md` - Initial progress tracking
-- `IMPLEMENTATION_SUMMARY.md` - Phase 1 & 2 completion summary
-- `PHASE1-TASK1-COMPLETE.md` - Dependency upgrade completion
-- `SETUP_COMPLETE_SUMMARY.md` - Maven and testing setup
-- `MAVEN_SETUP_COMPLETE.md` - Maven wrapper installation
-
-### P&L Development (Historical)
-- `PNL_PHASE1_COMPLETE.md` - P&L refactor phase 1
-- `PNL_TDD_PROGRESS.md` - TDD progress tracking
-- `PNL_TEST_PREDICTIONS.md` - Test result predictions
-- `PNL_TEST_ANALYSIS_GUIDE.md` - Test analysis guide
-- `PNL_CALCULATION_ANALYSIS.md` - P&L implementation analysis
-- `RUN_PNL_TESTS_NOW.md` - Test execution instructions
-
-### Bug Fixes (Historical)
-- `BUG_FIXES_SUMMARY.md` - Individual bug fix summaries
-- `TIMEZONE_CHANGES.md` - Timezone configuration changes
-
-### Retry & Resilience (Historical)
-- `RETRY_IMPLEMENTATION_SUMMARY.md` - Retry pattern implementation
-- `RETRY_QUICK_REFERENCE.md` - Retry usage guide
-- `RETRY_STRATEGY.md` - Retry strategy details
-
-### Documentation Iterations (Historical)
-- `README_UPDATE.md` - README changelog
-- `DOCUMENTATION_ORGANIZATION.md` - Previous doc structure
-- `TESTING_GUIDANCE.md` - Superseded by RUNNING_TESTS.md
-
-## Current Documentation
-
-For up-to-date information, see:
-
-- **[../PROJECT_STATUS.md](../PROJECT_STATUS.md)** — Current project status
-- **[../corporate-actions/PROGRESS.md](../corporate-actions/PROGRESS.md)** — Corporate actions implementation status
-- **[BUG_REPORT.md](BUG_REPORT.md)** — Historical bug analysis (all resolved)
-- **[../RUNNING_TESTS.md](../RUNNING_TESTS.md)** — Testing guide
-- **[../README.md](../README.md)** — Documentation index
+Historical session notes and superseded docs. **Do not use for current status** — see [../PROJECT_STATUS.md](../PROJECT_STATUS.md).
 
 ---
 
-*These files are preserved for historical reference and can be safely ignored for current development.*
+## Bug fixes & testing (June 2026)
+
+| File | Notes |
+|------|-------|
+| [BUG_REPORT.md](BUG_REPORT.md) | Initial code review — all resolved |
+| [TEST_DOCUMENTATION.md](TEST_DOCUMENTATION.md) | Pre–corporate-actions test inventory |
+| [TEST_COVERAGE_REPORT-june19.md](TEST_COVERAGE_REPORT-june19.md) | Detailed June 19 coverage report |
+| [BUG_FIXES_SUMMARY.md](BUG_FIXES_SUMMARY.md) | Fix session summary |
+
+## Corporate actions (June 2026)
+
+| File | Notes |
+|------|-------|
+| [PLAN-corporate-actions.md](PLAN-corporate-actions.md) | Pre-implementation plan |
+| [NIGHT_SESSION_SUMMARY.md](NIGHT_SESSION_SUMMARY.md) | TDD session notes |
+| [NEW_FILES.md](NEW_FILES.md) | File listing from implementation |
+
+## P&L & retry work
+
+| File | Notes |
+|------|-------|
+| [PNL_PHASE1_COMPLETE.md](PNL_PHASE1_COMPLETE.md) | P&L phase 1 |
+| [PNL_CALCULATION_ANALYSIS.md](PNL_CALCULATION_ANALYSIS.md) | Math analysis |
+| [PNL_TDD_PROGRESS.md](PNL_TDD_PROGRESS.md) | TDD progress |
+| [RETRY_STRATEGY.md](RETRY_STRATEGY.md) · [RETRY_IMPLEMENTATION_SUMMARY.md](RETRY_IMPLEMENTATION_SUMMARY.md) | Resilience4j retry |
+
+## Setup & housekeeping
+
+| File | Notes |
+|------|-------|
+| [MAVEN_SETUP_COMPLETE.md](MAVEN_SETUP_COMPLETE.md) | Maven setup |
+| [LICENSING_SETUP.md](LICENSING_SETUP.md) | License setup |
+| [CONSOLIDATION_REPORT.md](CONSOLIDATION_REPORT.md) | Doc consolidation |
+| [DOCUMENTATION_ORGANIZATION.md](DOCUMENTATION_ORGANIZATION.md) | Folder layout |
+| [WORK-PROGRESS-REPORT.md](WORK-PROGRESS-REPORT.md) | Early progress |
+
+*Other files in this folder are one-off session notes from the same period.*
+
+---
+
+*Last updated: June 20, 2026*

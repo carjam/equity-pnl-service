@@ -33,7 +33,7 @@
 | Test dependencies | ✅ | H2, MockWebServer, spring-security-test |
 | OWASP dependency scan | ✅ | `dependency-check-maven` plugin + CI job |
 | Zero high/critical CVEs | 🔄 | CI enforces CVSS ≥ 7 fail; review each run |
-| All tests passing | ✅ | 257 tests (OpenAPI + correlation ID integration tests) |
+| All tests passing | ✅ | 257 tests |
 | Docker builds | ✅ | JDK 21 `Dockerfile`, GHCR CI job, `docker-compose.staging.yml` |
 
 **Open:** Formal CVE triage on each dependency-check report; add suppressions only with justification in `dependency-check-suppressions.xml`.

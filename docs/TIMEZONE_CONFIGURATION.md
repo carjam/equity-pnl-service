@@ -1,4 +1,6 @@
-# Timezone Configuration Guide
+# Timezone Configuration
+
+> **Optional reference.** Production default is UTC (`application.timezone.id`). Skip unless you need non-UTC date display.
 
 ## Overview
 
@@ -323,4 +325,4 @@ ExecStart=/usr/bin/java -jar equity-pnl-service.jar
 
 ---
 
-*For questions, see [TEST_DOCUMENTATION.md](TEST_DOCUMENTATION.md) or [PROJECT_STATUS.md](PROJECT_STATUS.md).*
+*For questions, see [PROJECT_STATUS.md](PROJECT_STATUS.md) or [RUNNING_TESTS.md](RUNNING_TESTS.md).*
