@@ -195,26 +195,33 @@ For historical bug analysis see `BUG_REPORT.md`. For deferred features see `FUTU
 
 ## CI/CD Integration
 
-### GitHub Actions Example
+GitHub Actions runs on every push and pull request to `main`:
+
+- Workflow: [`.github/workflows/ci.yml`](../.github/workflows/ci.yml)
+- Job: JDK 21 (Temurin), Maven cache, `./mvnw test -B`
+
+View runs under **Actions** on GitHub.
+
+### GitHub Actions Example (reference — implemented in repo)
 
 ```yaml
-name: Tests
-on: [push, pull_request]
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-java@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
         with:
-          java-version: '17'
+          java-version: '21'
           distribution: 'temurin'
-      - name: Run tests
-        run: mvn test
-      - name: Generate coverage
-        run: mvn jacoco:report
-      - name: Upload coverage
-        uses: codecov/codecov-action@v3
+          cache: maven
+      - run: ./mvnw test -B
 ```
 
 ## Next Steps After Running Tests

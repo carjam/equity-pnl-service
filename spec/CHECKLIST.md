@@ -563,17 +563,17 @@ Without corporate actions support, the P&L service produces fundamentally incorr
 **Effort:** 3 days | **Status:** ⬜ Not Started
 
 ### 05. CI/CD Pipeline
-- [ ] Create GitHub Actions workflow
-- [ ] Add build step
-- [ ] Add test step
-- [ ] Add security scan step
+- [x] Create GitHub Actions workflow (`.github/workflows/ci.yml`)
+- [x] Add test step (`./mvnw test` on push/PR to `main`)
+- [ ] Add build step (`./mvnw verify` or package)
+- [ ] Add security scan step (OWASP dependency check)
 - [ ] Add Docker build step
 - [ ] Add deployment step (staging)
 - [ ] Add deployment step (prod)
 - [ ] Configure secrets
-- [ ] Test full pipeline
+- [ ] Test full pipeline in GitHub Actions UI
 
-**Effort:** 5 days | **Status:** ⬜ Not Started
+**Effort:** 5 days | **Status:** 🔄 In Progress (test job live)
 
 ### 06. Operational Runbook
 - [ ] Document deployment process
@@ -656,7 +656,7 @@ Without corporate actions support, the P&L service produces fundamentally incorr
 | **BLOCKING** | **Phase 0** | **✅ Complete** |
 | Critical | Phase 1 | 🔄 Partial (JWT, validation, config on feature branch) |
 | High | Phase 2–3 | 🔄 Partial (Resilience4j, 255 tests) |
-| Medium | Phase 4 | 🔄 Partial (Docker); CI/CD not started |
+| Medium | Phase 4 | 🔄 Partial (Docker, CI); staging deploy pending |
 | Low | Phase 5 | ⬜ Not started |
 
 ### Critical Path
