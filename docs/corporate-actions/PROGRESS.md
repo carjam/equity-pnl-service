@@ -140,61 +140,53 @@ All 69 corporate action tests pass with 100% success rate.
 
 ### Next Steps for Full Integration 🔧
 
-#### 1. PnLService Integration (Critical)
-**Status:** Service exists but not yet integrated with PnL calculation
+#### 1. PnLService Integration ✅ **Completed (June 20, 2026)**
+- `applyCorporateActions()` runs after realized P&L, before unrealized
+- Splits/stock dividends applied from earliest transaction date through period end
+- Cash dividend income added to `position.realized` within the query date range
+- Zero-quantity positions skip market data fetch and corporate action calls
 
-**What needs to be done:**
-```java
-// In PnLService.getPositions():
-// After calculating positions, before calculating unrealized:
+#### 2. REST API Endpoints ✅ **Completed (June 20, 2026)**
+- `GET /api/v1/corporate-actions` — list dividends and splits
+- `GET /api/v1/corporate-actions/dividends` — dividends only
+- `GET /api/v1/corporate-actions/splits` — splits only
+- `GET /api/v1/pnl/total-return` — capital gain + dividend income breakdown
 
-for (Map.Entry<String, Position> entry : positions.entrySet()) {
-    String symbol = entry.getKey();
-    Position position = entry.getValue();
-    
-    // Apply corporate actions
-    AdjustedPosition adjusted = corporateActionService.applyToPosition(
-        position, 
-        symbol, 
-        getEarliestTransactionDate(uid, symbol),
-        end
-    );
-    
-    // Update position with adjusted values
-    positions.put(symbol, adjusted.getPosition());
-    
-    // Add dividend income to realized P&L
-    BigDecimal totalRealized = position.getRealized().add(adjusted.getDividendIncome());
-    adjusted.getPosition().setRealized(totalRealized);
-}
-```
+#### 3. Existing Test Fixes ✅ **Completed (June 20, 2026)**
+- `CorporateActionTestSupport` pass-through mocks for existing PnL tests
+- `PnLServiceCorporateActionsTest` — split adjustment + dividend income integration
+- `CorporateActionControllerTest` — REST endpoint coverage
+- Removed obsolete `getCandle` stubs from closed-position tests in `PnLCalculationTest`
 
-#### 2. REST API Endpoints (Optional)
-**Status:** Not implemented (prioritized core functionality)
+#### 4. End-to-End Integration Tests ✅ **Completed (June 20, 2026)**
+- `CorporateActionsPnLEndToEndTest` — full stack through real services + stubbed provider
+- **AAPL 4:1 split (2020-08-31):** 100 → 400 shares, break-even unrealized at $50
+- **KO quarterly dividends (2024):** $100 realized income + $300 unrealized on price move
 
-**Endpoints to add:**
-- `GET /api/v1/corporate-actions` - List all actions
-- `GET /api/v1/corporate-actions/dividends` - Dividends only
-- `GET /api/v1/corporate-actions/splits` - Splits only
-- `GET /api/v1/pnl/total-return` - Enhanced P&L with dividends
+#### 5. Phase 2 Complex Events ✅ **Completed (June 20, 2026)**
+- Domain models: `Merger`, `Spinoff`, `SymbolChange`, `Delisting`, `MergerType`
+- Services: `MergerService`, `SpinoffService`, `SymbolMappingService`, `DelistingService`
+- `CompositeCorporateActionProvider` + `CorporateActionProviderFactory` for multi-provider routing
+- `CorporateActionService.applyComplexAdjustments()` — chronological M&A processing
+- `PnLService` integration — symbol retitling, spinoff positions, merger realized P&L
+- Tests: `MergerServiceTest`, `SpinoffServiceTest`, `SymbolMappingServiceTest`, `CorporateActionServiceComplexTest`, merger scenario in `CorporateActionsPnLEndToEndTest`
 
-#### 3. Existing Test Fixes (Required)
-**Status:** 69 new tests pass, but existing PnLService tests need mock updates
+#### 6. REST API for Phase 2 ✅ **Completed (June 20, 2026)**
+- `GET /api/v1/corporate-actions/mergers`
+- `GET /api/v1/corporate-actions/spinoffs`
+- `GET /api/v1/corporate-actions/symbol-changes`
+- `GET /api/v1/corporate-actions/delistings`
+- `GET /api/v1/corporate-actions/providers`
+- Unified `GET /api/v1/corporate-actions` includes all event types
 
-**Issue:** Existing tests use mocks but don't inject CorporateActionService
+#### 7. Secondary Provider Stub ✅ **Completed (June 20, 2026)**
+- `SecondaryCorporateActionProvider` — enable via `corporate-actions.secondary.enabled=true`
+- Config: `corporate-actions.secondary.url`, `corporate-actions.secondary.api-key`
+- `CompositeCorporateActionProvider` prioritizes secondary over Finnhub
 
-**Fix:** Update test setup to inject mocked CorporateActionService
-```java
-@Mock
-private CorporateActionService corporateActionService;
-
-// In setUp():
-when(corporateActionService.applyToPosition(any(), any(), any(), any()))
-    .thenAnswer(invocation -> {
-        Position pos = invocation.getArgument(0);
-        return new AdjustedPosition(pos, BigDecimal.ZERO, List.of(), List.of());
-    });
-```
+#### 8. Remaining Work
+- Wire live paid API **or** SEC EDGAR provider for Phase 2 event data (see [PROVIDER_STRATEGY.md](PROVIDER_STRATEGY.md))
+- Real-world validation cases (DIS/FOX merger, EBAY/PYPL spinoff)
 
 ---
 
@@ -228,6 +220,7 @@ when(corporateActionService.applyToPosition(any(), any(), any(), any()))
 17. `StockSplitTest.java`
 18. `SplitAdjustmentServiceTest.java`
 19. `DividendServiceTest.java`
+20. `CorporateActionsPnLEndToEndTest.java`
 
 ---
 
@@ -275,25 +268,14 @@ Stock Dividend: New Quantity = Old Quantity × (1 + Dividend Rate)
 
 ## Known Issues & Limitations
 
-### 1. PnLService Integration Not Complete
-**Status:** Core services ready but not wired into PnLService
-**Impact:** Corporate actions not yet applied to P&L calculations
-**Fix:** Add integration code (see "Next Steps" section above)
-
-### 2. Existing Tests Need Mock Updates
-**Status:** 69 new tests pass, existing tests fail on mocks
-**Impact:** CI/CD will fail until mocks are updated
-**Fix:** Inject mocked CorporateActionService in existing tests
-
-### 3. REST API Not Implemented
-**Status:** Controller layer not created
-**Impact:** No API endpoints to query corporate actions directly
-**Priority:** Low (core calculation is more important)
-
-### 4. Phase 2 Events Not Implemented
+### 1. Phase 2 Events Not Implemented
 **Status:** Mergers, acquisitions, spinoffs not implemented
 **Impact:** Only handles splits and dividends
 **Priority:** Medium (covers 80% of use cases)
+
+### 2. Controller Tests (Other Controllers)
+**Status:** `TransactionControllerTest` needs the same security `@MockBean` setup as `CorporateActionControllerTest`
+**Impact:** Pre-existing WebMvcTest context failures unrelated to corporate actions logic
 
 ---
 
@@ -344,12 +326,16 @@ Stock Dividend: New Quantity = Old Quantity × (1 + Dividend Rate)
 - [x] Caching configured
 - [x] Compilation successful
 - [x] Code follows project standards
+- [x] PnLService integration
+- [x] Existing test mock updates
+- [x] REST API endpoints + controller tests
+- [x] PnLServiceCorporateActionsTest integration tests
+- [x] CorporateActionsPnLEndToEndTest (AAPL split + KO dividends + XYZ merger)
+- [x] Phase 2 complex event models, services, and PnL integration
 
 ### 🔧 In Progress
-- [ ] PnLService integration
-- [ ] Existing test fixes
-- [ ] REST API endpoints
-- [ ] End-to-end integration test
+- [ ] Secondary data source: paid API (Polygon/Databento) **or** SEC EDGAR integration — see [PROVIDER_STRATEGY.md](PROVIDER_STRATEGY.md)
+- [ ] Real-world validation cases (DIS/FOX, EBAY/PYPL)
 
 ---
 
@@ -361,11 +347,11 @@ Stock Dividend: New Quantity = Old Quantity × (1 + Dividend Rate)
 - Stateless design as specified
 - Production-ready code quality
 
-**What works:** All corporate action calculations (splits, dividends) are mathematically correct and thoroughly tested.
+**What works:** Corporate action calculations (splits, dividends) are applied in P&L computation and exposed via REST API.
 
-**What's needed:** Integration with PnLService to actually apply these calculations to real P&L computation.
+**What's needed:** End-to-end integration test with mocked provider; Phase 2 events (mergers, spinoffs).
 
-**Estimated completion time for full integration:** 2-4 hours for a skilled developer familiar with the codebase.
+**Estimated completion time for Phase 2:** 2–4 weeks per original plan.
 
 ---
 

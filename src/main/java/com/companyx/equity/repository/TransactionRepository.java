@@ -35,4 +35,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, Intege
     
     @Query("SELECT COUNT(t) FROM Transaction t WHERE t.user.id = :uid")
     long countByUserId(@Param("uid") int uid);
+
+    @Query("SELECT MIN(t.timestamp) FROM Transaction t WHERE t.user.id = :uid AND t.symbol = :symbol")
+    Optional<Date> findEarliestByUserAndSymbol(@Param("uid") int uid, @Param("symbol") String symbol);
 }

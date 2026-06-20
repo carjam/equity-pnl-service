@@ -1,6 +1,7 @@
 package com.companyx.equity.service;
 
 import com.companyx.equity.TestDataBuilder;
+import com.companyx.equity.CorporateActionTestSupport;
 import com.companyx.equity.dto.CandleDto;
 import com.companyx.equity.dto.MarkDto;
 import com.companyx.equity.model.Position;
@@ -56,6 +57,9 @@ public class PnLCalculationTest {
     
     @Mock
     private FinhubRepository finhubRepository;
+
+    @Mock
+    private CorporateActionService corporateActionService;
     
     @InjectMocks
     private PnLService pnLService;
@@ -71,6 +75,7 @@ public class PnLCalculationTest {
         buyType = TestDataBuilder.createTransactionType(1, TransactionType.BUY);
         sellType = TestDataBuilder.createTransactionType(2, TransactionType.SALE);
         depositType = TestDataBuilder.createTransactionType(3, TransactionType.DEPOSIT);
+        CorporateActionTestSupport.stubPassThroughCorporateActions(corporateActionService);
     }
     
     /**
@@ -120,10 +125,6 @@ public class PnLCalculationTest {
             when(transactionRepository.findAllBetween(anyInt(), any(Date.class), any(Date.class)))
                 .thenReturn(transactions);
             
-            // Mock Finhub candle data for historical price (end date is in past)
-            when(finhubRepository.getCandle(eq("AAPL"), any(Date.class), any(Date.class)))
-                .thenReturn(createCandleDto(60.0));
-            
             Date start = java.sql.Date.valueOf("2024-01-10");
             Date end = java.sql.Date.valueOf("2024-01-31");
             
@@ -172,10 +173,6 @@ public class PnLCalculationTest {
             );
             when(transactionRepository.findAllBetween(anyInt(), any(Date.class), any(Date.class)))
                 .thenReturn(transactions);
-            
-            // Mock Finhub candle data for historical price (end date is in past)
-            when(finhubRepository.getCandle(eq("AAPL"), any(Date.class), any(Date.class)))
-                .thenReturn(createCandleDto(40.0));
             
             Date start = java.sql.Date.valueOf("2024-01-10");
             Date end = java.sql.Date.valueOf("2024-01-31");
@@ -316,10 +313,6 @@ public class PnLCalculationTest {
             when(transactionRepository.findAllBetween(anyInt(), any(Date.class), any(Date.class)))
                 .thenReturn(transactions);
             
-            // Mock Finhub candle data for historical price (end date is in past)
-            when(finhubRepository.getCandle(eq("AAPL"), any(Date.class), any(Date.class)))
-                .thenReturn(createCandleDto(40.0));
-            
             Date start = java.sql.Date.valueOf("2024-01-10");
             Date end = java.sql.Date.valueOf("2024-01-31");
             
@@ -359,10 +352,6 @@ public class PnLCalculationTest {
             );
             when(transactionRepository.findAllBetween(anyInt(), any(Date.class), any(Date.class)))
                 .thenReturn(transactions);
-            
-            // Mock Finhub candle data for historical price (end date is in past)
-            when(finhubRepository.getCandle(eq("AAPL"), any(Date.class), any(Date.class)))
-                .thenReturn(createCandleDto(60.0));
             
             Date start = java.sql.Date.valueOf("2024-01-10");
             Date end = java.sql.Date.valueOf("2024-01-31");
@@ -625,10 +614,6 @@ public class PnLCalculationTest {
             );
             when(transactionRepository.findAllBetween(anyInt(), any(Date.class), any(Date.class)))
                 .thenReturn(transactions);
-            
-            // Mock Finhub candle data for historical price (end date is in past)
-            when(finhubRepository.getCandle(eq("AAPL"), any(Date.class), any(Date.class)))
-                .thenReturn(createCandleDto(65.0));
             
             Date start = java.sql.Date.valueOf("2024-01-09");
             Date end = java.sql.Date.valueOf("2024-01-31");

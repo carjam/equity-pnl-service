@@ -38,6 +38,7 @@ public class PnLService {
     private final UserRepository userRepository;
     private final TransactionRepository transactionRepository;
     private final FinhubRepository finhubRepository;
+    private final CorporateActionService corporateActionService;
 
     /**
      * Retrieves the realized, unrealized PnL, quantity, and basis for a date range
@@ -64,6 +65,7 @@ public class PnLService {
         positions = getEndPositions(user.get(), start, end, positions);
 
         positions = calculateRealized(startPositions, positions);
+        positions = applyCorporateActions(user.get(), positions, start, end);
         positions = calculateUnrealized(positions, end);
         log.debug("Final Position: {}", positions);
         return positions;
@@ -267,6 +269,78 @@ public class PnLService {
     }
 
     /**
+     * Applies corporate actions to equity positions before unrealized P&L is calculated.
+     * Splits and stock dividends use full position history through the period end date.
+     * Cash dividend income is limited to the requested P&L date range.
+     */
+    private Map<String, Position> applyCorporateActions(User user, Map<String, Position> positions, Date start, Date end) {
+        LocalDate periodStart = toLocalDate(start);
+        LocalDate periodEnd = toLocalDate(end);
+
+        for (String symbol : new ArrayList<>(positions.keySet())) {
+            if (CASH.equals(symbol)) {
+                continue;
+            }
+
+            Position position = positions.get(symbol);
+            if (position == null || position.getQuantity().equals(BigInteger.ZERO)) {
+                continue;
+            }
+
+            LocalDate historyStart = getEarliestTransactionDate(user.getId(), symbol);
+            Position adjusted = corporateActionService.applyPositionAdjustments(
+                    position, symbol, historyStart, periodEnd);
+
+            CorporateActionService.ComplexAdjustmentResult complex =
+                    corporateActionService.applyComplexAdjustments(
+                            adjusted, symbol, historyStart, periodEnd, this::lookupHistoricalPrice);
+
+            adjusted = complex.getPosition();
+            adjusted.setRealized(adjusted.getRealized().add(complex.getAdditionalRealized()));
+
+            BigDecimal dividendIncome = corporateActionService.calculateDividendIncome(
+                    adjusted.getQuantity(), symbol, periodStart, periodEnd);
+
+            adjusted.setRealized(adjusted.getRealized().add(dividendIncome));
+
+            if (!adjusted.getSymbol().equals(symbol)) {
+                positions.remove(symbol);
+            }
+            positions.put(adjusted.getSymbol(), adjusted);
+            complex.getAdditionalPositions().forEach(positions::put);
+        }
+
+        return positions;
+    }
+
+    private BigDecimal lookupHistoricalPrice(String symbol, LocalDate date) {
+        try {
+            Date sqlDate = java.sql.Date.valueOf(date);
+            List<BigDecimal> prices = finhubRepository.getCandle(symbol, sqlDate, sqlDate).getClose();
+            if (prices == null || prices.size() != 1) {
+                throw new UnexpectedValueException(symbol + " had " + (prices == null ? 0 : prices.size())
+                        + " prices for " + date);
+            }
+            return prices.get(0);
+        } catch (JsonProcessingException e) {
+            throw new UnexpectedValueException("Failed to fetch price for " + symbol + " on " + date);
+        }
+    }
+
+    private LocalDate getEarliestTransactionDate(int userId, String symbol) {
+        return transactionRepository.findEarliestByUserAndSymbol(userId, symbol)
+                .map(this::toLocalDate)
+                .orElse(LocalDate.of(1970, 1, 1));
+    }
+
+    private LocalDate toLocalDate(Date date) {
+        if (date instanceof java.sql.Date sqlDate) {
+            return sqlDate.toLocalDate();
+        }
+        return date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+    }
+
+    /**
      * Calculates unrealized
      *  unrealized = (end Price * quantity) - basis
      *
@@ -276,13 +350,23 @@ public class PnLService {
      * @throws JsonProcessingException
      */
     private Map<String, Position> calculateUnrealized(Map<String, Position> positions, Date end) throws JsonProcessingException {
+        LocalDate endDate = toLocalDate(end);
+        LocalDate today = LocalDate.now(ZoneId.systemDefault());
+
         for(String sym : positions.keySet()) {
             if(sym.equals(CASH))
                 continue;
             log.debug("Calculating unrealized for {}", sym);
-            Date today = new Date();
+            Position position = positions.get(sym);
+            BigInteger quantity = position.getQuantity();
+            if (quantity.equals(BigInteger.ZERO)) {
+                position.setUnrealized(BigDecimal.ZERO);
+                positions.put(sym, position);
+                continue;
+            }
+
             BigDecimal price;
-            if(end.compareTo(today) >= 0) {
+            if(!endDate.isBefore(today)) {
                 price = finhubRepository.getMark(sym).getCurrentPrice();
             } else {
                 List<BigDecimal> prices = finhubRepository.getCandle(sym, end, end).getClose();
@@ -290,10 +374,8 @@ public class PnLService {
                     throw new UnexpectedValueException(sym + " had " + prices.size() + " prices for " + end);
                 price = prices.get(0);
             }
-            BigDecimal basis = positions.get(sym).getValue();
-            BigInteger quantity = positions.get(sym).getQuantity();
+            BigDecimal basis = position.getValue();
             BigDecimal unrealized = (price.multiply(new BigDecimal(quantity))).add(basis);
-            Position position = positions.get(sym);
             position.setUnrealized(unrealized);
             position.setPrice(price);
             positions.put(sym, position);

@@ -44,7 +44,7 @@ Tests run: 69, Failures: 0, Errors: 0, Skipped: 0
 
 ## 📖 Full Details
 
-See **`docs/CORPORATE_ACTIONS_PROGRESS.md`** for:
+See **`docs/corporate-actions/PROGRESS.md`** for:
 - Complete implementation details
 - Architecture decisions
 - Integration code snippets

@@ -339,4 +339,4 @@ public class CorporateActionSyncJob {
 
 **Document Version:** 1.0  
 **Last Updated:** June 19, 2026  
-**Related:** `spec/phase-0-corporate-actions/01-corporate-actions-support.md`
+**Related:** [corporate-actions/PROGRESS.md](corporate-actions/PROGRESS.md), [../spec/phase-0-corporate-actions/01-corporate-actions-support.md](../spec/phase-0-corporate-actions/01-corporate-actions-support.md)

@@ -9,7 +9,7 @@ Before publishing this repository, update your contact details in these files:
    [your-email@example.com]
    ```
 
-2. **NOTICE.md** - Lines 29-31
+2. **[../NOTICE.md](../NOTICE.md)** — Lines 35-37
    ```
    - Email: [your-email@example.com]
    - LinkedIn: [your-linkedin-url]  
@@ -52,11 +52,11 @@ Code available for review only. Contact for licensing.
 ### Commercial Licensing
 
 If someone wants to license this code:
-- They'll contact you via the email in LICENSE/NOTICE.md
+- They'll contact you via the email in LICENSE and [../NOTICE.md](../NOTICE.md)
 - You can negotiate terms (one-time fee, monthly, royalty, etc.)
 - Consider using a software licensing attorney for large deals
 
 ---
 
 **Status:** ✅ License updated to proprietary  
-**Next Step:** Update contact information in LICENSE and NOTICE.md
+**Next Step:** Update contact information in LICENSE and [../NOTICE.md](../NOTICE.md)

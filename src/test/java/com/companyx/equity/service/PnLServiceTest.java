@@ -1,6 +1,7 @@
 package com.companyx.equity.service;
 
 import com.companyx.equity.TestDataBuilder;
+import com.companyx.equity.CorporateActionTestSupport;
 import com.companyx.equity.error.UnexpectedValueException;
 import com.companyx.equity.error.UserNotFoundException;
 import com.companyx.equity.error.TransactionNotFoundException;
@@ -52,6 +53,9 @@ public class PnLServiceTest {
     
     @Mock
     private FinhubRepository finhubRepository;
+
+    @Mock
+    private CorporateActionService corporateActionService;
     
     @InjectMocks
     private PnLService pnLService;
@@ -69,6 +73,7 @@ public class PnLServiceTest {
         sellType = TestDataBuilder.createTransactionType(2, TransactionType.SALE);
         depositType = TestDataBuilder.createTransactionType(3, TransactionType.DEPOSIT);
         withdrawalType = TestDataBuilder.createTransactionType(4, TransactionType.WITHDRAWAL);
+        CorporateActionTestSupport.stubPassThroughCorporateActions(corporateActionService);
     }
     
     // ==================== CASH OPERATIONS ====================

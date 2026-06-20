@@ -8,11 +8,14 @@ class CorporateActionTypeTest {
 
     @Test
     void shouldHaveAllRequiredTypes() {
-        // Act & Assert - Verify all expected types exist
         assertNotNull(CorporateActionType.CASH_DIVIDEND);
         assertNotNull(CorporateActionType.STOCK_DIVIDEND);
         assertNotNull(CorporateActionType.FORWARD_SPLIT);
         assertNotNull(CorporateActionType.REVERSE_SPLIT);
+        assertNotNull(CorporateActionType.MERGER);
+        assertNotNull(CorporateActionType.SPINOFF);
+        assertNotNull(CorporateActionType.SYMBOL_CHANGE);
+        assertNotNull(CorporateActionType.DELISTING);
     }
 
     @Test
@@ -43,11 +46,9 @@ class CorporateActionTypeTest {
     }
 
     @Test
-    void shouldGetCorrectDescription() {
-        // Act & Assert
-        assertEquals("Cash dividend payment", CorporateActionType.CASH_DIVIDEND.getDescription());
-        assertEquals("Stock dividend distribution", CorporateActionType.STOCK_DIVIDEND.getDescription());
-        assertEquals("Forward stock split", CorporateActionType.FORWARD_SPLIT.getDescription());
-        assertEquals("Reverse stock split", CorporateActionType.REVERSE_SPLIT.getDescription());
+    void shouldIdentifyComplexTypes() {
+        assertTrue(CorporateActionType.MERGER.isComplex());
+        assertTrue(CorporateActionType.SPINOFF.isComplex());
+        assertFalse(CorporateActionType.CASH_DIVIDEND.isComplex());
     }
 }

@@ -16,10 +16,13 @@ All project documentation is in the [`docs/`](docs/) directory:
 | Document | Description |
 |----------|-------------|
 | **[Documentation Index](docs/README.md)** | Complete documentation overview |
+| **[Project Status](docs/PROJECT_STATUS.md)** | Current status and next steps |
+| **[Corporate Actions](docs/corporate-actions/README.md)** | Phase 0 implementation docs |
 | **[Running Tests](docs/RUNNING_TESTS.md)** | Quick start guide for testing |
 | **[Bug Report](docs/BUG_REPORT.md)** | Known issues and fixes |
 | **[Test Coverage](docs/TEST_COVERAGE_REPORT.md)** | Detailed test analysis |
 | **[Timezone Config](docs/TIMEZONE_CONFIGURATION.md)** | Configure application timezone |
+| **[Notice](docs/NOTICE.md)** | Portfolio and licensing notice |
 
 ## 🚀 Quick Start
 
@@ -183,9 +186,8 @@ Several bugs were identified during code review:
   - Stock splits appear as massive losses (e.g., 4:1 split shows as 75% loss)
   - Mergers appear as delistings with 100% losses
   - Dividends not included in total return calculations
-  - **Status:** Comprehensive specification created, ready for implementation
-  - **Timeline:** 25 days (5 weeks)
-  - See [spec/phase-0-corporate-actions/01-corporate-actions-support.md](spec/phase-0-corporate-actions/01-corporate-actions-support.md)
+  - **Status:** Core implementation complete; PnL integration pending
+  - See [docs/corporate-actions/PROGRESS.md](docs/corporate-actions/PROGRESS.md) and [spec/phase-0-corporate-actions/01-corporate-actions-support.md](spec/phase-0-corporate-actions/01-corporate-actions-support.md)
 
 See [docs/BUG_REPORT.md](docs/BUG_REPORT.md) for complete details and recommendations.
 

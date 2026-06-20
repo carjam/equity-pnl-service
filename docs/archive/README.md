@@ -1,14 +1,19 @@
 # Archive - Historical Documentation
 
-**Last Updated:** June 19, 2026 - 10:45 PM  
-**Total Files:** 22
+**Last Updated:** June 20, 2026  
+**Total Files:** 24
 
 This directory contains historical progress reports and documentation that has been superseded by the consolidated **PROJECT_STATUS.md**.
 
-## Recently Archived (June 19, 2026)
+## Recently Archived
 
-- **CONSOLIDATION_REPORT.md** - Documentation cleanup report (archived post-cleanup)
-- **LICENSING_SETUP.md** - One-time license setup guide (setup complete)
+### June 20, 2026
+- **NIGHT_SESSION_SUMMARY.md** — Corporate actions night session summary (see `../corporate-actions/PROGRESS.md`)
+- **NEW_FILES.md** — File listing from corporate actions implementation
+
+### June 19, 2026
+- **CONSOLIDATION_REPORT.md** — Documentation cleanup report (archived post-cleanup)
+- **LICENSING_SETUP.md** — One-time license setup guide (setup complete)
 
 ## What's Here
 
@@ -47,13 +52,11 @@ These documents track the development journey from initial setup through bug fix
 
 For up-to-date information, see:
 
-- **[../PROJECT_STATUS.md](../PROJECT_STATUS.md)** - Current project status (NEW)
-- **[../BUG_REPORT.md](../BUG_REPORT.md)** - Bug analysis (updated)
-- **[../RUNNING_TESTS.md](../RUNNING_TESTS.md)** - Testing guide
-- **[../TEST_COVERAGE_REPORT.md](../TEST_COVERAGE_REPORT.md)** - Coverage analysis
-- **[../TEST_DOCUMENTATION.md](../TEST_DOCUMENTATION.md)** - Test structure
-- **[../TIMEZONE_CONFIGURATION.md](../TIMEZONE_CONFIGURATION.md)** - Configuration guide
-- **[../README.md](../README.md)** - Documentation index
+- **[../PROJECT_STATUS.md](../PROJECT_STATUS.md)** — Current project status
+- **[../corporate-actions/PROGRESS.md](../corporate-actions/PROGRESS.md)** — Corporate actions implementation status
+- **[../BUG_REPORT.md](../BUG_REPORT.md)** — Bug analysis
+- **[../RUNNING_TESTS.md](../RUNNING_TESTS.md)** — Testing guide
+- **[../README.md](../README.md)** — Documentation index
 
 ---
 

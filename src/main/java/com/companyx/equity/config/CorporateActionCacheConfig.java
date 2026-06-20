@@ -24,7 +24,11 @@ public class CorporateActionCacheConfig {
     public CacheManager corporateActionCacheManager() {
         CaffeineCacheManager cacheManager = new CaffeineCacheManager(
                 "corporate-actions-dividends",
-                "corporate-actions-splits"
+                "corporate-actions-splits",
+                "corporate-actions-mergers",
+                "corporate-actions-spinoffs",
+                "corporate-actions-symbol-changes",
+                "corporate-actions-delistings"
         );
         
         cacheManager.setCaffeine(caffeineCacheBuilder());

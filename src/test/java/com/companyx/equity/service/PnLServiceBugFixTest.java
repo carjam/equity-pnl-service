@@ -1,6 +1,7 @@
 package com.companyx.equity.service;
 
 import com.companyx.equity.TestDataBuilder;
+import com.companyx.equity.CorporateActionTestSupport;
 import com.companyx.equity.error.InvalidInputException;
 import com.companyx.equity.error.TransactionNotFoundException;
 import com.companyx.equity.error.UserNotFoundException;
@@ -20,6 +21,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -44,6 +47,7 @@ import static org.mockito.Mockito.*;
  * Bug #11: SimpleDateFormat thread safety - FIXED (using DateTimeFormatter)
  */
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 @DisplayName("Bug Fix Verification Tests")
 public class PnLServiceBugFixTest {
     
@@ -55,6 +59,9 @@ public class PnLServiceBugFixTest {
     
     @Mock
     private FinhubRepository finhubRepository;
+
+    @Mock
+    private CorporateActionService corporateActionService;
     
     @InjectMocks
     private PnLService pnLService;
@@ -70,6 +77,7 @@ public class PnLServiceBugFixTest {
         buyType = TestDataBuilder.createTransactionType(1, TransactionType.BUY);
         sellType = TestDataBuilder.createTransactionType(2, TransactionType.SALE);
         depositType = TestDataBuilder.createTransactionType(3, TransactionType.DEPOSIT);
+        CorporateActionTestSupport.stubPassThroughCorporateActions(corporateActionService);
     }
     
     // ==================== BUG #8: Custom Exception Tests ====================

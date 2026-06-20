@@ -6,13 +6,16 @@ import com.companyx.equity.model.Transaction;
 import com.companyx.equity.model.TransactionType;
 import com.companyx.equity.model.User;
 import com.companyx.equity.service.PnLService;
+import com.companyx.equity.security.JwtAuthenticationEntryPoint;
+import com.companyx.equity.security.JwtUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -36,7 +39,7 @@ import static org.hamcrest.Matchers.*;
  * This will cause compilation/runtime errors!
  */
 @WebMvcTest(TransactionController.class)
-@AutoConfigureMockMvc(addFilters = false) // Disable security for unit tests
+@WithMockUser(username = "test-user")
 public class TransactionControllerTest {
     
     @Autowired
@@ -44,6 +47,15 @@ public class TransactionControllerTest {
     
     @MockBean
     private PnLService pnLService;
+
+    @MockBean
+    private JwtUtil jwtUtil;
+
+    @MockBean
+    private JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+
+    @MockBean
+    private UserDetailsService userDetailsService;
     
     @Autowired
     private ObjectMapper objectMapper;
@@ -225,6 +237,7 @@ public class TransactionControllerTest {
     // ==================== SECURITY TESTS ====================
     
     @Test
+    @WithAnonymousUser
     public void testPnlWithoutAuthentication_ShouldFail() throws Exception {
         // Without @WithMockUser, should get 401/403
         mockMvc.perform(get("/api/v1/pnl")
@@ -234,6 +247,7 @@ public class TransactionControllerTest {
     }
     
     @Test
+    @WithAnonymousUser
     public void testTransactionsWithoutAuthentication_ShouldFail() throws Exception {
         mockMvc.perform(get("/api/v1/transactions"))
                 .andExpect(status().is4xxClientError());

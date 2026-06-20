@@ -66,10 +66,12 @@ src/main/java/com/companyx/equity/config/
 ## Documentation (2 files)
 ```
 docs/
-└── CORPORATE_ACTIONS_PROGRESS.md    (Detailed progress report)
+├── corporate-actions/
+│   ├── PROGRESS.md                (Detailed progress report)
+│   └── PLAN.md                    (Architecture overview)
 
 Root/
-└── NIGHT_SESSION_SUMMARY.md         (Quick summary)
+└── README.md                        (Project readme only)
 ```
 
 ---
