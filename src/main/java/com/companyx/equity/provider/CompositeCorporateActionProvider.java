@@ -15,6 +15,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -34,13 +35,14 @@ public class CompositeCorporateActionProvider implements CorporateActionProvider
 
     public CompositeCorporateActionProvider(
             FinnhubCorporateActionProvider finnhubProvider,
-            @Autowired(required = false) SecondaryCorporateActionProvider secondaryProvider
+            @Autowired(required = false) Optional<FixtureCorporateActionProvider> fixtureProvider,
+            @Autowired(required = false) Optional<SecondaryCorporateActionProvider> secondaryProvider
     ) {
-        if (secondaryProvider != null) {
-            this.providers = List.of(secondaryProvider, finnhubProvider);
-        } else {
-            this.providers = List.of(finnhubProvider);
-        }
+        List<CorporateActionProvider> ordered = new ArrayList<>();
+        fixtureProvider.ifPresent(ordered::add);
+        secondaryProvider.ifPresent(ordered::add);
+        ordered.add(finnhubProvider);
+        this.providers = List.copyOf(ordered);
         log.info("CompositeCorporateActionProvider initialized with {} provider(s): {}",
                 providers.size(), getName());
     }

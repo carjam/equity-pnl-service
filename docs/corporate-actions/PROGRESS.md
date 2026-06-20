@@ -186,7 +186,7 @@ All 69 corporate action tests pass with 100% success rate.
 
 #### 8. Remaining Work
 - Wire live paid API **or** SEC EDGAR provider for Phase 2 event data (see [PROVIDER_STRATEGY.md](PROVIDER_STRATEGY.md))
-- Real-world validation cases (DIS/FOX merger, EBAY/PYPL spinoff)
+- ~~Real-world validation cases (DIS/FOX merger, EBAY/PYPL spinoff)~~ ✅ **Completed (June 20, 2026)** — `FixtureCorporateActionProvider` + e2e tests
 
 ---
 
@@ -335,7 +335,7 @@ Stock Dividend: New Quantity = Old Quantity × (1 + Dividend Rate)
 
 ### 🔧 In Progress
 - [ ] Secondary data source: paid API (Polygon/Databento) **or** SEC EDGAR integration — see [PROVIDER_STRATEGY.md](PROVIDER_STRATEGY.md)
-- [ ] Real-world validation cases (DIS/FOX, EBAY/PYPL)
+- [x] Real-world validation cases (DIS/FOX, EBAY/PYPL) — `FixtureCorporateActionData` + `RealWorldCorporateActionsPnLEndToEndTest`
 
 ---
 

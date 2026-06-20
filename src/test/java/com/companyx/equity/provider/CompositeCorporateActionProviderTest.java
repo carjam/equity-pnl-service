@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
@@ -36,7 +37,7 @@ class CompositeCorporateActionProviderTest {
                 .thenReturn(List.of());
 
         CompositeCorporateActionProvider composite =
-                new CompositeCorporateActionProvider(finnhub, secondary);
+                new CompositeCorporateActionProvider(finnhub, Optional.empty(), Optional.of(secondary));
 
         List<Merger> mergers = composite.getMergers(
                 "XYZ", LocalDate.of(2024, 1, 1), LocalDate.of(2024, 12, 31));

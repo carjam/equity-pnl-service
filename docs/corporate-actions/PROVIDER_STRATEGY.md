@@ -90,7 +90,7 @@ Leave this option open in planning; do not block current shipping on it.
 For validation and demos without subscribing to a vendor:
 
 - **Stub provider in tests** — already used in `CorporateActionsPnLEndToEndTest` (mock `CorporateActionProvider`).  
-- **Fixture provider (optional future)** — hardcoded real-world scenarios (e.g. DIS/FOX, EBAY/PYPL) behind a `dev` profile.  
+- **Fixture provider (optional future)** — hardcoded real-world scenarios (e.g. DIS/FOX, EBAY/PYPL) behind a `dev` profile. ✅ Implemented as `FixtureCorporateActionProvider` (`corporate-actions.fixture.enabled=true`).  
 - **Manual JSON/CSV seed** — load known events for a symbol/date range in local/dev only.
 
 These do not replace production data; they prove P&L math and REST APIs.
