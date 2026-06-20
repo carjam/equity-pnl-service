@@ -12,6 +12,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
@@ -43,11 +44,11 @@ public class FinhubControllerTest {
         MarkDto mark = new MarkDto();
         mark.setCurrentPrice(BigDecimal.valueOf(150.25));
         mark.setChange(BigDecimal.valueOf(2.50));
-        mark.setPercentChange(BigDecimal.valueOf(1.69));
-        mark.setHighPrice(BigDecimal.valueOf(152.00));
-        mark.setLowPrice(BigDecimal.valueOf(148.00));
-        mark.setOpenPrice(BigDecimal.valueOf(149.00));
-        mark.setPreviousClosePrice(BigDecimal.valueOf(147.75));
+        mark.setPrecentChange(1.69f);  // Note: field has typo "precent"
+        mark.setDailyHi(BigDecimal.valueOf(152.00));
+        mark.setDailyLo(BigDecimal.valueOf(148.00));
+        mark.setOpen(BigDecimal.valueOf(149.00));
+        mark.setPriorClose(BigDecimal.valueOf(147.75));
         
         when(finhubRepository.getMark("AAPL")).thenReturn(mark);
         
@@ -55,7 +56,7 @@ public class FinhubControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.currentPrice").value(150.25))
                 .andExpect(jsonPath("$.change").value(2.50))
-                .andExpect(jsonPath("$.percentChange").value(1.69));
+                .andExpect(jsonPath("$.precentChange").value(1.69));
     }
     
     @Test
@@ -76,12 +77,12 @@ public class FinhubControllerTest {
                 BigDecimal.valueOf(151.0),
                 BigDecimal.valueOf(152.0)
         ));
-        candle.setHigh(Arrays.asList(
+        candle.setHi(Arrays.asList(
                 BigDecimal.valueOf(152.0),
                 BigDecimal.valueOf(153.0),
                 BigDecimal.valueOf(154.0)
         ));
-        candle.setLow(Arrays.asList(
+        candle.setLo(Arrays.asList(
                 BigDecimal.valueOf(149.0),
                 BigDecimal.valueOf(150.0),
                 BigDecimal.valueOf(151.0)
@@ -92,11 +93,15 @@ public class FinhubControllerTest {
                 BigDecimal.valueOf(153.0)
         ));
         candle.setVolume(Arrays.asList(
-                BigDecimal.valueOf(1000000),
-                BigDecimal.valueOf(1100000),
-                BigDecimal.valueOf(1200000)
+                BigInteger.valueOf(1000000),
+                BigInteger.valueOf(1100000),
+                BigInteger.valueOf(1200000)
         ));
-        candle.setTimestamp(Arrays.asList(1704067200L, 1704153600L, 1704240000L));
+        candle.setTimestamp(Arrays.asList(
+                BigInteger.valueOf(1704067200L), 
+                BigInteger.valueOf(1704153600L), 
+                BigInteger.valueOf(1704240000L)
+        ));
         
         when(finhubRepository.getCandle(anyString(), any(Date.class), any(Date.class)))
                 .thenReturn(candle);

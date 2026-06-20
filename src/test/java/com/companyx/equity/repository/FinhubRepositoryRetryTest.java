@@ -122,18 +122,21 @@ public class FinhubRepositoryRetryTest {
 
         long startTime = System.currentTimeMillis();
         
-        try {
-            finhubRepository.getMark("AAPL");
-            fail("Should have thrown VendorConnectivityException");
-        } catch (VendorConnectivityException e) {
-            long duration = System.currentTimeMillis() - startTime;
-            
-            // With exponential backoff (100ms * 2^n):
-            // Initial attempt + 100ms wait + 200ms wait = ~300ms minimum
-            // Plus request times and some overhead
-            assertTrue(duration >= 300, 
-                    "Expected exponential backoff to take at least 300ms, took: " + duration + "ms");
-        }
+        assertThrows(VendorConnectivityException.class, () -> {
+            try {
+                finhubRepository.getMark("AAPL");
+            } catch (JsonProcessingException e) {
+                fail("Unexpected JsonProcessingException: " + e.getMessage());
+            }
+        });
+        
+        long duration = System.currentTimeMillis() - startTime;
+        
+        // With exponential backoff (100ms * 2^n):
+        // Initial attempt + 100ms wait + 200ms wait = ~300ms minimum
+        // Plus request times and some overhead
+        assertTrue(duration >= 300, 
+                "Expected exponential backoff to take at least 300ms, took: " + duration + "ms");
     }
 
     @Test

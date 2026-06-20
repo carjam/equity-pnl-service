@@ -54,14 +54,11 @@ public class TransactionController {
     @GetMapping("/transactions")
     public ResponseEntity<List<Transaction>> findBetween(
             Authentication authentication,
-            @RequestParam Optional<@DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate> from,
-            @RequestParam Optional<@DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate> to
+            @RequestParam Optional<String> from,
+            @RequestParam Optional<String> to
     ) throws ParseException {
         String uid = authentication.getName();
         log.debug("Transactions query for user: {} from {} to {}", uid, from, to);
-        // Convert LocalDate to String for service compatibility
-        Optional<String> fromStr = from.map(LocalDate::toString);
-        Optional<String> toStr = to.map(LocalDate::toString);
-        return ResponseEntity.ok(pnLService.getTransactionsByDates(uid, fromStr, toStr));
+        return ResponseEntity.ok(pnLService.getTransactionsByDates(uid, from, to));
     }
 }

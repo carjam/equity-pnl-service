@@ -7,7 +7,10 @@
       "Bash(git commit *)",
       "Bash(gh pr *)",
       "Write(*)",
-      "mcp__claude_ai_Atlassian__*"
+      "mcp__claude_ai_Atlassian__*",
+      "Bash(./mvnw *)",
+      "Bash(mvn *)",
+      "Bash(./mvnw.cmd *)"
     ],
     "ask": [
       "Bash(git push *)"
@@ -20,5 +23,28 @@
       "Edit(./.env.*)",
       "Edit(./secrets/**)"
     ]
+  },
+  "testing": {
+    "autoRunTests": false,
+    "testCommand": "./mvnw test",
+    "testOnSave": false,
+    "testBeforeCommit": true
+  },
+  "buildTool": {
+    "type": "maven",
+    "wrapper": true,
+    "commands": {
+      "clean": "./mvnw clean",
+      "compile": "./mvnw compile",
+      "test": "./mvnw test",
+      "package": "./mvnw package",
+      "install": "./mvnw install",
+      "verify": "./mvnw verify"
+    }
+  },
+  "notes": {
+    "testing": "Run tests with: ./mvnw test or ./mvnw test -Dtest=TestClassName",
+    "wrapper": "Maven wrapper (mvnw) should be used instead of system Maven",
+    "testStrategy": "Run tests after significant changes, before commits, and when debugging"
   }
 }
