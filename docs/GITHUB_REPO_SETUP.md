@@ -23,7 +23,7 @@ portfolio-project
 
 ## CI
 
-Badge in README. Expect green: **Maven Test**, **Docker Build**. **OWASP** green after [NVD cache refresh](../.github/workflows/owasp-nvd-cache.yml) completes once.
+Badge in README. Expect green: **CI** (Maven Test, Docker). **OWASP Dependency Check** is a separate workflow — first NVD sync can take 60–90+ min and is not canceled by new pushes.
 
 ## Secrets
 

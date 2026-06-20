@@ -57,20 +57,20 @@ Manual: `docker compose -f docker-compose.staging.yml up -d` (DB name **`equity`
 
 ---
 
-## CI jobs
+## CI workflows
 
-| Job | Purpose |
-|-----|---------|
-| Maven Test | Full suite on JDK 21 |
-| OWASP Dependency Check | CVE scan (CVSS ≥ 7 fails build) |
-| Docker Build | Push to GHCR on `main` |
+| Workflow | Purpose |
+|----------|---------|
+| **CI** | Maven Test + Docker → GHCR on `main` |
+| **OWASP Dependency Check** | CVE scan — separate workflow, not canceled by pushes |
+| **OWASP NVD Cache Refresh** | Optional manual/weekly cache warm |
 
 ### OWASP / NVD
 
 - **Plugin:** dependency-check **12.2.2** (requires 12.1+ for NIST API)
 - **Secret:** `NVD_API_KEY` in repo Settings → Secrets
-- **First run:** slow — NIST API often 503/524; populates `.dependency-check-data` cache
-- **Warm cache:** Actions → **OWASP NVD Cache Refresh** → Run workflow (or wait for weekly schedule)
+- **First run:** slow (60–90+ min) — runs in a **separate workflow** so new pushes do not cancel NVD download
+- **Warm cache:** Actions → **OWASP NVD Cache Refresh** or let **OWASP Dependency Check** finish once
 - **Steady state:** CI restores cache and skips NVD API (`autoUpdate=false`) — ~2–5 min
 
 ---
