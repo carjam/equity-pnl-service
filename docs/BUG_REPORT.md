@@ -238,8 +238,22 @@ The P&L calculation logic has been verified against comprehensive test scenarios
 3. ✅ P&L calculation logic verified mathematically correct
 4. ✅ All medium and low priority bugs fixed
 5. ✅ Test coverage: ~95% of codebase
+6. ✅ Test infrastructure issues resolved (June 19, 2026)
 
 **No outstanding critical or high-priority bugs.**
+
+### Latest Update: Test Infrastructure Fixes (June 19, 2026) ✅
+
+**Issue:** PnLCalculationTest had 11 test failures due to test infrastructure issues:
+- 5 failures: BigDecimal scale comparison (comparing `1000.0` vs `1000.000000`)
+- 6 errors: Missing Finhub `getCandle()` mocks causing NullPointerException
+
+**Resolution:**
+- Added `assertBigDecimalEquals()` helper using `compareTo()` for scale-agnostic comparison
+- Added `createCandleDto()` helper to generate mock candle data
+- Added `getCandle()` mocks for all tests with historical dates
+- Used lenient mocking for tests with timing variations
+- **Result:** All 11 PnL calculation tests now pass (100% success rate)
 
 ---
 

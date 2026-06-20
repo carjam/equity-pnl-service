@@ -24,22 +24,24 @@
 ## 📊 Test Results Summary
 
 ### PnLCalculationTest Status (11 scenarios)
-**Math Verification:** ✅ **100% CORRECT**
+**Math Verification:** ✅ **100% CORRECT**  
+**Test Status:** ✅ **ALL PASSING** (as of June 19, 2026)
 
-| Category | Tests | Status | Issue Type |
-|----------|-------|--------|------------|
-| Realized P&L Logic | 11 | ✅ Math Correct | Minor assertion fixes needed |
-| Long Positions | 4 | ✅ Working | BigDecimal scale comparison |
-| Short Positions | 3 | ✅ Working | BigDecimal scale comparison |
-| Position Transitions | 2 | ✅ Working | BigDecimal scale comparison |
-| Average Cost Basis | 1 | ✅ Working | Missing Finhub mock |
-| Edge Cases | 1 | ✅ Working | Missing Finhub mock |
+| Category | Tests | Status |
+|----------|-------|--------|
+| Realized P&L Logic | 11 | ✅ All Passing |
+| Long Positions | 4 | ✅ All Passing |
+| Short Positions | 3 | ✅ All Passing |
+| Position Transitions | 2 | ✅ All Passing |
+| Average Cost Basis | 1 | ✅ All Passing |
+| Edge Cases | 1 | ✅ All Passing |
 
-**Test Issues (Non-Critical):**
-- 4 tests: BigDecimal scale mismatch (`1000.0` vs `1000.000000`)
-- 7 tests: Missing `FinhubRepository.getCandle()` mocks for unrealized P&L
+**Test Infrastructure:** ✅ **RESOLVED**
+- Fixed BigDecimal scale comparison issues using `compareTo()` helper
+- Added missing `FinhubRepository.getCandle()` mocks
+- All 11 tests now pass successfully
 
-**Critical Finding:** The P&L calculation logic is mathematically sound. All failures are test infrastructure issues, not business logic bugs.
+**Critical Finding:** The P&L calculation logic is mathematically sound and all tests pass.
 
 ---
 
@@ -88,14 +90,15 @@
 
 ## 🔄 Outstanding Work
 
-### Minor Test Infrastructure (Low Priority)
-1. **Fix BigDecimal Assertions** - 30 min
-   - Use `compareTo()` or tolerance-based assertions
-   - Example: `assertEquals(new BigDecimal("1000.0"), value.setScale(1))`
+### ✅ Test Infrastructure (COMPLETE - June 19, 2026)
+1. ✅ **Fixed BigDecimal Assertions**
+   - Added `assertBigDecimalEquals()` helper using `compareTo()`
+   - All scale comparison issues resolved
 
-2. **Add Finhub Mocks** - 1 hour
-   - Mock `getCandle()` responses for 7 tests
-   - Only affects unrealized P&L scenarios
+2. ✅ **Added Finhub Mocks**
+   - Mocked `getCandle()` responses for all relevant tests
+   - Used lenient mocking for timing-sensitive tests
+   - All 11 PnL calculation tests now passing
 
 ### Optional Enhancements (Future)
 - **Phase 3: Testing & Quality**
