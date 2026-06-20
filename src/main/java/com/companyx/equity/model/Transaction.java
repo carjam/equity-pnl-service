@@ -6,6 +6,8 @@ import jakarta.validation.constraints.PositiveOrZero;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -17,17 +19,19 @@ import java.sql.Timestamp;
 @Entity
 public class Transaction {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private int id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @NotNull
     private Timestamp timestamp;
     private String symbol;
     
     @PositiveOrZero(message = "Quantity cannot be negative")
+    @JdbcTypeCode(SqlTypes.BIGINT)
     private BigInteger quantity;
     
     @PositiveOrZero(message = "Value cannot be negative")
+    @Column(precision = 15, scale = 2)
     private BigDecimal value;
 
     @NotNull

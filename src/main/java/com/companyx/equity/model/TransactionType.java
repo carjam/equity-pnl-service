@@ -20,8 +20,8 @@ public class TransactionType {
     public static final Set CASH_TRANS = Set.of(TransactionType.DEPOSIT, TransactionType.WITHDRAWAL);
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private int id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
     @NotNull
     private String description;
 }

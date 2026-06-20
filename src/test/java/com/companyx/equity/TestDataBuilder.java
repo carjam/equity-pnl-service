@@ -16,7 +16,7 @@ public class TestDataBuilder {
     
     public static User createTestUser(String uid, String password) {
         User user = new User();
-        user.setId(1);
+        user.setId(1L);
         user.setUid(uid);
         user.setPassword(password);
         user.setRole("USER");
@@ -27,11 +27,11 @@ public class TestDataBuilder {
     /** User without preset ID for JPA persist tests. */
     public static User createPersistableUser(String uid, String password) {
         User user = createTestUser(uid, password);
-        user.setId(0);
+        user.setId(null);
         return user;
     }
     
-    public static TransactionType createTransactionType(int id, String description) {
+    public static TransactionType createTransactionType(long id, String description) {
         return new TransactionType(id, description);
     }
     
@@ -42,7 +42,7 @@ public class TestDataBuilder {
             Timestamp timestamp,
             BigInteger quantity,
             BigDecimal value) {
-        return new Transaction(0, timestamp, symbol, quantity, value, user, type);
+        return new Transaction(null, timestamp, symbol, quantity, value, user, type);
     }
     
     public static Transaction createBuyTransaction(

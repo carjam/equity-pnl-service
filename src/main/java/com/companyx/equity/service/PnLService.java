@@ -327,7 +327,7 @@ public class PnLService {
         }
     }
 
-    private LocalDate getEarliestTransactionDate(int userId, String symbol) {
+    private LocalDate getEarliestTransactionDate(Long userId, String symbol) {
         return transactionRepository.findEarliestByUserAndSymbol(userId, symbol)
                 .map(this::toLocalDate)
                 .orElse(LocalDate.of(1970, 1, 1));
@@ -388,7 +388,7 @@ public class PnLService {
         if(!user.isPresent())
             throw new UserNotFoundException(uid);
 
-        Integer transactionId = Integer.parseInt(id);
+        Long transactionId = Long.parseLong(id);
         return transactionRepository.findByUidAndId(user.get().getId(), transactionId)
                 .orElseThrow(() -> new TransactionNotFoundException(uid, transactionId));
     }

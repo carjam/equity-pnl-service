@@ -32,7 +32,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
@@ -85,7 +85,7 @@ class RealWorldCorporateActionsPnLEndToEndTest {
     @DisplayName("FOX→DIS stock merger (0.4517 ratio, March 2019) transfers cost basis to DIS")
     void foxDisMergerEndToEnd() throws JsonProcessingException {
         when(userRepository.findByUid("test-user")).thenReturn(Optional.of(testUser));
-        when(transactionRepository.findAllBefore(anyInt(), any(Date.class))).thenReturn(List.of(
+        when(transactionRepository.findAllBefore(anyLong(), any(Date.class))).thenReturn(List.of(
                 TestDataBuilder.createDepositTransaction(testUser,
                         TestDataBuilder.createTransactionType(3, TransactionType.DEPOSIT),
                         LocalDateTime.of(2019, 1, 1, 10, 0), 50_000.0),
@@ -93,9 +93,9 @@ class RealWorldCorporateActionsPnLEndToEndTest {
                         TestDataBuilder.createTransactionType(1, TransactionType.BUY),
                         "FOX", LocalDateTime.of(2019, 1, 15, 10, 0), 100, 5_000.0)
         ));
-        when(transactionRepository.findAllBetween(anyInt(), any(Date.class), any(Date.class)))
+        when(transactionRepository.findAllBetween(anyLong(), any(Date.class), any(Date.class)))
                 .thenReturn(List.of());
-        when(transactionRepository.findEarliestByUserAndSymbol(1, "FOX"))
+        when(transactionRepository.findEarliestByUserAndSymbol(1L, "FOX"))
                 .thenReturn(Optional.of(java.sql.Timestamp.valueOf(LocalDateTime.of(2019, 1, 15, 10, 0))));
 
         // 100 FOX × 0.4517 = 45.17 → 45 DIS shares (rounded)
@@ -119,7 +119,7 @@ class RealWorldCorporateActionsPnLEndToEndTest {
     @DisplayName("EBAY→PYPL spinoff (1:1, July 2015) allocates basis per Form 8937 FMV")
     void ebayPyplSpinoffEndToEnd() throws JsonProcessingException {
         when(userRepository.findByUid("test-user")).thenReturn(Optional.of(testUser));
-        when(transactionRepository.findAllBefore(anyInt(), any(Date.class))).thenReturn(List.of(
+        when(transactionRepository.findAllBefore(anyLong(), any(Date.class))).thenReturn(List.of(
                 TestDataBuilder.createDepositTransaction(testUser,
                         TestDataBuilder.createTransactionType(3, TransactionType.DEPOSIT),
                         LocalDateTime.of(2015, 1, 1, 10, 0), 100_000.0),
@@ -127,9 +127,9 @@ class RealWorldCorporateActionsPnLEndToEndTest {
                         TestDataBuilder.createTransactionType(1, TransactionType.BUY),
                         "EBAY", LocalDateTime.of(2015, 1, 15, 10, 0), 100, 50_000.0)
         ));
-        when(transactionRepository.findAllBetween(anyInt(), any(Date.class), any(Date.class)))
+        when(transactionRepository.findAllBetween(anyLong(), any(Date.class), any(Date.class)))
                 .thenReturn(List.of());
-        when(transactionRepository.findEarliestByUserAndSymbol(1, "EBAY"))
+        when(transactionRepository.findEarliestByUserAndSymbol(1L, "EBAY"))
                 .thenReturn(Optional.of(java.sql.Timestamp.valueOf(LocalDateTime.of(2015, 1, 15, 10, 0))));
 
         LocalDate distributionDate = FixtureCorporateActionData.EBAY_PYPL_SPINOFF.getDate();
@@ -175,7 +175,7 @@ class RealWorldCorporateActionsPnLEndToEndTest {
     @DisplayName("FB→META symbol change (June 2022) retitles position without changing economics")
     void fbMetaSymbolChangeEndToEnd() throws JsonProcessingException {
         when(userRepository.findByUid("test-user")).thenReturn(Optional.of(testUser));
-        when(transactionRepository.findAllBefore(anyInt(), any(Date.class))).thenReturn(List.of(
+        when(transactionRepository.findAllBefore(anyLong(), any(Date.class))).thenReturn(List.of(
                 TestDataBuilder.createDepositTransaction(testUser,
                         TestDataBuilder.createTransactionType(3, TransactionType.DEPOSIT),
                         LocalDateTime.of(2022, 1, 1, 10, 0), 50_000.0),
@@ -183,9 +183,9 @@ class RealWorldCorporateActionsPnLEndToEndTest {
                         TestDataBuilder.createTransactionType(1, TransactionType.BUY),
                         "FB", LocalDateTime.of(2022, 1, 15, 10, 0), 100, 20_000.0)
         ));
-        when(transactionRepository.findAllBetween(anyInt(), any(Date.class), any(Date.class)))
+        when(transactionRepository.findAllBetween(anyLong(), any(Date.class), any(Date.class)))
                 .thenReturn(List.of());
-        when(transactionRepository.findEarliestByUserAndSymbol(1, "FB"))
+        when(transactionRepository.findEarliestByUserAndSymbol(1L, "FB"))
                 .thenReturn(Optional.of(java.sql.Timestamp.valueOf(LocalDateTime.of(2022, 1, 15, 10, 0))));
 
         Date end = java.sql.Date.valueOf("2022-12-31");
@@ -206,7 +206,7 @@ class RealWorldCorporateActionsPnLEndToEndTest {
     @DisplayName("TWTR cash merger ($54.20/share, Oct 2022) closes position with realized gain")
     void twtrCashMergerEndToEnd() throws JsonProcessingException {
         when(userRepository.findByUid("test-user")).thenReturn(Optional.of(testUser));
-        when(transactionRepository.findAllBefore(anyInt(), any(Date.class))).thenReturn(List.of(
+        when(transactionRepository.findAllBefore(anyLong(), any(Date.class))).thenReturn(List.of(
                 TestDataBuilder.createDepositTransaction(testUser,
                         TestDataBuilder.createTransactionType(3, TransactionType.DEPOSIT),
                         LocalDateTime.of(2022, 1, 1, 10, 0), 50_000.0),
@@ -214,9 +214,9 @@ class RealWorldCorporateActionsPnLEndToEndTest {
                         TestDataBuilder.createTransactionType(1, TransactionType.BUY),
                         "TWTR", LocalDateTime.of(2022, 1, 15, 10, 0), 100, 3_000.0)
         ));
-        when(transactionRepository.findAllBetween(anyInt(), any(Date.class), any(Date.class)))
+        when(transactionRepository.findAllBetween(anyLong(), any(Date.class), any(Date.class)))
                 .thenReturn(List.of());
-        when(transactionRepository.findEarliestByUserAndSymbol(1, "TWTR"))
+        when(transactionRepository.findEarliestByUserAndSymbol(1L, "TWTR"))
                 .thenReturn(Optional.of(java.sql.Timestamp.valueOf(LocalDateTime.of(2022, 1, 15, 10, 0))));
 
         Map<String, Position> result = pnLService.getPositions("test-user",

@@ -114,7 +114,7 @@ class CorporateActionsPnLEndToEndTest {
     @DisplayName("AAPL 4:1 split produces break-even unrealized at post-split market price")
     void aaplSplitEndToEnd() throws JsonProcessingException {
         when(userRepository.findByUid("test-user")).thenReturn(Optional.of(testUser));
-        when(transactionRepository.findAllBefore(anyInt(), any(Date.class))).thenReturn(List.of(
+        when(transactionRepository.findAllBefore(anyLong(), any(Date.class))).thenReturn(List.of(
                 TestDataBuilder.createDepositTransaction(testUser,
                         TestDataBuilder.createTransactionType(3, TransactionType.DEPOSIT),
                         LocalDateTime.of(2020, 1, 1, 10, 0), 50_000.0),
@@ -122,9 +122,9 @@ class CorporateActionsPnLEndToEndTest {
                         TestDataBuilder.createTransactionType(1, TransactionType.BUY),
                         "AAPL", LocalDateTime.of(2020, 1, 15, 10, 0), 100, 20_000.0)
         ));
-        when(transactionRepository.findAllBetween(anyInt(), any(Date.class), any(Date.class)))
+        when(transactionRepository.findAllBetween(anyLong(), any(Date.class), any(Date.class)))
                 .thenReturn(List.of());
-        when(transactionRepository.findEarliestByUserAndSymbol(1, "AAPL"))
+        when(transactionRepository.findEarliestByUserAndSymbol(1L, "AAPL"))
                 .thenReturn(Optional.of(java.sql.Timestamp.valueOf(LocalDateTime.of(2020, 1, 15, 10, 0))));
 
         MarkDto mark = new MarkDto();
@@ -150,7 +150,7 @@ class CorporateActionsPnLEndToEndTest {
     @DisplayName("KO quarterly dividends add to realized P&L while unrealized reflects price move")
     void koDividendEndToEnd() throws JsonProcessingException {
         when(userRepository.findByUid("test-user")).thenReturn(Optional.of(testUser));
-        when(transactionRepository.findAllBefore(anyInt(), any(Date.class))).thenReturn(List.of(
+        when(transactionRepository.findAllBefore(anyLong(), any(Date.class))).thenReturn(List.of(
                 TestDataBuilder.createDepositTransaction(testUser,
                         TestDataBuilder.createTransactionType(3, TransactionType.DEPOSIT),
                         LocalDateTime.of(2024, 1, 1, 10, 0), 10_000.0),
@@ -158,9 +158,9 @@ class CorporateActionsPnLEndToEndTest {
                         TestDataBuilder.createTransactionType(1, TransactionType.BUY),
                         "KO", LocalDateTime.of(2024, 1, 15, 10, 0), 100, 6_000.0)
         ));
-        when(transactionRepository.findAllBetween(anyInt(), any(Date.class), any(Date.class)))
+        when(transactionRepository.findAllBetween(anyLong(), any(Date.class), any(Date.class)))
                 .thenReturn(List.of());
-        when(transactionRepository.findEarliestByUserAndSymbol(1, "KO"))
+        when(transactionRepository.findEarliestByUserAndSymbol(1L, "KO"))
                 .thenReturn(Optional.of(java.sql.Timestamp.valueOf(LocalDateTime.of(2024, 1, 15, 10, 0))));
 
         CandleDto candle = new CandleDto();
@@ -186,7 +186,7 @@ class CorporateActionsPnLEndToEndTest {
     @DisplayName("Stock-for-stock merger retitles position under acquirer symbol")
     void stockMergerEndToEnd() throws JsonProcessingException {
         when(userRepository.findByUid("test-user")).thenReturn(Optional.of(testUser));
-        when(transactionRepository.findAllBefore(anyInt(), any(Date.class))).thenReturn(List.of(
+        when(transactionRepository.findAllBefore(anyLong(), any(Date.class))).thenReturn(List.of(
                 TestDataBuilder.createDepositTransaction(testUser,
                         TestDataBuilder.createTransactionType(3, TransactionType.DEPOSIT),
                         LocalDateTime.of(2024, 1, 1, 10, 0), 10_000.0),
@@ -194,9 +194,9 @@ class CorporateActionsPnLEndToEndTest {
                         TestDataBuilder.createTransactionType(1, TransactionType.BUY),
                         "XYZ", LocalDateTime.of(2024, 1, 15, 10, 0), 100, 5_000.0)
         ));
-        when(transactionRepository.findAllBetween(anyInt(), any(Date.class), any(Date.class)))
+        when(transactionRepository.findAllBetween(anyLong(), any(Date.class), any(Date.class)))
                 .thenReturn(List.of());
-        when(transactionRepository.findEarliestByUserAndSymbol(1, "XYZ"))
+        when(transactionRepository.findEarliestByUserAndSymbol(1L, "XYZ"))
                 .thenReturn(Optional.of(java.sql.Timestamp.valueOf(LocalDateTime.of(2024, 1, 15, 10, 0))));
 
         MarkDto mark = new MarkDto();

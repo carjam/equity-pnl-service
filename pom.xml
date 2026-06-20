@@ -303,7 +303,8 @@
                 <configuration>
                     <failBuildOnCVSS>7</failBuildOnCVSS>
                     <skipTestScope>true</skipTestScope>
-                    <nvdApiDelay>6500</nvdApiDelay>
+                    <nvdApiDelay>8000</nvdApiDelay>
+                    <nvdMaxRetryCount>20</nvdMaxRetryCount>
                     <nvdApiKeyEnvironmentVariable>NVD_API_KEY</nvdApiKeyEnvironmentVariable>
                     <nvdValidForHours>168</nvdValidForHours>
                     <dataDirectory>${project.basedir}/.dependency-check-data</dataDirectory>

@@ -25,7 +25,7 @@ class SplitAdjustmentServiceTest {
     void setUp() {
         service = new SplitAdjustmentService();
         testUser = new User();
-        testUser.setId(1);
+        testUser.setId(1L);
     }
 
     @Test

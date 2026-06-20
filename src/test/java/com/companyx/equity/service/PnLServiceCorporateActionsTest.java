@@ -69,10 +69,10 @@ class PnLServiceCorporateActionsTest {
                         TestDataBuilder.createTransactionType(1, com.companyx.equity.model.TransactionType.BUY),
                         "AAPL", LocalDateTime.of(2020, 1, 15, 10, 0), 100, 20000.0)
         );
-        when(transactionRepository.findAllBefore(anyInt(), any(Date.class))).thenReturn(prior);
-        when(transactionRepository.findAllBetween(anyInt(), any(Date.class), any(Date.class)))
+        when(transactionRepository.findAllBefore(anyLong(), any(Date.class))).thenReturn(prior);
+        when(transactionRepository.findAllBetween(anyLong(), any(Date.class), any(Date.class)))
                 .thenReturn(Collections.emptyList());
-        when(transactionRepository.findEarliestByUserAndSymbol(1, "AAPL"))
+        when(transactionRepository.findEarliestByUserAndSymbol(1L, "AAPL"))
                 .thenReturn(Optional.of(java.sql.Timestamp.valueOf(LocalDateTime.of(2020, 1, 15, 10, 0))));
 
         Position rawPosition = new Position();
@@ -121,7 +121,7 @@ class PnLServiceCorporateActionsTest {
     void shouldAddDividendIncomeToRealizedPnL() throws JsonProcessingException {
         when(userRepository.findByUid("test-user")).thenReturn(Optional.of(testUser));
 
-        when(transactionRepository.findAllBefore(anyInt(), any(Date.class))).thenReturn(List.of(
+        when(transactionRepository.findAllBefore(anyLong(), any(Date.class))).thenReturn(List.of(
                 TestDataBuilder.createDepositTransaction(testUser,
                         TestDataBuilder.createTransactionType(3, com.companyx.equity.model.TransactionType.DEPOSIT),
                         LocalDateTime.of(2024, 1, 1, 10, 0), 10000.0),
@@ -129,9 +129,9 @@ class PnLServiceCorporateActionsTest {
                         TestDataBuilder.createTransactionType(1, com.companyx.equity.model.TransactionType.BUY),
                         "KO", LocalDateTime.of(2024, 1, 15, 10, 0), 100, 6000.0)
         ));
-        when(transactionRepository.findAllBetween(anyInt(), any(Date.class), any(Date.class)))
+        when(transactionRepository.findAllBetween(anyLong(), any(Date.class), any(Date.class)))
                 .thenReturn(Collections.emptyList());
-        when(transactionRepository.findEarliestByUserAndSymbol(1, "KO"))
+        when(transactionRepository.findEarliestByUserAndSymbol(1L, "KO"))
                 .thenReturn(Optional.of(java.sql.Timestamp.valueOf(LocalDateTime.of(2024, 1, 15, 10, 0))));
 
         when(corporateActionService.applyPositionAdjustments(any(), eq("KO"), any(), any()))
@@ -163,12 +163,12 @@ class PnLServiceCorporateActionsTest {
     @Test
     void shouldSkipCorporateActionsForCashPosition() throws JsonProcessingException {
         when(userRepository.findByUid("test-user")).thenReturn(Optional.of(testUser));
-        when(transactionRepository.findAllBefore(anyInt(), any(Date.class))).thenReturn(List.of(
+        when(transactionRepository.findAllBefore(anyLong(), any(Date.class))).thenReturn(List.of(
                 TestDataBuilder.createDepositTransaction(testUser,
                         TestDataBuilder.createTransactionType(3, com.companyx.equity.model.TransactionType.DEPOSIT),
                         LocalDateTime.of(2024, 1, 1, 10, 0), 10000.0)
         ));
-        when(transactionRepository.findAllBetween(anyInt(), any(Date.class), any(Date.class)))
+        when(transactionRepository.findAllBetween(anyLong(), any(Date.class), any(Date.class)))
                 .thenReturn(Collections.emptyList());
 
         Date start = java.sql.Date.valueOf("2024-01-01");

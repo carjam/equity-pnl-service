@@ -26,7 +26,7 @@ class DividendServiceTest {
     void setUp() {
         service = new DividendService();
         testUser = new User();
-        testUser.setId(1);
+        testUser.setId(1L);
     }
 
     @Test

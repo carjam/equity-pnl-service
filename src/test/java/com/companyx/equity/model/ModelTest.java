@@ -67,11 +67,11 @@ public class ModelTest {
     @Test
     public void testUserProperties() {
         User user = new User();
-        user.setId(123);
+        user.setId(123L);
         user.setUid("test-uid");
         user.setPassword("hashed-password");
         
-        assertEquals(123, user.getId());
+        assertEquals(123L, user.getId());
         assertEquals("test-uid", user.getUid());
         assertEquals("hashed-password", user.getPassword());
     }

@@ -112,7 +112,7 @@ public class PnLCalculationTest {
                 TestDataBuilder.createDepositTransaction(testUser, depositType, 
                     LocalDateTime.of(2024, 1, 1, 10, 0), 10000.0)
             );
-            when(transactionRepository.findAllBefore(anyInt(), any(Date.class)))
+            when(transactionRepository.findAllBefore(anyLong(), any(Date.class)))
                 .thenReturn(priorTrans);
             
             // Execute: Buy 100 @ $50, Sell 100 @ $60
@@ -122,7 +122,7 @@ public class PnLCalculationTest {
                 TestDataBuilder.createSellTransaction(testUser, sellType, "AAPL",
                     LocalDateTime.of(2024, 1, 20, 10, 0), 100, 6000.0)
             );
-            when(transactionRepository.findAllBetween(anyInt(), any(Date.class), any(Date.class)))
+            when(transactionRepository.findAllBetween(anyLong(), any(Date.class), any(Date.class)))
                 .thenReturn(transactions);
             
             Date start = java.sql.Date.valueOf("2024-01-10");
@@ -161,7 +161,7 @@ public class PnLCalculationTest {
                 TestDataBuilder.createDepositTransaction(testUser, depositType, 
                     LocalDateTime.of(2024, 1, 1, 10, 0), 10000.0)
             );
-            when(transactionRepository.findAllBefore(anyInt(), any(Date.class)))
+            when(transactionRepository.findAllBefore(anyLong(), any(Date.class)))
                 .thenReturn(priorTrans);
             
             // Buy 100 @ $50, Sell 100 @ $40 (loss)
@@ -171,7 +171,7 @@ public class PnLCalculationTest {
                 TestDataBuilder.createSellTransaction(testUser, sellType, "AAPL",
                     LocalDateTime.of(2024, 1, 20, 10, 0), 100, 4000.0)
             );
-            when(transactionRepository.findAllBetween(anyInt(), any(Date.class), any(Date.class)))
+            when(transactionRepository.findAllBetween(anyLong(), any(Date.class), any(Date.class)))
                 .thenReturn(transactions);
             
             Date start = java.sql.Date.valueOf("2024-01-10");
@@ -201,7 +201,7 @@ public class PnLCalculationTest {
                 TestDataBuilder.createDepositTransaction(testUser, depositType, 
                     LocalDateTime.of(2024, 1, 1, 10, 0), 10000.0)
             );
-            when(transactionRepository.findAllBefore(anyInt(), any(Date.class)))
+            when(transactionRepository.findAllBefore(anyLong(), any(Date.class)))
                 .thenReturn(priorTrans);
             
             // Buy 100 @ $50, hold
@@ -209,7 +209,7 @@ public class PnLCalculationTest {
                 TestDataBuilder.createBuyTransaction(testUser, buyType, "AAPL",
                     LocalDateTime.of(2024, 1, 15, 10, 0), 100, 5000.0)
             );
-            when(transactionRepository.findAllBetween(anyInt(), any(Date.class), any(Date.class)))
+            when(transactionRepository.findAllBetween(anyLong(), any(Date.class), any(Date.class)))
                 .thenReturn(transactions);
             
             // Mock Finhub current price and historical candle
@@ -246,7 +246,7 @@ public class PnLCalculationTest {
                 TestDataBuilder.createDepositTransaction(testUser, depositType, 
                     LocalDateTime.of(2024, 1, 1, 10, 0), 10000.0)
             );
-            when(transactionRepository.findAllBefore(anyInt(), any(Date.class)))
+            when(transactionRepository.findAllBefore(anyLong(), any(Date.class)))
                 .thenReturn(priorTrans);
             
             // Buy 100 @ $50, Sell 50 @ $60
@@ -256,7 +256,7 @@ public class PnLCalculationTest {
                 TestDataBuilder.createSellTransaction(testUser, sellType, "AAPL",
                     LocalDateTime.of(2024, 1, 20, 10, 0), 50, 3000.0)
             );
-            when(transactionRepository.findAllBetween(anyInt(), any(Date.class), any(Date.class)))
+            when(transactionRepository.findAllBetween(anyLong(), any(Date.class), any(Date.class)))
                 .thenReturn(transactions);
             
             // Mock Finhub current price and historical candle
@@ -300,7 +300,7 @@ public class PnLCalculationTest {
                 TestDataBuilder.createDepositTransaction(testUser, depositType, 
                     LocalDateTime.of(2024, 1, 1, 10, 0), 10000.0)
             );
-            when(transactionRepository.findAllBefore(anyInt(), any(Date.class)))
+            when(transactionRepository.findAllBefore(anyLong(), any(Date.class)))
                 .thenReturn(priorTrans);
             
             // Short 100 @ $50 (sell), Cover @ $40 (buy)
@@ -310,7 +310,7 @@ public class PnLCalculationTest {
                 TestDataBuilder.createBuyTransaction(testUser, buyType, "AAPL",
                     LocalDateTime.of(2024, 1, 20, 10, 0), 100, 4000.0)
             );
-            when(transactionRepository.findAllBetween(anyInt(), any(Date.class), any(Date.class)))
+            when(transactionRepository.findAllBetween(anyLong(), any(Date.class), any(Date.class)))
                 .thenReturn(transactions);
             
             Date start = java.sql.Date.valueOf("2024-01-10");
@@ -340,7 +340,7 @@ public class PnLCalculationTest {
                 TestDataBuilder.createDepositTransaction(testUser, depositType, 
                     LocalDateTime.of(2024, 1, 1, 10, 0), 10000.0)
             );
-            when(transactionRepository.findAllBefore(anyInt(), any(Date.class)))
+            when(transactionRepository.findAllBefore(anyLong(), any(Date.class)))
                 .thenReturn(priorTrans);
             
             // Short 100 @ $50, Cover @ $60 (loss)
@@ -350,7 +350,7 @@ public class PnLCalculationTest {
                 TestDataBuilder.createBuyTransaction(testUser, buyType, "AAPL",
                     LocalDateTime.of(2024, 1, 20, 10, 0), 100, 6000.0)
             );
-            when(transactionRepository.findAllBetween(anyInt(), any(Date.class), any(Date.class)))
+            when(transactionRepository.findAllBetween(anyLong(), any(Date.class), any(Date.class)))
                 .thenReturn(transactions);
             
             Date start = java.sql.Date.valueOf("2024-01-10");
@@ -380,7 +380,7 @@ public class PnLCalculationTest {
                 TestDataBuilder.createDepositTransaction(testUser, depositType, 
                     LocalDateTime.of(2024, 1, 1, 10, 0), 10000.0)
             );
-            when(transactionRepository.findAllBefore(anyInt(), any(Date.class)))
+            when(transactionRepository.findAllBefore(anyLong(), any(Date.class)))
                 .thenReturn(priorTrans);
             
             // Short 100 @ $50, hold
@@ -388,7 +388,7 @@ public class PnLCalculationTest {
                 TestDataBuilder.createSellTransaction(testUser, sellType, "AAPL",
                     LocalDateTime.of(2024, 1, 15, 10, 0), 100, 5000.0)
             );
-            when(transactionRepository.findAllBetween(anyInt(), any(Date.class), any(Date.class)))
+            when(transactionRepository.findAllBetween(anyLong(), any(Date.class), any(Date.class)))
                 .thenReturn(transactions);
             
             // Mock Finhub current price and historical candle
@@ -432,7 +432,7 @@ public class PnLCalculationTest {
                 TestDataBuilder.createDepositTransaction(testUser, depositType, 
                     LocalDateTime.of(2024, 1, 1, 10, 0), 20000.0)
             );
-            when(transactionRepository.findAllBefore(anyInt(), any(Date.class)))
+            when(transactionRepository.findAllBefore(anyLong(), any(Date.class)))
                 .thenReturn(priorTrans);
             
             // Buy 100 @ $50 (long 100)
@@ -443,7 +443,7 @@ public class PnLCalculationTest {
                 TestDataBuilder.createSellTransaction(testUser, sellType, "AAPL",
                     LocalDateTime.of(2024, 1, 20, 10, 0), 150, 9000.0)
             );
-            when(transactionRepository.findAllBetween(anyInt(), any(Date.class), any(Date.class)))
+            when(transactionRepository.findAllBetween(anyLong(), any(Date.class), any(Date.class)))
                 .thenReturn(transactions);
             
             // Mock Finhub current price and historical candle
@@ -481,7 +481,7 @@ public class PnLCalculationTest {
                 TestDataBuilder.createDepositTransaction(testUser, depositType, 
                     LocalDateTime.of(2024, 1, 1, 10, 0), 20000.0)
             );
-            when(transactionRepository.findAllBefore(anyInt(), any(Date.class)))
+            when(transactionRepository.findAllBefore(anyLong(), any(Date.class)))
                 .thenReturn(priorTrans);
             
             // Short 100 @ $50 (short 100)
@@ -492,7 +492,7 @@ public class PnLCalculationTest {
                 TestDataBuilder.createBuyTransaction(testUser, buyType, "AAPL",
                     LocalDateTime.of(2024, 1, 20, 10, 0), 150, 6000.0)
             );
-            when(transactionRepository.findAllBetween(anyInt(), any(Date.class), any(Date.class)))
+            when(transactionRepository.findAllBetween(anyLong(), any(Date.class), any(Date.class)))
                 .thenReturn(transactions);
             
             // Mock Finhub current price and historical candle
@@ -537,7 +537,7 @@ public class PnLCalculationTest {
                 TestDataBuilder.createDepositTransaction(testUser, depositType, 
                     LocalDateTime.of(2024, 1, 1, 10, 0), 20000.0)
             );
-            when(transactionRepository.findAllBefore(anyInt(), any(Date.class)))
+            when(transactionRepository.findAllBefore(anyLong(), any(Date.class)))
                 .thenReturn(priorTrans);
             
             // Buy 100 @ $50 ($5,000)
@@ -552,7 +552,7 @@ public class PnLCalculationTest {
                 TestDataBuilder.createSellTransaction(testUser, sellType, "AAPL",
                     LocalDateTime.of(2024, 1, 20, 10, 0), 150, 9750.0)
             );
-            when(transactionRepository.findAllBetween(anyInt(), any(Date.class), any(Date.class)))
+            when(transactionRepository.findAllBetween(anyLong(), any(Date.class), any(Date.class)))
                 .thenReturn(transactions);
             
             // Mock Finhub current price and historical candle
@@ -596,7 +596,7 @@ public class PnLCalculationTest {
                 TestDataBuilder.createDepositTransaction(testUser, depositType, 
                     LocalDateTime.of(2024, 1, 1, 10, 0), 50000.0)
             );
-            when(transactionRepository.findAllBefore(anyInt(), any(Date.class)))
+            when(transactionRepository.findAllBefore(anyLong(), any(Date.class)))
                 .thenReturn(priorTrans);
             
             // Multiple round trips
@@ -612,7 +612,7 @@ public class PnLCalculationTest {
                 TestDataBuilder.createSellTransaction(testUser, sellType, "AAPL",
                     LocalDateTime.of(2024, 1, 13, 10, 0), 100, 6500.0)
             );
-            when(transactionRepository.findAllBetween(anyInt(), any(Date.class), any(Date.class)))
+            when(transactionRepository.findAllBetween(anyLong(), any(Date.class), any(Date.class)))
                 .thenReturn(transactions);
             
             Date start = java.sql.Date.valueOf("2024-01-09");

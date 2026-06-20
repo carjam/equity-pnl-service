@@ -44,11 +44,9 @@ class TransactionRepositoryTest {
         testUser = TestDataBuilder.createPersistableUser("txn-user-" + UUID.randomUUID(), "password");
         testUser = entityManager.persistAndFlush(testUser);
         
-        buyType = TestDataBuilder.createTransactionType(0, TransactionType.BUY);
-        buyType = entityManager.persistAndFlush(buyType);
+        buyType = entityManager.persistAndFlush(new TransactionType(null, TransactionType.BUY));
         
-        sellType = TestDataBuilder.createTransactionType(0, TransactionType.SALE);
-        sellType = entityManager.persistAndFlush(sellType);
+        sellType = entityManager.persistAndFlush(new TransactionType(null, TransactionType.SALE));
     }
     
     @Test
@@ -71,7 +69,7 @@ class TransactionRepositoryTest {
     @Test
     public void testFindByUidAndId_NotFound() {
         Optional<Transaction> found = transactionRepository.findByUidAndId(
-                testUser.getId(), 99999);
+                testUser.getId(), 99999L);
         
         assertFalse(found.isPresent());
     }

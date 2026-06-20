@@ -1,6 +1,5 @@
 package com.companyx.equity.model;
 
-import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,12 +10,14 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.Timestamp;
 
+/**
+ * In-memory P&L position (computed from transactions, not persisted).
+ */
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
-@Entity
-public class Position {
+public class Position implements Serializable {
     public Position(User user, Timestamp timestamp, String symbol) {
         this.user = user;
         this.timestamp = timestamp;
@@ -39,10 +40,7 @@ public class Position {
         this.price = other.price;
     }
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
-
     private Timestamp timestamp;
     private String symbol;
     private BigInteger quantity;
@@ -50,8 +48,6 @@ public class Position {
     private BigDecimal realized;
     private BigDecimal unrealized;
     private BigDecimal price;
-
-    @ManyToOne(fetch = FetchType.EAGER)
     private User user;
 
     @Override

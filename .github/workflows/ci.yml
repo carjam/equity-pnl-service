@@ -42,6 +42,7 @@ jobs:
   dependency-check:
     name: OWASP Dependency Check
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     permissions:
       contents: read
       actions: write
@@ -64,16 +65,25 @@ jobs:
           chmod +x mvnw
           ./mvnw -version
 
-      - name: Cache OWASP NVD data
-        id: owasp-cache
+      - name: Restore OWASP NVD cache
         uses: actions/cache@v4
         with:
-          path: |
-            .dependency-check-data
-            ~/.m2/repository/org/owasp
-          key: owasp-nvd-${{ runner.os }}-${{ hashFiles('pom.xml') }}
+          path: .dependency-check-data
+          key: owasp-nvd-${{ runner.os }}-v1
           restore-keys: |
             owasp-nvd-${{ runner.os }}-
+
+      - name: Prepare NVD cache
+        id: nvd-cache
+        run: |
+          if [ -f .dependency-check-data/odc.mv.db ]; then
+            echo "has_db=true" >> $GITHUB_OUTPUT
+            echo "Using restored NVD H2 cache ($(du -sh .dependency-check-data | cut -f1))"
+          else
+            echo "has_db=false" >> $GITHUB_OUTPUT
+            echo "No valid NVD cache — removing empty/partial data before sync"
+            rm -rf .dependency-check-data
+          fi
 
       - name: Run OWASP Dependency-Check
         env:
@@ -83,19 +93,40 @@ jobs:
           if [ -z "$NVD_API_KEY" ]; then
             echo "::notice::NVD_API_KEY secret not set — add it in repo Settings → Secrets for faster, more reliable NVD sync (https://nvd.nist.gov/developers/request-an-api-key)"
           fi
-          EXTRA_ARGS=""
-          if [ "${{ steps.owasp-cache.outputs.cache-hit }}" = "true" ]; then
-            echo "NVD cache hit — skipping feed update (uses cached .dependency-check-data)"
-            EXTRA_ARGS="-Ddependency-check.autoUpdate=false"
+
+          run_check() {
+            ./mvnw dependency-check:check -B "$@"
+          }
+
+          # Fast path: cached H2 DB — no NVD API calls (avoids 524/timeouts)
+          if [ "${{ steps.nvd-cache.outputs.has_db }}" = "true" ]; then
+            run_check -Ddependency-check.autoUpdate=false
+            exit $?
           fi
+
+          # Cold cache: sync NVD, then analyze offline
           for attempt in 1 2 3; do
-            echo "Dependency-Check attempt $attempt..."
-            if ./mvnw dependency-check:check -B $EXTRA_ARGS; then
-              exit 0
+            echo "NVD update-only attempt $attempt/3..."
+            if ./mvnw dependency-check:update-only -B; then
+              if [ -f .dependency-check-data/odc.mv.db ]; then
+                run_check -Ddependency-check.autoUpdate=false
+                exit $?
+              fi
             fi
-            sleep 30
+            echo "NVD sync failed or incomplete (NIST often returns 503/524); retrying in $((attempt * 60))s..."
+            sleep $((attempt * 60))
           done
+
+          echo "::error::No NVD cache available. Trigger Actions → OWASP NVD Cache Refresh (workflow_dispatch) when NIST is healthy, then re-run this job."
           exit 1
+
+      - name: Purge invalid NVD cache
+        if: always()
+        run: |
+          if [ -d .dependency-check-data ] && [ ! -f .dependency-check-data/odc.mv.db ]; then
+            rm -rf .dependency-check-data
+            echo "Removed invalid/partial NVD cache so the next run does not restore empty data"
+          fi
 
       - name: Upload dependency-check report
         if: always()

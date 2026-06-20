@@ -60,10 +60,10 @@ class IntegrationTest {
         userRepository.save(user);
         
         // Create transaction types
-        transactionTypeRepository.save(new TransactionType(0, TransactionType.BUY));
-        transactionTypeRepository.save(new TransactionType(0, TransactionType.SALE));
-        transactionTypeRepository.save(new TransactionType(0, TransactionType.DEPOSIT));
-        transactionTypeRepository.save(new TransactionType(0, TransactionType.WITHDRAWAL));
+        transactionTypeRepository.save(new TransactionType(null, TransactionType.BUY));
+        transactionTypeRepository.save(new TransactionType(null, TransactionType.SALE));
+        transactionTypeRepository.save(new TransactionType(null, TransactionType.DEPOSIT));
+        transactionTypeRepository.save(new TransactionType(null, TransactionType.WITHDRAWAL));
     }
     
     @Test

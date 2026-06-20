@@ -146,7 +146,7 @@ class TransactionControllerTest {
     @Test
     void testShowTransaction_NotFound() throws Exception {
         when(pnLService.getTransactionById("test-user", "999"))
-                .thenThrow(new TransactionNotFoundException("test-user", 999));
+                .thenThrow(new TransactionNotFoundException("test-user", 999L));
 
         mockMvc.perform(get("/api/v1/transactions/999"))
                 .andExpect(status().isNotFound());

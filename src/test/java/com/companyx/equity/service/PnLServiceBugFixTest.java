@@ -113,7 +113,7 @@ public class PnLServiceBugFixTest {
     @DisplayName("Bug #8: TransactionNotFoundException when transaction not found")
     public void testGetTransactionByIdTransactionNotFound() {
         when(userRepository.findByUid("test-user")).thenReturn(Optional.of(testUser));
-        when(transactionRepository.findByUidAndId(anyInt(), anyInt()))
+        when(transactionRepository.findByUidAndId(anyLong(), anyLong()))
                 .thenReturn(Optional.empty());
         
         TransactionNotFoundException exception = assertThrows(TransactionNotFoundException.class, () -> {
@@ -211,7 +211,7 @@ public class PnLServiceBugFixTest {
     @DisplayName("Bug #7: Validates negative transaction quantity")
     public void testNegativeTransactionQuantity() throws JsonProcessingException {
         when(userRepository.findByUid("test-user")).thenReturn(Optional.of(testUser));
-        when(transactionRepository.findAllBefore(anyInt(), any(Date.class)))
+        when(transactionRepository.findAllBefore(anyLong(), any(Date.class)))
                 .thenReturn(Collections.emptyList());
         
         // Create transaction with negative quantity
@@ -221,7 +221,7 @@ public class PnLServiceBugFixTest {
                 BigInteger.valueOf(-100), BigDecimal.valueOf(5000.0)
         );
         
-        when(transactionRepository.findAllBetween(anyInt(), any(Date.class), any(Date.class)))
+        when(transactionRepository.findAllBetween(anyLong(), any(Date.class), any(Date.class)))
                 .thenReturn(Arrays.asList(negativeTransaction));
         
         Date start = java.sql.Date.valueOf("2024-01-10");
@@ -238,7 +238,7 @@ public class PnLServiceBugFixTest {
     @DisplayName("Bug #7: Validates negative transaction value")
     public void testNegativeTransactionValue() throws JsonProcessingException {
         when(userRepository.findByUid("test-user")).thenReturn(Optional.of(testUser));
-        when(transactionRepository.findAllBefore(anyInt(), any(Date.class)))
+        when(transactionRepository.findAllBefore(anyLong(), any(Date.class)))
                 .thenReturn(Collections.emptyList());
         
         // Create transaction with negative value
@@ -248,7 +248,7 @@ public class PnLServiceBugFixTest {
                 BigInteger.valueOf(100), BigDecimal.valueOf(-5000.0)
         );
         
-        when(transactionRepository.findAllBetween(anyInt(), any(Date.class), any(Date.class)))
+        when(transactionRepository.findAllBetween(anyLong(), any(Date.class), any(Date.class)))
                 .thenReturn(Arrays.asList(negativeTransaction));
         
         Date start = java.sql.Date.valueOf("2024-01-10");
@@ -274,14 +274,14 @@ public class PnLServiceBugFixTest {
                 Optional.of("2024-01-01"), Optional.of("2024-01-31"));
         
         assertNotNull(result);
-        verify(transactionRepository, times(1)).findAllBetween(anyInt(), any(Date.class), any(Date.class));
+        verify(transactionRepository, times(1)).findAllBetween(anyLong(), any(Date.class), any(Date.class));
     }
     
     @Test
     @DisplayName("Bug #11: Concurrent date parsing doesn't cause issues")
     public void testConcurrentDateParsing() throws InterruptedException {
         when(userRepository.findByUid("test-user")).thenReturn(Optional.of(testUser));
-        when(transactionRepository.findAllBetween(anyInt(), any(Date.class), any(Date.class)))
+        when(transactionRepository.findAllBetween(anyLong(), any(Date.class), any(Date.class)))
                 .thenReturn(Collections.emptyList());
         
         // Test thread safety by running multiple concurrent requests
@@ -319,14 +319,14 @@ public class PnLServiceBugFixTest {
                 TestDataBuilder.createDepositTransaction(testUser, depositType, 
                         LocalDateTime.of(2024, 1, 1, 10, 0), 10000.0)
         );
-        when(transactionRepository.findAllBefore(anyInt(), any(Date.class)))
+        when(transactionRepository.findAllBefore(anyLong(), any(Date.class)))
                 .thenReturn(priorTransactions);
         
         List<Transaction> transactions = Arrays.asList(
                 TestDataBuilder.createBuyTransaction(testUser, buyType, "AAPL",
                         LocalDateTime.of(2024, 1, 15, 10, 0), 100, 5000.0)
         );
-        when(transactionRepository.findAllBetween(anyInt(), any(Date.class), any(Date.class)))
+        when(transactionRepository.findAllBetween(anyLong(), any(Date.class), any(Date.class)))
                 .thenReturn(transactions);
         
         MarkDto mark = new MarkDto();
@@ -363,9 +363,9 @@ public class PnLServiceBugFixTest {
     @DisplayName("Bug #1 & #2: Valid date range processing")
     public void testValidDateRangeProcessing() throws JsonProcessingException {
         when(userRepository.findByUid("test-user")).thenReturn(Optional.of(testUser));
-        when(transactionRepository.findAllBefore(anyInt(), any(Date.class)))
+        when(transactionRepository.findAllBefore(anyLong(), any(Date.class)))
                 .thenReturn(Collections.emptyList());
-        when(transactionRepository.findAllBetween(anyInt(), any(Date.class), any(Date.class)))
+        when(transactionRepository.findAllBetween(anyLong(), any(Date.class), any(Date.class)))
                 .thenReturn(Collections.emptyList());
         
         // LocalDate would be converted to Date in the controller
@@ -375,15 +375,15 @@ public class PnLServiceBugFixTest {
         Map<String, Position> result = pnLService.getPositions("test-user", start, end);
         
         assertNotNull(result);
-        verify(transactionRepository, times(1)).findAllBefore(anyInt(), any(Date.class));
-        verify(transactionRepository, times(1)).findAllBetween(anyInt(), any(Date.class), any(Date.class));
+        verify(transactionRepository, times(1)).findAllBefore(anyLong(), any(Date.class));
+        verify(transactionRepository, times(1)).findAllBetween(anyLong(), any(Date.class), any(Date.class));
     }
     
     @Test
     @DisplayName("Bug #2: String date format for transactions endpoint")
     public void testStringDateFormatForTransactions() throws ParseException {
         when(userRepository.findByUid("test-user")).thenReturn(Optional.of(testUser));
-        when(transactionRepository.findAllBetween(anyInt(), any(Date.class), any(Date.class)))
+        when(transactionRepository.findAllBetween(anyLong(), any(Date.class), any(Date.class)))
                 .thenReturn(Collections.emptyList());
         
         // Controller converts LocalDate to String "yyyy-MM-dd"
@@ -391,6 +391,6 @@ public class PnLServiceBugFixTest {
                 Optional.of("2024-01-01"), Optional.of("2024-01-31"));
         
         assertNotNull(result);
-        verify(transactionRepository, times(1)).findAllBetween(anyInt(), any(Date.class), any(Date.class));
+        verify(transactionRepository, times(1)).findAllBetween(anyLong(), any(Date.class), any(Date.class));
     }
 }

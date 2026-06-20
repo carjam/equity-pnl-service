@@ -15,7 +15,7 @@
 | [RUNNING_TESTS.md](RUNNING_TESTS.md) | Run 257 tests + CI notes |
 | [TEST_COVERAGE_REPORT.md](TEST_COVERAGE_REPORT.md) | Coverage snapshot |
 | [TIMEZONE_CONFIGURATION.md](TIMEZONE_CONFIGURATION.md) | Optional — timezone setup |
-| [NOTICE.md](NOTICE.md) | Portfolio / licensing |
+| [GITHUB_REPO_SETUP.md](GITHUB_REPO_SETUP.md) | GitHub About, topics, secrets |
 | [corporate-actions/](corporate-actions/) | Phase 0 corporate actions |
 | [../spec/CHECKLIST.md](../spec/CHECKLIST.md) | Production readiness matrix |
 

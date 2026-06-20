@@ -156,7 +156,7 @@ public class RestExceptionHandlerTest {
     
     @Test
     public void testHandleTransactionNotFoundException() {
-        TransactionNotFoundException ex = new TransactionNotFoundException("test-user", 123);
+        TransactionNotFoundException ex = new TransactionNotFoundException("test-user", 123L);
         
         ResponseEntity<ErrorResponse> response = exceptionHandler.handleTransactionNotFound(ex, request);
         

@@ -81,14 +81,14 @@ public class PnLServiceTest {
     @Test
     public void testDepositIncreasesCache() throws JsonProcessingException {
         when(userRepository.findByUid("test-user")).thenReturn(Optional.of(testUser));
-        when(transactionRepository.findAllBefore(anyInt(), any(Date.class)))
+        when(transactionRepository.findAllBefore(anyLong(), any(Date.class)))
                 .thenReturn(Collections.emptyList());
         
         List<Transaction> transactions = Arrays.asList(
                 TestDataBuilder.createDepositTransaction(testUser, depositType, 
                         LocalDateTime.of(2024, 1, 15, 10, 0), 10000.0)
         );
-        when(transactionRepository.findAllBetween(anyInt(), any(Date.class), any(Date.class)))
+        when(transactionRepository.findAllBetween(anyLong(), any(Date.class), any(Date.class)))
                 .thenReturn(transactions);
         
         Date start = java.sql.Date.valueOf("2024-01-01");
@@ -109,14 +109,14 @@ public class PnLServiceTest {
                 TestDataBuilder.createDepositTransaction(testUser, depositType, 
                         LocalDateTime.of(2024, 1, 5, 10, 0), 10000.0)
         );
-        when(transactionRepository.findAllBefore(anyInt(), any(Date.class)))
+        when(transactionRepository.findAllBefore(anyLong(), any(Date.class)))
                 .thenReturn(priorTransactions);
         
         List<Transaction> transactions = Arrays.asList(
                 TestDataBuilder.createWithdrawalTransaction(testUser, withdrawalType, 
                         LocalDateTime.of(2024, 1, 15, 10, 0), 3000.0)
         );
-        when(transactionRepository.findAllBetween(anyInt(), any(Date.class), any(Date.class)))
+        when(transactionRepository.findAllBetween(anyLong(), any(Date.class), any(Date.class)))
                 .thenReturn(transactions);
         
         Date start = java.sql.Date.valueOf("2024-01-10");
@@ -140,7 +140,7 @@ public class PnLServiceTest {
                 TestDataBuilder.createDepositTransaction(testUser, depositType, 
                         LocalDateTime.of(2024, 1, 1, 10, 0), 10000.0)
         );
-        when(transactionRepository.findAllBefore(anyInt(), any(Date.class)))
+        when(transactionRepository.findAllBefore(anyLong(), any(Date.class)))
                 .thenReturn(priorTransactions);
         
         // Period: Buy 100 shares @ $50 = $5,000
@@ -148,7 +148,7 @@ public class PnLServiceTest {
                 TestDataBuilder.createBuyTransaction(testUser, buyType, "AAPL",
                         LocalDateTime.of(2024, 1, 15, 10, 0), 100, 5000.0)
         );
-        when(transactionRepository.findAllBetween(anyInt(), any(Date.class), any(Date.class)))
+        when(transactionRepository.findAllBetween(anyLong(), any(Date.class), any(Date.class)))
                 .thenReturn(transactions);
         
         // Mock current price: $60
@@ -184,7 +184,7 @@ public class PnLServiceTest {
                 TestDataBuilder.createDepositTransaction(testUser, depositType, 
                         LocalDateTime.of(2024, 1, 1, 10, 0), 10000.0)
         );
-        when(transactionRepository.findAllBefore(anyInt(), any(Date.class)))
+        when(transactionRepository.findAllBefore(anyLong(), any(Date.class)))
                 .thenReturn(priorTransactions);
         
         // Period: Buy 100 @ $50, then sell 100 @ $60
@@ -194,7 +194,7 @@ public class PnLServiceTest {
                 TestDataBuilder.createSellTransaction(testUser, sellType, "AAPL",
                         LocalDateTime.of(2024, 1, 20, 10, 0), 100, 6000.0)
         );
-        when(transactionRepository.findAllBetween(anyInt(), any(Date.class), any(Date.class)))
+        when(transactionRepository.findAllBetween(anyLong(), any(Date.class), any(Date.class)))
                 .thenReturn(transactions);
         
         Date start = java.sql.Date.valueOf("2024-01-10");
@@ -223,7 +223,7 @@ public class PnLServiceTest {
                 TestDataBuilder.createDepositTransaction(testUser, depositType, 
                         LocalDateTime.of(2024, 1, 1, 10, 0), 10000.0)
         );
-        when(transactionRepository.findAllBefore(anyInt(), any(Date.class)))
+        when(transactionRepository.findAllBefore(anyLong(), any(Date.class)))
                 .thenReturn(priorTransactions);
         
         // Buy 100 @ $50, sell 100 @ $40 (loss)
@@ -233,7 +233,7 @@ public class PnLServiceTest {
                 TestDataBuilder.createSellTransaction(testUser, sellType, "AAPL",
                         LocalDateTime.of(2024, 1, 20, 10, 0), 100, 4000.0)
         );
-        when(transactionRepository.findAllBetween(anyInt(), any(Date.class), any(Date.class)))
+        when(transactionRepository.findAllBetween(anyLong(), any(Date.class), any(Date.class)))
                 .thenReturn(transactions);
         
         Date start = java.sql.Date.valueOf("2024-01-10");
@@ -260,7 +260,7 @@ public class PnLServiceTest {
                 TestDataBuilder.createDepositTransaction(testUser, depositType, 
                         LocalDateTime.of(2024, 1, 1, 10, 0), 10000.0)
         );
-        when(transactionRepository.findAllBefore(anyInt(), any(Date.class)))
+        when(transactionRepository.findAllBefore(anyLong(), any(Date.class)))
                 .thenReturn(priorTransactions);
         
         // Buy 100 @ $50, sell 50 @ $60
@@ -270,7 +270,7 @@ public class PnLServiceTest {
                 TestDataBuilder.createSellTransaction(testUser, sellType, "AAPL",
                         LocalDateTime.of(2024, 1, 20, 10, 0), 50, 3000.0)
         );
-        when(transactionRepository.findAllBetween(anyInt(), any(Date.class), any(Date.class)))
+        when(transactionRepository.findAllBetween(anyLong(), any(Date.class), any(Date.class)))
                 .thenReturn(transactions);
         
         MarkDto mark = new MarkDto();
@@ -301,7 +301,7 @@ public class PnLServiceTest {
                 TestDataBuilder.createDepositTransaction(testUser, depositType, 
                         LocalDateTime.of(2024, 1, 1, 10, 0), 20000.0)
         );
-        when(transactionRepository.findAllBefore(anyInt(), any(Date.class)))
+        when(transactionRepository.findAllBefore(anyLong(), any(Date.class)))
                 .thenReturn(priorTransactions);
         
         // Buy 100 @ $50 = $5,000
@@ -313,7 +313,7 @@ public class PnLServiceTest {
                 TestDataBuilder.createBuyTransaction(testUser, buyType, "AAPL",
                         LocalDateTime.of(2024, 1, 16, 10, 0), 100, 6000.0)
         );
-        when(transactionRepository.findAllBetween(anyInt(), any(Date.class), any(Date.class)))
+        when(transactionRepository.findAllBetween(anyLong(), any(Date.class), any(Date.class)))
                 .thenReturn(transactions);
         
         MarkDto mark = new MarkDto();
@@ -341,7 +341,7 @@ public class PnLServiceTest {
                 TestDataBuilder.createDepositTransaction(testUser, depositType, 
                         LocalDateTime.of(2024, 1, 1, 10, 0), 10000.0)
         );
-        when(transactionRepository.findAllBefore(anyInt(), any(Date.class)))
+        when(transactionRepository.findAllBefore(anyLong(), any(Date.class)))
                 .thenReturn(priorTransactions);
         
         // Short: Sell 100 @ $50 (without owning) = $5,000 credit
@@ -353,7 +353,7 @@ public class PnLServiceTest {
                 TestDataBuilder.createBuyTransaction(testUser, buyType, "AAPL",
                         LocalDateTime.of(2024, 1, 20, 10, 0), 100, 4000.0)
         );
-        when(transactionRepository.findAllBetween(anyInt(), any(Date.class), any(Date.class)))
+        when(transactionRepository.findAllBetween(anyLong(), any(Date.class), any(Date.class)))
                 .thenReturn(transactions);
         
         Date start = java.sql.Date.valueOf("2024-01-10");
@@ -377,7 +377,7 @@ public class PnLServiceTest {
                 TestDataBuilder.createDepositTransaction(testUser, depositType, 
                         LocalDateTime.of(2024, 1, 1, 10, 0), 20000.0)
         );
-        when(transactionRepository.findAllBefore(anyInt(), any(Date.class)))
+        when(transactionRepository.findAllBefore(anyLong(), any(Date.class)))
                 .thenReturn(priorTransactions);
         
         // Buy 100 @ $50 (long 100)
@@ -388,7 +388,7 @@ public class PnLServiceTest {
                 TestDataBuilder.createSellTransaction(testUser, sellType, "AAPL",
                         LocalDateTime.of(2024, 1, 20, 10, 0), 150, 9000.0)
         );
-        when(transactionRepository.findAllBetween(anyInt(), any(Date.class), any(Date.class)))
+        when(transactionRepository.findAllBetween(anyLong(), any(Date.class), any(Date.class)))
                 .thenReturn(transactions);
         
         MarkDto mark = new MarkDto();
@@ -437,7 +437,7 @@ public class PnLServiceTest {
                 LocalDateTime.of(2024, 1, 15, 10, 0), 100, 5000.0
         );
         
-        when(transactionRepository.findByUidAndId(anyInt(), anyInt()))
+        when(transactionRepository.findByUidAndId(anyLong(), anyLong()))
                 .thenReturn(Optional.of(transaction));
         
         Transaction result = pnLService.getTransactionById("test-user", "1");
@@ -451,7 +451,7 @@ public class PnLServiceTest {
     @Test
     public void testZeroQuantityTransaction() throws JsonProcessingException {
         when(userRepository.findByUid("test-user")).thenReturn(Optional.of(testUser));
-        when(transactionRepository.findAllBefore(anyInt(), any(Date.class)))
+        when(transactionRepository.findAllBefore(anyLong(), any(Date.class)))
                 .thenReturn(Collections.emptyList());
         
         // Transaction with zero quantity
@@ -460,7 +460,7 @@ public class PnLServiceTest {
                         Timestamp.valueOf(LocalDateTime.of(2024, 1, 15, 10, 0)),
                         BigInteger.ZERO, BigDecimal.ZERO)
         );
-        when(transactionRepository.findAllBetween(anyInt(), any(Date.class), any(Date.class)))
+        when(transactionRepository.findAllBetween(anyLong(), any(Date.class), any(Date.class)))
                 .thenReturn(transactions);
         
         Date start = java.sql.Date.valueOf("2024-01-10");
@@ -479,7 +479,7 @@ public class PnLServiceTest {
                 TestDataBuilder.createDepositTransaction(testUser, depositType, 
                         LocalDateTime.of(2024, 1, 1, 10, 0), 50000.0)
         );
-        when(transactionRepository.findAllBefore(anyInt(), any(Date.class)))
+        when(transactionRepository.findAllBefore(anyLong(), any(Date.class)))
                 .thenReturn(priorTransactions);
         
         // Buy multiple securities
@@ -491,7 +491,7 @@ public class PnLServiceTest {
                 TestDataBuilder.createBuyTransaction(testUser, buyType, "MSFT",
                         LocalDateTime.of(2024, 1, 17, 10, 0), 200, 10000.0)
         );
-        when(transactionRepository.findAllBetween(anyInt(), any(Date.class), any(Date.class)))
+        when(transactionRepository.findAllBetween(anyLong(), any(Date.class), any(Date.class)))
                 .thenReturn(transactions);
         
         MarkDto aaplMark = new MarkDto();

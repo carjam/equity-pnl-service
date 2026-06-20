@@ -73,7 +73,7 @@ class UserRepositoryTest {
     public void testDeleteUser() {
         User user = TestDataBuilder.createPersistableUser("temp-user", "password");
         user = entityManager.persistAndFlush(user);
-        int userId = user.getId();
+        long userId = user.getId();
         
         userRepository.deleteById(userId);
         entityManager.flush();
