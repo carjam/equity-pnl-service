@@ -1,6 +1,7 @@
 package com.companyx.equity.service;
 
 import com.companyx.equity.TestDataBuilder;
+import com.companyx.equity.dto.CandleDto;
 import com.companyx.equity.dto.MarkDto;
 import com.companyx.equity.model.Position;
 import com.companyx.equity.model.Transaction;
@@ -27,6 +28,7 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.lenient;
 
 /**
  * Comprehensive P&L Calculation Tests
@@ -71,6 +73,25 @@ public class PnLCalculationTest {
         depositType = TestDataBuilder.createTransactionType(3, TransactionType.DEPOSIT);
     }
     
+    /**
+     * Helper method to compare BigDecimal values by numerical value, ignoring scale differences.
+     * This avoids issues like comparing 1000.0 vs 1000.000000.
+     */
+    private void assertBigDecimalEquals(BigDecimal expected, BigDecimal actual, String message) {
+        assertEquals(0, expected.compareTo(actual), 
+            message + " (expected: " + expected + ", actual: " + actual + ")");
+    }
+    
+    /**
+     * Helper method to create a CandleDto mock with a single closing price.
+     */
+    private CandleDto createCandleDto(double closePrice) {
+        CandleDto candle = new CandleDto();
+        candle.setClose(Collections.singletonList(BigDecimal.valueOf(closePrice)));
+        candle.setStatus("ok");
+        return candle;
+    }
+    
     // ==================== SCENARIO 1: SIMPLE LONG POSITIONS ====================
     
     @Nested
@@ -99,6 +120,10 @@ public class PnLCalculationTest {
             when(transactionRepository.findAllBetween(anyInt(), any(Date.class), any(Date.class)))
                 .thenReturn(transactions);
             
+            // Mock Finhub candle data for historical price (end date is in past)
+            when(finhubRepository.getCandle(eq("AAPL"), any(Date.class), any(Date.class)))
+                .thenReturn(createCandleDto(60.0));
+            
             Date start = java.sql.Date.valueOf("2024-01-10");
             Date end = java.sql.Date.valueOf("2024-01-31");
             
@@ -113,16 +138,16 @@ public class PnLCalculationTest {
                 "Position should be closed (quantity = 0)");
             
             // Expected: Realized P&L = (60 - 50) * 100 = $1,000
-            assertEquals(new BigDecimal("1000.0"), aaplPosition.getRealized(), 
+            assertBigDecimalEquals(new BigDecimal("1000.0"), aaplPosition.getRealized(), 
                 "Realized P&L should be $1,000 profit");
             
             // Expected: Unrealized = 0 (position closed)
-            assertEquals(BigDecimal.ZERO, aaplPosition.getUnrealized(), 
+            assertBigDecimalEquals(BigDecimal.ZERO, aaplPosition.getUnrealized(), 
                 "Unrealized P&L should be $0 (position closed)");
             
             // Expected: Cash = 10000 - 5000 + 6000 = $11,000
             Position cashPosition = result.get("cash");
-            assertEquals(new BigDecimal("11000.0"), cashPosition.getValue(), 
+            assertBigDecimalEquals(new BigDecimal("11000.0"), cashPosition.getValue(), 
                 "Cash should be $11,000");
         }
         
@@ -148,6 +173,10 @@ public class PnLCalculationTest {
             when(transactionRepository.findAllBetween(anyInt(), any(Date.class), any(Date.class)))
                 .thenReturn(transactions);
             
+            // Mock Finhub candle data for historical price (end date is in past)
+            when(finhubRepository.getCandle(eq("AAPL"), any(Date.class), any(Date.class)))
+                .thenReturn(createCandleDto(40.0));
+            
             Date start = java.sql.Date.valueOf("2024-01-10");
             Date end = java.sql.Date.valueOf("2024-01-31");
             
@@ -158,11 +187,12 @@ public class PnLCalculationTest {
             assertEquals(BigInteger.ZERO, aaplPosition.getQuantity());
             
             // Expected: Realized P&L = (40 - 50) * 100 = -$1,000
-            assertEquals(new BigDecimal("-1000.0"), aaplPosition.getRealized(), 
+            assertBigDecimalEquals(new BigDecimal("-1000.0"), aaplPosition.getRealized(), 
                 "Realized P&L should be -$1,000 loss");
             
             // Expected: Cash = 10000 - 5000 + 4000 = $9,000
-            assertEquals(new BigDecimal("9000.0"), result.get("cash").getValue());
+            assertBigDecimalEquals(new BigDecimal("9000.0"), result.get("cash").getValue(), 
+                "Cash should be $9,000");
         }
         
         @Test
@@ -185,10 +215,12 @@ public class PnLCalculationTest {
             when(transactionRepository.findAllBetween(anyInt(), any(Date.class), any(Date.class)))
                 .thenReturn(transactions);
             
-            // Mock current price = $55
+            // Mock Finhub current price and historical candle
             MarkDto mark = new MarkDto();
             mark.setCurrentPrice(BigDecimal.valueOf(55.0));
-            when(finhubRepository.getMark("AAPL")).thenReturn(mark);
+            lenient().when(finhubRepository.getMark("AAPL")).thenReturn(mark);
+            lenient().when(finhubRepository.getCandle(eq("AAPL"), any(Date.class), any(Date.class)))
+                .thenReturn(createCandleDto(55.0));
             
             Date start = java.sql.Date.valueOf("2024-01-10");
             Date end = new Date(); // Today
@@ -200,10 +232,11 @@ public class PnLCalculationTest {
             assertEquals(BigInteger.valueOf(100), aaplPosition.getQuantity());
             
             // Expected: No realized P&L (haven't sold)
-            assertEquals(BigDecimal.ZERO, aaplPosition.getRealized());
+            assertBigDecimalEquals(BigDecimal.ZERO, aaplPosition.getRealized(), 
+                "Realized P&L should be $0 (haven't sold yet)");
             
             // Expected: Unrealized P&L = (55 - 50) * 100 = $500
-            assertEquals(new BigDecimal("500.0"), aaplPosition.getUnrealized(), 
+            assertBigDecimalEquals(new BigDecimal("500.0"), aaplPosition.getUnrealized(), 
                 "Unrealized P&L should be $500 profit");
         }
         
@@ -229,10 +262,12 @@ public class PnLCalculationTest {
             when(transactionRepository.findAllBetween(anyInt(), any(Date.class), any(Date.class)))
                 .thenReturn(transactions);
             
-            // Mock current price = $55
+            // Mock Finhub current price and historical candle
             MarkDto mark = new MarkDto();
             mark.setCurrentPrice(BigDecimal.valueOf(55.0));
-            when(finhubRepository.getMark("AAPL")).thenReturn(mark);
+            lenient().when(finhubRepository.getMark("AAPL")).thenReturn(mark);
+            lenient().when(finhubRepository.getCandle(eq("AAPL"), any(Date.class), any(Date.class)))
+                .thenReturn(createCandleDto(55.0));
             
             Date start = java.sql.Date.valueOf("2024-01-10");
             Date end = new Date();
@@ -244,11 +279,11 @@ public class PnLCalculationTest {
             assertEquals(BigInteger.valueOf(50), aaplPosition.getQuantity());
             
             // Expected: Realized P&L = (60 - 50) * 50 = $500
-            assertEquals(new BigDecimal("500.0"), aaplPosition.getRealized(), 
+            assertBigDecimalEquals(new BigDecimal("500.0"), aaplPosition.getRealized(), 
                 "Realized P&L should be $500 on 50 shares sold");
             
             // Expected: Unrealized P&L = (55 - 50) * 50 = $250
-            assertEquals(new BigDecimal("250.0"), aaplPosition.getUnrealized(), 
+            assertBigDecimalEquals(new BigDecimal("250.0"), aaplPosition.getUnrealized(), 
                 "Unrealized P&L should be $250 on remaining 50 shares");
         }
     }
@@ -281,6 +316,10 @@ public class PnLCalculationTest {
             when(transactionRepository.findAllBetween(anyInt(), any(Date.class), any(Date.class)))
                 .thenReturn(transactions);
             
+            // Mock Finhub candle data for historical price (end date is in past)
+            when(finhubRepository.getCandle(eq("AAPL"), any(Date.class), any(Date.class)))
+                .thenReturn(createCandleDto(40.0));
+            
             Date start = java.sql.Date.valueOf("2024-01-10");
             Date end = java.sql.Date.valueOf("2024-01-31");
             
@@ -291,11 +330,12 @@ public class PnLCalculationTest {
             assertEquals(BigInteger.ZERO, aaplPosition.getQuantity());
             
             // Expected: Realized P&L = (50 - 40) * 100 = $1,000 profit
-            assertEquals(new BigDecimal("1000.0"), aaplPosition.getRealized(), 
+            assertBigDecimalEquals(new BigDecimal("1000.0"), aaplPosition.getRealized(), 
                 "Realized P&L should be $1,000 profit from short");
             
             // Expected: Cash = 10000 + 5000 - 4000 = $11,000
-            assertEquals(new BigDecimal("11000.0"), result.get("cash").getValue());
+            assertBigDecimalEquals(new BigDecimal("11000.0"), result.get("cash").getValue(), 
+                "Cash should be $11,000");
         }
         
         @Test
@@ -320,6 +360,10 @@ public class PnLCalculationTest {
             when(transactionRepository.findAllBetween(anyInt(), any(Date.class), any(Date.class)))
                 .thenReturn(transactions);
             
+            // Mock Finhub candle data for historical price (end date is in past)
+            when(finhubRepository.getCandle(eq("AAPL"), any(Date.class), any(Date.class)))
+                .thenReturn(createCandleDto(60.0));
+            
             Date start = java.sql.Date.valueOf("2024-01-10");
             Date end = java.sql.Date.valueOf("2024-01-31");
             
@@ -330,11 +374,12 @@ public class PnLCalculationTest {
             assertEquals(BigInteger.ZERO, aaplPosition.getQuantity());
             
             // Expected: Realized P&L = (50 - 60) * 100 = -$1,000 loss
-            assertEquals(new BigDecimal("-1000.0"), aaplPosition.getRealized(), 
+            assertBigDecimalEquals(new BigDecimal("-1000.0"), aaplPosition.getRealized(), 
                 "Realized P&L should be -$1,000 loss from short");
             
             // Expected: Cash = 10000 + 5000 - 6000 = $9,000
-            assertEquals(new BigDecimal("9000.0"), result.get("cash").getValue());
+            assertBigDecimalEquals(new BigDecimal("9000.0"), result.get("cash").getValue(), 
+                "Cash should be $9,000");
         }
         
         @Test
@@ -357,10 +402,12 @@ public class PnLCalculationTest {
             when(transactionRepository.findAllBetween(anyInt(), any(Date.class), any(Date.class)))
                 .thenReturn(transactions);
             
-            // Mock current price = $55
+            // Mock Finhub current price and historical candle
             MarkDto mark = new MarkDto();
             mark.setCurrentPrice(BigDecimal.valueOf(55.0));
-            when(finhubRepository.getMark("AAPL")).thenReturn(mark);
+            lenient().when(finhubRepository.getMark("AAPL")).thenReturn(mark);
+            lenient().when(finhubRepository.getCandle(eq("AAPL"), any(Date.class), any(Date.class)))
+                .thenReturn(createCandleDto(55.0));
             
             Date start = java.sql.Date.valueOf("2024-01-10");
             Date end = new Date();
@@ -372,10 +419,11 @@ public class PnLCalculationTest {
             assertEquals(BigInteger.valueOf(-100), aaplPosition.getQuantity());
             
             // Expected: No realized P&L
-            assertEquals(BigDecimal.ZERO, aaplPosition.getRealized());
+            assertBigDecimalEquals(BigDecimal.ZERO, aaplPosition.getRealized(), 
+                "Realized P&L should be $0 (haven't covered yet)");
             
             // Expected: Unrealized P&L = (50 - 55) * 100 = -$500 loss
-            assertEquals(new BigDecimal("-500.0"), aaplPosition.getUnrealized(), 
+            assertBigDecimalEquals(new BigDecimal("-500.0"), aaplPosition.getUnrealized(), 
                 "Unrealized P&L should be -$500 loss (price went up)");
         }
     }
@@ -409,10 +457,12 @@ public class PnLCalculationTest {
             when(transactionRepository.findAllBetween(anyInt(), any(Date.class), any(Date.class)))
                 .thenReturn(transactions);
             
-            // Mock current price = $55
+            // Mock Finhub current price and historical candle
             MarkDto mark = new MarkDto();
             mark.setCurrentPrice(BigDecimal.valueOf(55.0));
-            when(finhubRepository.getMark("AAPL")).thenReturn(mark);
+            lenient().when(finhubRepository.getMark("AAPL")).thenReturn(mark);
+            lenient().when(finhubRepository.getCandle(eq("AAPL"), any(Date.class), any(Date.class)))
+                .thenReturn(createCandleDto(55.0));
             
             Date start = java.sql.Date.valueOf("2024-01-10");
             Date end = new Date();
@@ -425,11 +475,11 @@ public class PnLCalculationTest {
                 "Should have short position of 50 shares");
             
             // Expected: Realized P&L from closing long = (60 - 50) * 100 = $1,000
-            assertEquals(new BigDecimal("1000.0"), aaplPosition.getRealized(), 
+            assertBigDecimalEquals(new BigDecimal("1000.0"), aaplPosition.getRealized(), 
                 "Realized P&L should be $1,000 from closing long position");
             
             // Expected: Unrealized P&L from short = (60 - 55) * 50 = $250 profit
-            assertEquals(new BigDecimal("250.0"), aaplPosition.getUnrealized(), 
+            assertBigDecimalEquals(new BigDecimal("250.0"), aaplPosition.getUnrealized(), 
                 "Unrealized P&L should be $250 profit on short position");
         }
         
@@ -456,10 +506,12 @@ public class PnLCalculationTest {
             when(transactionRepository.findAllBetween(anyInt(), any(Date.class), any(Date.class)))
                 .thenReturn(transactions);
             
-            // Mock current price = $45
+            // Mock Finhub current price and historical candle
             MarkDto mark = new MarkDto();
             mark.setCurrentPrice(BigDecimal.valueOf(45.0));
-            when(finhubRepository.getMark("AAPL")).thenReturn(mark);
+            lenient().when(finhubRepository.getMark("AAPL")).thenReturn(mark);
+            lenient().when(finhubRepository.getCandle(eq("AAPL"), any(Date.class), any(Date.class)))
+                .thenReturn(createCandleDto(45.0));
             
             Date start = java.sql.Date.valueOf("2024-01-10");
             Date end = new Date();
@@ -472,11 +524,11 @@ public class PnLCalculationTest {
                 "Should have long position of 50 shares");
             
             // Expected: Realized P&L from closing short = (50 - 40) * 100 = $1,000
-            assertEquals(new BigDecimal("1000.0"), aaplPosition.getRealized(), 
+            assertBigDecimalEquals(new BigDecimal("1000.0"), aaplPosition.getRealized(), 
                 "Realized P&L should be $1,000 from closing short position");
             
             // Expected: Unrealized P&L from long = (45 - 40) * 50 = $250 profit
-            assertEquals(new BigDecimal("250.0"), aaplPosition.getUnrealized(), 
+            assertBigDecimalEquals(new BigDecimal("250.0"), aaplPosition.getUnrealized(), 
                 "Unrealized P&L should be $250 profit on long position");
         }
     }
@@ -514,10 +566,12 @@ public class PnLCalculationTest {
             when(transactionRepository.findAllBetween(anyInt(), any(Date.class), any(Date.class)))
                 .thenReturn(transactions);
             
-            // Mock current price = $70
+            // Mock Finhub current price and historical candle
             MarkDto mark = new MarkDto();
             mark.setCurrentPrice(BigDecimal.valueOf(70.0));
-            when(finhubRepository.getMark("AAPL")).thenReturn(mark);
+            lenient().when(finhubRepository.getMark("AAPL")).thenReturn(mark);
+            lenient().when(finhubRepository.getCandle(eq("AAPL"), any(Date.class), any(Date.class)))
+                .thenReturn(createCandleDto(70.0));
             
             Date start = java.sql.Date.valueOf("2024-01-10");
             Date end = new Date();
@@ -529,11 +583,11 @@ public class PnLCalculationTest {
             assertEquals(BigInteger.valueOf(50), aaplPosition.getQuantity());
             
             // Expected: Realized P&L = (65 - 55) * 150 = $1,500
-            assertEquals(new BigDecimal("1500.0"), aaplPosition.getRealized(), 
+            assertBigDecimalEquals(new BigDecimal("1500.0"), aaplPosition.getRealized(), 
                 "Realized P&L should be $1,500 using average cost of $55");
             
             // Expected: Unrealized P&L = (70 - 55) * 50 = $750
-            assertEquals(new BigDecimal("750.0"), aaplPosition.getUnrealized(), 
+            assertBigDecimalEquals(new BigDecimal("750.0"), aaplPosition.getUnrealized(), 
                 "Unrealized P&L should be $750 on remaining 50 shares");
         }
     }
@@ -572,6 +626,10 @@ public class PnLCalculationTest {
             when(transactionRepository.findAllBetween(anyInt(), any(Date.class), any(Date.class)))
                 .thenReturn(transactions);
             
+            // Mock Finhub candle data for historical price (end date is in past)
+            when(finhubRepository.getCandle(eq("AAPL"), any(Date.class), any(Date.class)))
+                .thenReturn(createCandleDto(65.0));
+            
             Date start = java.sql.Date.valueOf("2024-01-09");
             Date end = java.sql.Date.valueOf("2024-01-31");
             
@@ -582,7 +640,7 @@ public class PnLCalculationTest {
             assertEquals(BigInteger.ZERO, aaplPosition.getQuantity());
             
             // Expected: Realized P&L = Trip1($500) + Trip2($500) = $1,000
-            assertEquals(new BigDecimal("1000.0"), aaplPosition.getRealized(), 
+            assertBigDecimalEquals(new BigDecimal("1000.0"), aaplPosition.getRealized(), 
                 "Total realized P&L should be $1,000 from both round trips");
         }
     }
