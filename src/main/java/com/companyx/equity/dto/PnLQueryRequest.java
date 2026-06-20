@@ -1,5 +1,6 @@
 package com.companyx.equity.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PastOrPresent;
@@ -13,14 +14,17 @@ import java.time.temporal.ChronoUnit;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Schema(description = "P&L query date range (inclusive)")
 public class PnLQueryRequest {
     
     @NotNull(message = "From date is required")
     @PastOrPresent(message = "From date cannot be in the future")
+    @Schema(description = "Start date (ISO-8601)", example = "2024-01-01")
     private LocalDate from;
     
     @NotNull(message = "To date is required")
     @PastOrPresent(message = "To date cannot be in the future")
+    @Schema(description = "End date (ISO-8601)", example = "2024-12-31")
     private LocalDate to;
     
     @AssertTrue(message = "To date must be after or equal to from date")

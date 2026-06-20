@@ -30,6 +30,7 @@ dependency-redueced-pom.xml
 buildNumber.properties
 .mvn
 mvnvm.properties
+.dependency-check-data/
 
 
 # Compiled class file

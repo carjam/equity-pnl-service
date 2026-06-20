@@ -1,11 +1,13 @@
 package com.companyx.equity.config;
 
 import com.github.benmanes.caffeine.cache.Caffeine;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cache.caffeine.CaffeineCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 
 import java.util.concurrent.TimeUnit;
 
@@ -18,9 +20,11 @@ import java.util.concurrent.TimeUnit;
  */
 @Configuration
 @EnableCaching
+@ConditionalOnProperty(name = "cache.redis.enabled", havingValue = "false", matchIfMissing = true)
 public class CorporateActionCacheConfig {
     
     @Bean
+    @Primary
     public CacheManager corporateActionCacheManager() {
         CaffeineCacheManager cacheManager = new CaffeineCacheManager(
                 "corporate-actions-dividends",

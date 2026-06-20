@@ -13,11 +13,13 @@
 | P&L calculation engine | ✅ Verified correct (170+ tests) |
 | Security (JWT, validation, exceptions) | ✅ Complete |
 | Resilience (circuit breaker, retry, bulkhead) | ✅ Complete |
-| Docker / containerization | ✅ Complete |
+| Docker / containerization | ✅ JDK 21 multi-stage Dockerfile + GHCR CI build |
 | **Corporate actions (Phase 0)** | ✅ **Complete** — splits, dividends, Phase 2 logic, REST API, fixtures |
 | Phase 2 production data (M&A feed) | ⏸ Deferred — optional paid API or SEC EDGAR |
-| CI/CD pipeline | ✅ GitHub Actions (tests + OWASP dependency-check) |
-| OpenAPI / Swagger | ✅ SpringDoc (`/swagger-ui.html` in dev) |
+| CI/CD pipeline | ✅ GitHub Actions (tests + OWASP + Docker push to GHCR) |
+| Observability (Phase 2) | ✅ Prometheus, JSON logging (staging/prod), correlation IDs, optional Redis cache |
+| OpenAPI / Swagger | ✅ SpringDoc + `@Schema` examples; Postman collection in `postman/` |
+| Staging deploy | ✅ `docker-compose.staging.yml` + manual `deploy-staging` workflow |
 | Phase 1 security audit | ✅ [PHASE1_AUDIT.md](PHASE1_AUDIT.md) |
 | FIFO/LIFO lot tracking | ⬜ Future |
 
@@ -39,7 +41,7 @@ Implemented with a **stateless architecture** (no DB tables; Finnhub + Caffeine 
 
 ## Test Suite
 
-**Status:** ✅ All **255 tests** passing (June 20, 2026)
+**Status:** ✅ All **257 tests** passing (June 20, 2026)
 
 Run before merge:
 
@@ -77,15 +79,18 @@ Key test groups:
 2. Open PR from `feature/bug-fixes-and-retry-strategy` → `main`
 
 ### After merge
-1. ~~**CI/CD** — GitHub Actions~~ ✅ Tests + OWASP scan
-2. ~~**OpenAPI/Swagger**~~ ✅ SpringDoc in dev profile
+1. ~~**CI/CD** — GitHub Actions~~ ✅ Tests + OWASP + Docker (GHCR)
+2. ~~**OpenAPI/Swagger**~~ ✅ SpringDoc + Postman collection
 3. ~~**Phase 1 audit**~~ ✅ [PHASE1_AUDIT.md](PHASE1_AUDIT.md)
-4. **Production Phase 2 data** — Only when a user hits wrong P&L on M&A, or paid tier requires it
+4. ~~**Phase 2 observability**~~ ✅ Prometheus, structured logging, correlation IDs, optional Redis
+5. **OWASP CI reliability** — Add repo secret `NVD_API_KEY` ([request key](https://nvd.nist.gov/developers/request-an-api-key)) if NVD sync flakes
+6. **Staging host** — Set `STAGING_HOST`, `STAGING_USER`, `STAGING_SSH_KEY` secrets; run **Deploy Staging** workflow
+7. **Production Phase 2 data** — Only when a user hits wrong P&L on M&A, or paid tier requires it
 
 ### Future enhancements
 - FIFO/LIFO lot tracking
 - Database-backed corporate action cache (if rate limits bite) — [FUTURE_ENHANCEMENTS.md](FUTURE_ENHANCEMENTS.md)
-- Monitoring (Prometheus/Grafana)
+- Grafana dashboards wired to `/actuator/prometheus`
 
 ---
 

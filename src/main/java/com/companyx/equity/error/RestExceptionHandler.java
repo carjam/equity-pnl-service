@@ -1,11 +1,13 @@
 package com.companyx.equity.error;
 
+import com.companyx.equity.config.CorrelationIdFilter;
 import com.companyx.equity.dto.ErrorResponse;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
@@ -33,7 +35,7 @@ public class RestExceptionHandler {
             MethodArgumentNotValidException ex,
             HttpServletRequest request
     ) {
-        String correlationId = UUID.randomUUID().toString();
+        String correlationId = correlationId();
         
         List<ErrorResponse.ValidationError> validationErrors = ex.getBindingResult()
                 .getFieldErrors()
@@ -66,7 +68,7 @@ public class RestExceptionHandler {
             ConstraintViolationException ex,
             HttpServletRequest request
     ) {
-        String correlationId = UUID.randomUUID().toString();
+        String correlationId = correlationId();
         
         List<ErrorResponse.ValidationError> validationErrors = ex.getConstraintViolations()
                 .stream()
@@ -98,7 +100,7 @@ public class RestExceptionHandler {
             MethodArgumentTypeMismatchException ex,
             HttpServletRequest request
     ) {
-        String correlationId = UUID.randomUUID().toString();
+        String correlationId = correlationId();
         
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .timestamp(Instant.now())
@@ -120,7 +122,7 @@ public class RestExceptionHandler {
             IllegalArgumentException ex,
             HttpServletRequest request
     ) {
-        String correlationId = UUID.randomUUID().toString();
+        String correlationId = correlationId();
         
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .timestamp(Instant.now())
@@ -141,7 +143,7 @@ public class RestExceptionHandler {
             ResponseVerificationException ex,
             HttpServletRequest request
     ) {
-        String correlationId = UUID.randomUUID().toString();
+        String correlationId = correlationId();
         
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .timestamp(Instant.now())
@@ -162,7 +164,7 @@ public class RestExceptionHandler {
             VendorConnectivityException ex,
             HttpServletRequest request
     ) {
-        String correlationId = UUID.randomUUID().toString();
+        String correlationId = correlationId();
         
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .timestamp(Instant.now())
@@ -183,7 +185,7 @@ public class RestExceptionHandler {
             UnexpectedValueException ex,
             HttpServletRequest request
     ) {
-        String correlationId = UUID.randomUUID().toString();
+        String correlationId = correlationId();
         
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .timestamp(Instant.now())
@@ -204,7 +206,7 @@ public class RestExceptionHandler {
             BadCredentialsException ex,
             HttpServletRequest request
     ) {
-        String correlationId = UUID.randomUUID().toString();
+        String correlationId = correlationId();
 
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .timestamp(Instant.now())
@@ -225,7 +227,7 @@ public class RestExceptionHandler {
             UserNotFoundException ex,
             HttpServletRequest request
     ) {
-        String correlationId = UUID.randomUUID().toString();
+        String correlationId = correlationId();
         
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .timestamp(Instant.now())
@@ -246,7 +248,7 @@ public class RestExceptionHandler {
             TransactionNotFoundException ex,
             HttpServletRequest request
     ) {
-        String correlationId = UUID.randomUUID().toString();
+        String correlationId = correlationId();
         
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .timestamp(Instant.now())
@@ -267,7 +269,7 @@ public class RestExceptionHandler {
             InvalidInputException ex,
             HttpServletRequest request
     ) {
-        String correlationId = UUID.randomUUID().toString();
+        String correlationId = correlationId();
         
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .timestamp(Instant.now())
@@ -288,7 +290,7 @@ public class RestExceptionHandler {
             JsonProcessingException ex,
             HttpServletRequest request
     ) {
-        String correlationId = UUID.randomUUID().toString();
+        String correlationId = correlationId();
         
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .timestamp(Instant.now())
@@ -309,7 +311,7 @@ public class RestExceptionHandler {
             ParseException ex,
             HttpServletRequest request
     ) {
-        String correlationId = UUID.randomUUID().toString();
+        String correlationId = correlationId();
         
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .timestamp(Instant.now())
@@ -329,5 +331,13 @@ public class RestExceptionHandler {
         String propertyPath = violation.getPropertyPath().toString();
         String[] parts = propertyPath.split("\\.");
         return parts.length > 0 ? parts[parts.length - 1] : propertyPath;
+    }
+
+    private String correlationId() {
+        String id = MDC.get(CorrelationIdFilter.MDC_KEY);
+        if (id != null && !id.isBlank()) {
+            return id;
+        }
+        return UUID.randomUUID().toString();
     }
 }

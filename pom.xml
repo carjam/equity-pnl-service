@@ -204,6 +204,23 @@
             <groupId>io.micrometer</groupId>
             <artifactId>micrometer-core</artifactId>
         </dependency>
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-registry-prometheus</artifactId>
+        </dependency>
+
+        <!-- Structured JSON logging (prod/staging profiles) -->
+        <dependency>
+            <groupId>net.logstash.logback</groupId>
+            <artifactId>logstash-logback-encoder</artifactId>
+            <version>7.4</version>
+        </dependency>
+
+        <!-- Optional Redis L2 cache (enabled via cache.redis.enabled=true) -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+        </dependency>
         
         <!-- MockWebServer for HTTP client testing -->
         <dependency>
@@ -287,6 +304,9 @@
                     <failBuildOnCVSS>7</failBuildOnCVSS>
                     <skipTestScope>true</skipTestScope>
                     <nvdApiDelay>6500</nvdApiDelay>
+                    <nvdApiKeyEnvironmentVariable>NVD_API_KEY</nvdApiKeyEnvironmentVariable>
+                    <nvdValidForHours>168</nvdValidForHours>
+                    <dataDirectory>${project.basedir}/.dependency-check-data</dataDirectory>
                     <suppressionFiles>
                         <suppressionFile>dependency-check-suppressions.xml</suppressionFile>
                     </suppressionFiles>

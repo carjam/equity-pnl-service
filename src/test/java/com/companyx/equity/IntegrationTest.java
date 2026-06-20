@@ -117,4 +117,12 @@ class IntegrationTest {
                 .andExpect(jsonPath("$.openapi").exists())
                 .andExpect(jsonPath("$.info.title").value("Equity P&L Service API"));
     }
+
+    @Test
+    public void testCorrelationIdHeaderPropagated() throws Exception {
+        mockMvc.perform(get("/actuator/health")
+                        .header("X-Correlation-Id", "test-correlation-abc"))
+                .andExpect(status().isOk())
+                .andExpect(header().string("X-Correlation-Id", "test-correlation-abc"));
+    }
 }

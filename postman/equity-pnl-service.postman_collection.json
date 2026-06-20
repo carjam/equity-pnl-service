@@ -1,0 +1,159 @@
+{
+  "info": {
+    "name": "Equity P&L Service",
+    "description": "Sample requests for local dev (http://localhost:8080) or staging. Import → set `baseUrl` and run Login first.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080" },
+    { "key": "token", "value": "" },
+    { "key": "correlationId", "value": "postman-demo-001" }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json.token) { pm.collectionVariables.set('token', json.token); }"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-Correlation-Id", "value": "{{correlationId}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"uid\": \"demo-user\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/auth/login"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Transactions & P&L",
+      "item": [
+        {
+          "name": "List transactions",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "X-Correlation-Id", "value": "{{correlationId}}" }
+            ],
+            "url": "{{baseUrl}}/api/v1/transactions"
+          }
+        },
+        {
+          "name": "P&L (date range)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "X-Correlation-Id", "value": "{{correlationId}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/pnl?from=2024-01-01&to=2024-12-31",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "pnl"],
+              "query": [
+                { "key": "from", "value": "2024-01-01" },
+                { "key": "to", "value": "2024-12-31" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Corporate actions",
+      "item": [
+        {
+          "name": "List providers",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "X-Correlation-Id", "value": "{{correlationId}}" }
+            ],
+            "url": "{{baseUrl}}/api/v1/corporate-actions/providers"
+          }
+        },
+        {
+          "name": "Dividends (AAPL)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "X-Correlation-Id", "value": "{{correlationId}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/corporate-actions/dividends?symbol=AAPL&from=2023-01-01&to=2024-12-31",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "corporate-actions", "dividends"],
+              "query": [
+                { "key": "symbol", "value": "AAPL" },
+                { "key": "from", "value": "2023-01-01" },
+                { "key": "to", "value": "2024-12-31" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Total return",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "X-Correlation-Id", "value": "{{correlationId}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/pnl/total-return?symbol=AAPL&from=2023-01-01&to=2024-12-31",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "pnl", "total-return"],
+              "query": [
+                { "key": "symbol", "value": "AAPL" },
+                { "key": "from", "value": "2023-01-01" },
+                { "key": "to", "value": "2024-12-31" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Observability",
+      "item": [
+        {
+          "name": "Health",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "X-Correlation-Id", "value": "{{correlationId}}" }
+            ],
+            "url": "{{baseUrl}}/actuator/health"
+          }
+        },
+        {
+          "name": "Prometheus metrics (staging/prod)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/actuator/prometheus"
+          }
+        }
+      ]
+    }
+  ]
+}
