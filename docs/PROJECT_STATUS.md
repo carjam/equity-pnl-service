@@ -76,9 +76,9 @@ Key test groups:
 
 See **[PORTFOLIO_DEMO.md](PORTFOLIO_DEMO.md)** for the full demo script.
 
-1. **OWASP CI** — Add repo secret `NVD_API_KEY` if the security job is slow or flaky
-2. **Staging smoke** — Run `docker compose -f docker-compose.staging.yml up` once with the GHCR image
-3. **Optional polish** — 2–3 min screen recording walking through tests + Swagger + corporate-action fixtures
+1. **OWASP CI** — Add `NVD_API_KEY` secret ([steps](PORTFOLIO_DEMO.md#cigithub-actions))
+2. **Staging smoke** — `.\scripts\staging-smoke.ps1 -BuildLocal`
+3. **Screen recording** — [script in PORTFOLIO_DEMO.md](PORTFOLIO_DEMO.md#screen-recording-script-23-min)
 
 ### Deferred (not required for portfolio)
 - FIFO/LIFO lot tracking

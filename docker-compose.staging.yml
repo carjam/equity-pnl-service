@@ -5,7 +5,7 @@ services:
       - "8080:8080"
     environment:
       SPRING_PROFILES_ACTIVE: staging
-      DATABASE_URL: jdbc:mysql://equity-db:3306/equity_pnl
+      DATABASE_URL: jdbc:mysql://equity-db:3306/equity
       DATABASE_USERNAME: ${DATABASE_USERNAME:-equity}
       DATABASE_PASSWORD: ${DATABASE_PASSWORD:-changeme}
       JWT_SECRET: ${JWT_SECRET:-change-me-in-staging}
@@ -28,7 +28,7 @@ services:
   equity-db:
     image: mysql:8.0
     environment:
-      MYSQL_DATABASE: equity_pnl
+      MYSQL_DATABASE: equity
       MYSQL_USER: ${DATABASE_USERNAME:-equity}
       MYSQL_PASSWORD: ${DATABASE_PASSWORD:-changeme}
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-rootchangeme}

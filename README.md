@@ -4,10 +4,13 @@
 
 > 💼 **Portfolio Project:** This is a demonstration of enterprise-grade financial software engineering. Code available for review only. See [LICENSE](LICENSE) for terms.
 
+[![CI](https://github.com/carjam/equity-pnl-service/actions/workflows/ci.yml/badge.svg)](https://github.com/carjam/equity-pnl-service/actions/workflows/ci.yml)
 [![Java](https://img.shields.io/badge/Java-21-orange.svg)](https://www.oracle.com/java/)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.2.5-brightgreen.svg)](https://spring.io/projects/spring-boot)
 [![Tests](https://img.shields.io/badge/Tests-257-brightgreen.svg)](docs/RUNNING_TESTS.md)
 [![License](https://img.shields.io/badge/License-Proprietary-red.svg)](LICENSE)
+
+> **Reviewers:** start with **[Portfolio Demo Guide](docs/PORTFOLIO_DEMO.md)** (tests, Swagger, Docker smoke script).
 
 ## 📚 Documentation
 

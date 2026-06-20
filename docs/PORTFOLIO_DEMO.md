@@ -68,17 +68,27 @@ cd equity-pnl-service
 
 ## Demo path C — Docker staging stack (~10 min)
 
-Proves containerization and observability without a cloud host.
+Proves containerization and observability. **Start Docker Desktop first.**
+
+**Automated smoke (recommended):**
 
 ```powershell
-# After CI publishes image (or build locally: docker build -t equity-pnl-service .)
+.\scripts\staging-smoke.ps1 -BuildLocal
+```
+
+Builds `equity-pnl-service:local`, starts MySQL + Redis + app, checks health, OpenAPI, Prometheus, login (`carjam` / `password` from Flyway seed), and P&L.
+
+**Manual / GHCR image:**
+
+```powershell
 $env:APP_IMAGE = "ghcr.io/carjam/equity-pnl-service:latest"
 $env:JWT_SECRET = "<256-bit-secret>"
-$env:FINHUB_KEY = "<optional-for-fixtures-off>"
+$env:FINHUB_KEY = "placeholder"
 $env:DATABASE_PASSWORD = "changeme"
-
 docker compose -f docker-compose.staging.yml up -d
 ```
+
+> Staging uses database **`equity`** (matches Flyway migrations), not `equity_pnl`.
 
 | URL | Purpose |
 |-----|---------|
@@ -87,7 +97,7 @@ docker compose -f docker-compose.staging.yml up -d
 | http://localhost:8080/swagger-ui.html | API explorer |
 | http://localhost:8080/v3/api-docs | OpenAPI JSON |
 
-Teardown: `docker compose -f docker-compose.staging.yml down`
+Teardown: `docker compose -f docker-compose.staging.yml down -v`
 
 ---
 
@@ -101,9 +111,34 @@ Every push to `main` runs:
 | **OWASP Dependency Check** | CVE scan (CVSS ≥ 7 fails build) |
 | **Docker Build** | Push to `ghcr.io/<repo>:latest` and `:sha` |
 
-**Repo secret (recommended):** `NVD_API_KEY` — [request free key](https://nvd.nist.gov/developers/request-an-api-key). Without it, the first OWASP run can take 30+ minutes; cached runs are faster.
+**Repo secret (recommended):** `NVD_API_KEY`
+
+1. Request a free key: https://nvd.nist.gov/developers/request-an-api-key  
+2. GitHub → **Settings → Secrets and variables → Actions → New repository secret**  
+3. Name: `NVD_API_KEY` · Value: paste key (no quotes)  
+4. Re-run the **OWASP Dependency Check** job
+
+Without the key, the first run can take 30+ minutes; cached runs are faster.
 
 **Optional remote staging:** Set `STAGING_HOST`, `STAGING_USER`, `STAGING_SSH_KEY` and run the **Deploy Staging** workflow manually.
+
+---
+
+## Screen recording script (~2–3 min)
+
+Use for LinkedIn, resume link, or interview prep. Record **Path A** (tests) + **Path B or C** (API).
+
+| Time | Show | Say (approx.) |
+|------|------|----------------|
+| 0:00 | GitHub repo README + Actions tab (green test/Docker jobs) | "Spring Boot P&L API — 257 tests, CI on every push." |
+| 0:25 | Terminal: `.\mvnw.cmd test` finishing BUILD SUCCESS | "Full suite including corporate-action scenarios — FOX merger, AAPL split." |
+| 0:50 | Open `PnLCalculationTest` or `RealWorldCorporateActionsPnLEndToEndTest` | "P&L math and M&A fixtures are tested, not just mocked." |
+| 1:10 | Swagger UI or staging health + login → P&L | "JWT-secured REST API, OpenAPI docs, Prometheus metrics." |
+| 1:45 | `docs/PHASE1_AUDIT.md` or Resilience4j in `FinhubRepository` | "Security audit, circuit breaker, structured errors with correlation IDs." |
+| 2:15 | `docker-compose.staging.yml` or smoke script output | "Multi-stage Docker, staging compose with MySQL and Redis." |
+| 2:30 | End card: repo URL + "Portfolio demo — code review only" | |
+
+**Tips:** 1080p terminal font 14pt+, hide unrelated windows, no secrets on screen.
 
 ---
 
@@ -113,7 +148,7 @@ Every push to `main` runs:
 - [x] 257 tests green locally
 - [x] CI: tests + OWASP + Docker on `main`
 - [ ] OWASP job green (add `NVD_API_KEY` if slow/flaky)
-- [ ] Staging compose smoke test once (Path C above)
+- [ ] Staging smoke: `.\scripts\staging-smoke.ps1 -BuildLocal` (Docker Desktop running)
 - [x] OpenAPI + Postman
 - [x] Phase 1 audit documented
 - [ ] Record a 2–3 min screen capture (optional polish)
