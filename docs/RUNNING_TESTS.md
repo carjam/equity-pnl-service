@@ -1,6 +1,6 @@
 # Running Tests
 
-**257 tests** · H2 in-memory · no MySQL required for the suite.
+**258 tests** · H2 in-memory · no MySQL required for the suite.
 
 ```powershell
 .\mvnw.cmd test
@@ -66,7 +66,7 @@ Profile: `@ActiveProfiles("test")` · config: `src/test/resources/application-te
 ## Expected output
 
 ```
-[INFO] Tests run: 257, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 258, Failures: 0, Errors: 0, Skipped: 0
 [INFO] BUILD SUCCESS
 ```
 
@@ -78,7 +78,7 @@ Coverage snapshot: [TEST_COVERAGE_REPORT.md](TEST_COVERAGE_REPORT.md)
 
 [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) runs `./mvnw test -B` on every push/PR to `main`, plus OWASP and Docker build.
 
-Optional repo secret **`NVD_API_KEY`** for faster OWASP runs ([request key](https://nvd.nist.gov/developers/request-an-api-key)).
+**OWASP:** dependency-check **12.2.2** with shared NVD cache. Add repo secret **`NVD_API_KEY`** ([request key](https://nvd.nist.gov/developers/request-an-api-key)). First NVD sync is slow; run **Actions → OWASP NVD Cache Refresh** to warm cache, then CI OWASP job finishes in ~2–5 min.
 
 ---
 

@@ -14,7 +14,7 @@ Work deferred until a concrete trigger appears. Not required for the portfolio d
 | Complex events | Merger/spinoff/symbol/delisting logic + dev fixtures (FOX, EBAY, FB, TWTR) |
 | Security & resilience | JWT, validation, Resilience4j, structured errors |
 | Ops baseline | CI (test + OWASP + Docker), Prometheus, JSON logging, correlation IDs |
-| Tests | 257 automated tests |
+| Tests | 258 automated tests |
 
 ---
 

@@ -1,37 +1,38 @@
-# Documentation Index
+# Documentation
 
-**Start here:** [PORTFOLIO_DEMO.md](PORTFOLIO_DEMO.md) · [PROJECT_STATUS.md](PROJECT_STATUS.md)
+**Start here:** [PORTFOLIO_DEMO.md](PORTFOLIO_DEMO.md)
 
 ---
 
-## Active docs
+## For reviewers
 
 | Document | Purpose |
 |----------|---------|
-| [PORTFOLIO_DEMO.md](PORTFOLIO_DEMO.md) | Demo script for reviewers |
-| [PROJECT_STATUS.md](PROJECT_STATUS.md) | What's done / deferred |
+| [PORTFOLIO_DEMO.md](PORTFOLIO_DEMO.md) | Demo paths, CI, screen-recording script |
+| [PROJECT_STATUS.md](PROJECT_STATUS.md) | Done vs deferred |
 | [PHASE1_AUDIT.md](PHASE1_AUDIT.md) | Security sign-off |
-| [FUTURE_ENHANCEMENTS.md](FUTURE_ENHANCEMENTS.md) | When to add DB cache, M&A feed, etc. |
-| [RUNNING_TESTS.md](RUNNING_TESTS.md) | Run 257 tests + CI notes |
-| [TEST_COVERAGE_REPORT.md](TEST_COVERAGE_REPORT.md) | Coverage snapshot |
-| [TIMEZONE_CONFIGURATION.md](TIMEZONE_CONFIGURATION.md) | Optional — timezone setup |
 | [GITHUB_REPO_SETUP.md](GITHUB_REPO_SETUP.md) | GitHub About, topics, secrets |
-| [corporate-actions/](corporate-actions/) | Phase 0 corporate actions |
-| [../spec/CHECKLIST.md](../spec/CHECKLIST.md) | Production readiness matrix |
 
----
+## Development
 
-## External entry points
+| Document | Purpose |
+|----------|---------|
+| [RUNNING_TESTS.md](RUNNING_TESTS.md) | `.\mvnw.cmd test`, CI jobs |
+| [TEST_COVERAGE_REPORT.md](TEST_COVERAGE_REPORT.md) | Test suite snapshot |
+| [FUTURE_ENHANCEMENTS.md](FUTURE_ENHANCEMENTS.md) | Deferred work (trigger-based) |
+| [corporate-actions/README.md](corporate-actions/README.md) | Phase 0 summary |
+| [TIMEZONE_CONFIGURATION.md](TIMEZONE_CONFIGURATION.md) | Optional UTC/timezone setup |
+| [NOTICE.md](NOTICE.md) | Licensing |
+
+## External
 
 - [../README.md](../README.md) — project overview
+- [../spec/CHECKLIST.md](../spec/CHECKLIST.md) — production-readiness matrix
 - [../postman/`](../postman/) — API collection
-- [../spec/README.md](../spec/README.md) — original phase specs
-
----
 
 ## Archive
 
-Session notes and superseded docs: **[archive/](archive/)** — not maintained for current status.
+Session notes and superseded docs: [archive/](archive/) — not maintained for current status.
 
 ---
 

@@ -1,17 +1,15 @@
-# GitHub repo polish (portfolio demo)
+# GitHub repo polish
 
-One-time setup on https://github.com/carjam/equity-pnl-service
+One-time setup: https://github.com/carjam/equity-pnl-service
 
-## About (gear icon, top right)
+## About (gear icon)
 
 **Description:**
 ```
-Spring Boot P&L API with corporate actions, JWT, Resilience4j, 257 tests, Docker CI. Portfolio demo — see docs/PORTFOLIO_DEMO.md
+Spring Boot P&L API — corporate actions, JWT, Resilience4j, 258 tests, Docker CI. Portfolio demo — docs/PORTFOLIO_DEMO.md
 ```
 
-**Website:** (optional) link to your LinkedIn or demo video when ready
-
-**Topics:** add these tags
+**Topics:**
 ```
 spring-boot
 java
@@ -23,21 +21,15 @@ resilience4j
 portfolio-project
 ```
 
-## Pin for reviewers
+## CI
 
-Primary doc: [docs/PORTFOLIO_DEMO.md](../docs/PORTFOLIO_DEMO.md)
+Badge in README. Expect green: **Maven Test**, **Docker Build**. **OWASP** green after [NVD cache refresh](../.github/workflows/owasp-nvd-cache.yml) completes once.
 
-## CI badge
+## Secrets
 
-Already in README — confirm latest run shows green for **Maven Test** and **Docker Build**; **OWASP** after first NVD cache completes.
+| Secret | Purpose |
+|--------|---------|
+| `NVD_API_KEY` | OWASP NVD API (configured) |
+| `STAGING_*` | Optional VPS deploy only |
 
-## Secrets (done / optional)
-
-| Secret | Status |
-|--------|--------|
-| `NVD_API_KEY` | Added for OWASP |
-| `STAGING_HOST`, `STAGING_USER`, `STAGING_SSH_KEY` | Only if deploying to a VPS |
-
----
-
-*Last updated: June 20, 2026*
+Pin for reviewers: [PORTFOLIO_DEMO.md](PORTFOLIO_DEMO.md)

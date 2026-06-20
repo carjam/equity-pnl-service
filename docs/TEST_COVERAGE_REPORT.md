@@ -1,6 +1,6 @@
 # Test Coverage Snapshot
 
-**Last updated:** June 20, 2026 · **257 tests** · all passing (`.\mvnw.cmd test`)
+**Last updated:** June 20, 2026 · **258 tests** · all passing (`.\mvnw.cmd test`)
 
 For how to run tests, see [RUNNING_TESTS.md](RUNNING_TESTS.md).
 
@@ -11,7 +11,7 @@ For how to run tests, see [RUNNING_TESTS.md](RUNNING_TESTS.md).
 | Metric | Value |
 |--------|-------|
 | Test classes | ~35 |
-| Total tests | 257 |
+| Total tests | 258 |
 | Profile | H2 in-memory (`@ActiveProfiles("test")`) |
 | CI | `./mvnw test -B` on every push/PR to `main` |
 
