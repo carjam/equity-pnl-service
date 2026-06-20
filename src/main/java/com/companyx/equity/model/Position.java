@@ -1,11 +1,11 @@
 package com.companyx.equity.model;
 
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import javax.persistence.*;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -25,6 +25,18 @@ public class Position {
         this.value = BigDecimal.ZERO;
         this.realized = BigDecimal.ZERO;
         this.unrealized = BigDecimal.ZERO;
+    }
+
+    public Position(Position other) {
+        this.id = other.id;
+        this.user = other.user;
+        this.timestamp = other.timestamp;
+        this.symbol = other.symbol;
+        this.quantity = other.quantity;
+        this.value = other.value;
+        this.realized = other.realized;
+        this.unrealized = other.unrealized;
+        this.price = other.price;
     }
 
     @Id

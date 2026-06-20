@@ -1,11 +1,11 @@
 package com.companyx.equity.model;
 
-import com.sun.istack.NotNull;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import javax.persistence.*;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -23,7 +23,11 @@ public class Transaction {
     @NotNull
     private Timestamp timestamp;
     private String symbol;
+    
+    @PositiveOrZero(message = "Quantity cannot be negative")
     private BigInteger quantity;
+    
+    @PositiveOrZero(message = "Value cannot be negative")
     private BigDecimal value;
 
     @NotNull

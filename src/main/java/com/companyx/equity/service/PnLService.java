@@ -1,6 +1,9 @@
 package com.companyx.equity.service;
 
+import com.companyx.equity.error.InvalidInputException;
+import com.companyx.equity.error.TransactionNotFoundException;
 import com.companyx.equity.error.UnexpectedValueException;
+import com.companyx.equity.error.UserNotFoundException;
 import com.companyx.equity.model.Position;
 import com.companyx.equity.model.Transaction;
 import com.companyx.equity.model.TransactionType;
@@ -9,22 +12,20 @@ import com.companyx.equity.repository.FinhubRepository;
 import com.companyx.equity.repository.TransactionRepository;
 import com.companyx.equity.repository.UserRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.security.auth.login.LoginException;
-import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.sql.Timestamp;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.*;
+import java.time.ZoneId;
 
 @Slf4j
 @Service
@@ -32,15 +33,12 @@ import java.util.*;
 public class PnLService {
     private final String CASH = "cash";
     private final int ROUNDING_SCALE = 6;
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
-    @Autowired
-    UserRepository userRepository;
-
-    @Autowired
-    TransactionRepository transactionRepository;
-
-    @Autowired
-    FinhubRepository finhubRepository;
+    private final UserRepository userRepository;
+    private final TransactionRepository transactionRepository;
+    private final FinhubRepository finhubRepository;
+    private final CorporateActionService corporateActionService;
 
     /**
      * Retrieves the realized, unrealized PnL, quantity, and basis for a date range
@@ -55,27 +53,45 @@ public class PnLService {
      *  long = negative value, positive quantity
      *  short = positive value, negative quantity
      */
-    public Map<String, Position> getPositions(String uid, Date start, Date end) throws JsonProcessingException, LoginException {
+    public Map<String, Position> getPositions(String uid, Date start, Date end) throws JsonProcessingException {
+        validateDateRange(start, end);
+        
         Optional<User> user = userRepository.findByUid(uid);
         if(!user.isPresent())
-            throw new LoginException();
+            throw new UserNotFoundException(uid);
 
         Map<String, Position> positions = getStartPositions(user.get(), start);
-        //clone positions to calculate realized later
-        Gson gson = new Gson();
-        String jsonString = gson.toJson(positions);
-        Type type = new TypeToken<HashMap<String, Position>>(){}.getType();
-        HashMap<String, Position> startPositions = gson.fromJson(jsonString, type);
+        HashMap<String, Position> startPositions = deepCopyPositions(positions);
         positions = getEndPositions(user.get(), start, end, positions);
 
         positions = calculateRealized(startPositions, positions);
+        positions = applyCorporateActions(user.get(), positions, start, end);
         positions = calculateUnrealized(positions, end);
-        log.info(new Timestamp(System.currentTimeMillis()) + " "
-                + this.getClass() + ":"
-                + new Throwable().getStackTrace()[0].getMethodName()
-                + "\nFinal Position: " + positions
-        );
+        log.debug("Final Position: {}", positions);
         return positions;
+    }
+    
+    /**
+     * Deep copies a map of positions using copy constructor
+     */
+    private HashMap<String, Position> deepCopyPositions(Map<String, Position> positions) {
+        HashMap<String, Position> copy = new HashMap<>();
+        for (Map.Entry<String, Position> entry : positions.entrySet()) {
+            copy.put(entry.getKey(), new Position(entry.getValue()));
+        }
+        return copy;
+    }
+    
+    /**
+     * Validates that start date is before or equal to end date
+     */
+    private void validateDateRange(Date start, Date end) {
+        if (start == null || end == null) {
+            throw new InvalidInputException("Start and end dates cannot be null");
+        }
+        if (start.after(end)) {
+            throw new InvalidInputException("Start date must be before or equal to end date");
+        }
     }
 
     /**
@@ -90,20 +106,11 @@ public class PnLService {
      */
     private Map<String, Position> getStartPositions(User user, Date start) throws JsonProcessingException {
         List<Transaction> priorTrans = transactionRepository.findAllBefore(user.getId(), start);
-        log.info(new Timestamp(System.currentTimeMillis()) + " "
-                + this.getClass() + ":"
-                + new Throwable().getStackTrace()[0].getMethodName()
-                + "\n" + priorTrans.size() + " transactions"
-                + "\n" + " from EPOCH to " + start
-        );
+        log.debug("{} transactions from EPOCH to {}", priorTrans.size(), start);
 
-        Map<String, Position> positions = new HashMap<>(); //(basis, quantity) tuple
+        Map<String, Position> positions = new HashMap<>();
         applyTransactions(user, positions, priorTrans);
-        log.info(new Timestamp(System.currentTimeMillis()) + " "
-                + this.getClass() + ":"
-                + new Throwable().getStackTrace()[0].getMethodName()
-                + "\nStart Position: " + positions
-        );
+        log.debug("Start Position: {}", positions);
         return positions;
     }
 
@@ -119,14 +126,8 @@ public class PnLService {
      */
     private Map<String, Position> getEndPositions(User user, Date start, Date end, Map<String, Position> startPositions)
             throws JsonProcessingException {
-        //get transactions in scope & calculate new basis, quantity, and cumulative realized
         List<Transaction> transactions = transactionRepository.findAllBetween(user.getId(), start, end);
-        log.info(new Timestamp(System.currentTimeMillis()) + " "
-                + this.getClass() + ":"
-                + new Throwable().getStackTrace()[0].getMethodName()
-                + "\n" + transactions.size() + " transactions"
-                + "\n" + " from " + start + " to " + end
-        );
+        log.debug("{} transactions from {} to {}", transactions.size(), start, end);
         startPositions = applyTransactions(user, startPositions, transactions);
         return startPositions;
     }
@@ -135,6 +136,8 @@ public class PnLService {
     private Map<String, Position> applyTransactions(User user, Map<String, Position> positions, List<Transaction> transactions)
             throws JsonProcessingException {
         for(Transaction transaction : transactions) {
+            validateTransaction(transaction);
+            
             String sym = transaction.getSymbol();
             if(TransactionType.CASH_TRANS.contains(transaction.getTransactionType().getDescription()))
                 sym = CASH;
@@ -149,14 +152,8 @@ public class PnLService {
             startPrice = startQuant.equals(BigInteger.ZERO) ? BigDecimal.ZERO
                     : startVal.divide(new BigDecimal(startQuant), ROUNDING_SCALE, RoundingMode.HALF_UP).abs();
             cash = transaction.getValue();
-            log.info(new Timestamp(System.currentTimeMillis()) + " "
-                    + this.getClass() + ":"
-                    + new Throwable().getStackTrace()[0].getMethodName()
-                    + "\n### startVal: " + startVal
-                    + "\n### startQuant: " + startQuant
-                    + "\n### startPrice: " + startPrice
-                    + "\n### cash: " + cash
-            );
+            log.debug("Processing transaction - startVal: {}, startQuant: {}, startPrice: {}, cash: {}",
+                    startVal, startQuant, startPrice, cash);
 
             switch(transaction.getTransactionType().getDescription()) {
                 case TransactionType.DEPOSIT:
@@ -234,14 +231,21 @@ public class PnLService {
                 default:
                     throw new UnexpectedValueException("Unknown transaction type " + transaction.getTransactionType().getDescription());
             }
-            log.info(new Timestamp(System.currentTimeMillis()) + " "
-                    + this.getClass() + ":"
-                    + new Throwable().getStackTrace()[0].getMethodName()
-                    + "\n### End transaction: " + transaction.toString()
-                    + "\n### End positions: " + positions
-            );
+            log.debug("End transaction: {}, End positions: {}", transaction, positions);
         }
         return positions;
+    }
+    
+    /**
+     * Validates transaction has valid quantities and values
+     */
+    private void validateTransaction(Transaction transaction) {
+        if (transaction.getQuantity() != null && transaction.getQuantity().compareTo(BigInteger.ZERO) < 0) {
+            throw new InvalidInputException("Transaction quantity cannot be negative");
+        }
+        if (transaction.getValue() != null && transaction.getValue().compareTo(BigDecimal.ZERO) < 0) {
+            throw new InvalidInputException("Transaction value cannot be negative");
+        }
     }
 
     /**
@@ -265,6 +269,78 @@ public class PnLService {
     }
 
     /**
+     * Applies corporate actions to equity positions before unrealized P&L is calculated.
+     * Splits and stock dividends use full position history through the period end date.
+     * Cash dividend income is limited to the requested P&L date range.
+     */
+    private Map<String, Position> applyCorporateActions(User user, Map<String, Position> positions, Date start, Date end) {
+        LocalDate periodStart = toLocalDate(start);
+        LocalDate periodEnd = toLocalDate(end);
+
+        for (String symbol : new ArrayList<>(positions.keySet())) {
+            if (CASH.equals(symbol)) {
+                continue;
+            }
+
+            Position position = positions.get(symbol);
+            if (position == null || position.getQuantity().equals(BigInteger.ZERO)) {
+                continue;
+            }
+
+            LocalDate historyStart = getEarliestTransactionDate(user.getId(), symbol);
+            Position adjusted = corporateActionService.applyPositionAdjustments(
+                    position, symbol, historyStart, periodEnd);
+
+            CorporateActionService.ComplexAdjustmentResult complex =
+                    corporateActionService.applyComplexAdjustments(
+                            adjusted, symbol, historyStart, periodEnd, this::lookupHistoricalPrice);
+
+            adjusted = complex.getPosition();
+            adjusted.setRealized(adjusted.getRealized().add(complex.getAdditionalRealized()));
+
+            BigDecimal dividendIncome = corporateActionService.calculateDividendIncome(
+                    adjusted.getQuantity(), symbol, periodStart, periodEnd);
+
+            adjusted.setRealized(adjusted.getRealized().add(dividendIncome));
+
+            if (!adjusted.getSymbol().equals(symbol)) {
+                positions.remove(symbol);
+            }
+            positions.put(adjusted.getSymbol(), adjusted);
+            complex.getAdditionalPositions().forEach(positions::put);
+        }
+
+        return positions;
+    }
+
+    private BigDecimal lookupHistoricalPrice(String symbol, LocalDate date) {
+        try {
+            Date sqlDate = java.sql.Date.valueOf(date);
+            List<BigDecimal> prices = finhubRepository.getCandle(symbol, sqlDate, sqlDate).getClose();
+            if (prices == null || prices.size() != 1) {
+                throw new UnexpectedValueException(symbol + " had " + (prices == null ? 0 : prices.size())
+                        + " prices for " + date);
+            }
+            return prices.get(0);
+        } catch (JsonProcessingException e) {
+            throw new UnexpectedValueException("Failed to fetch price for " + symbol + " on " + date);
+        }
+    }
+
+    private LocalDate getEarliestTransactionDate(int userId, String symbol) {
+        return transactionRepository.findEarliestByUserAndSymbol(userId, symbol)
+                .map(this::toLocalDate)
+                .orElse(LocalDate.of(1970, 1, 1));
+    }
+
+    private LocalDate toLocalDate(Date date) {
+        if (date instanceof java.sql.Date sqlDate) {
+            return sqlDate.toLocalDate();
+        }
+        return date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+    }
+
+    /**
      * Calculates unrealized
      *  unrealized = (end Price * quantity) - basis
      *
@@ -274,18 +350,23 @@ public class PnLService {
      * @throws JsonProcessingException
      */
     private Map<String, Position> calculateUnrealized(Map<String, Position> positions, Date end) throws JsonProcessingException {
+        LocalDate endDate = toLocalDate(end);
+        LocalDate today = LocalDate.now(ZoneId.systemDefault());
+
         for(String sym : positions.keySet()) {
             if(sym.equals(CASH))
                 continue;
-            log.info(new Timestamp(System.currentTimeMillis()) + " "
-                    + this.getClass() + ":"
-                    + new Throwable().getStackTrace()[0].getMethodName()
-                    + "\nCalculating unrealized for " +  sym
-            );
-            Date today = new Date();
+            log.debug("Calculating unrealized for {}", sym);
+            Position position = positions.get(sym);
+            BigInteger quantity = position.getQuantity();
+            if (quantity.equals(BigInteger.ZERO)) {
+                position.setUnrealized(BigDecimal.ZERO);
+                positions.put(sym, position);
+                continue;
+            }
+
             BigDecimal price;
-            //TODO: add biz day logic for holidays and weekends - SwapMon
-            if(end.compareTo(today) >= 0) {
+            if(!endDate.isBefore(today)) {
                 price = finhubRepository.getMark(sym).getCurrentPrice();
             } else {
                 List<BigDecimal> prices = finhubRepository.getCandle(sym, end, end).getClose();
@@ -293,11 +374,8 @@ public class PnLService {
                     throw new UnexpectedValueException(sym + " had " + prices.size() + " prices for " + end);
                 price = prices.get(0);
             }
-            BigDecimal basis = positions.get(sym).getValue();
-            BigInteger quantity = positions.get(sym).getQuantity();
-            //(end price * quantity) - basis
+            BigDecimal basis = position.getValue();
             BigDecimal unrealized = (price.multiply(new BigDecimal(quantity))).add(basis);
-            Position position = positions.get(sym);
             position.setUnrealized(unrealized);
             position.setPrice(price);
             positions.put(sym, position);
@@ -305,28 +383,40 @@ public class PnLService {
         return positions;
     }
 
-    public Transaction getTransactionById(String uid, String id) throws LoginException {
+    public Transaction getTransactionById(String uid, String id) {
         Optional<User> user = userRepository.findByUid(uid);
         if(!user.isPresent())
-            throw new LoginException();
+            throw new UserNotFoundException(uid);
 
         Integer transactionId = Integer.parseInt(id);
-        return transactionRepository.findByUidAndId(user.get().getId(), transactionId).get();
+        return transactionRepository.findByUidAndId(user.get().getId(), transactionId)
+                .orElseThrow(() -> new TransactionNotFoundException(uid, transactionId));
     }
 
     public List<Transaction> getTransactionsByDates(String uid, Optional<String> from, Optional<String> to)
-            throws ParseException, LoginException {
+            throws ParseException {
         Optional<User> user = userRepository.findByUid(uid);
         if(!user.isPresent())
-            throw new LoginException();
+            throw new UserNotFoundException(uid);
 
         Date fromDate = null;
         Date toDate = null;
-        if (from.isPresent()) {
-            fromDate = new SimpleDateFormat("yyyy-MM-dd").parse(from.get());
+        
+        try {
+            if (from.isPresent()) {
+                LocalDate localDate = LocalDate.parse(from.get(), DATE_FORMATTER);
+                fromDate = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+            }
+            if (to.isPresent()) {
+                LocalDate localDate = LocalDate.parse(to.get(), DATE_FORMATTER);
+                toDate = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+            }
+        } catch (DateTimeParseException e) {
+            throw new InvalidInputException("Invalid date format. Expected yyyy-MM-dd");
         }
-        if (to.isPresent()) {
-            toDate = new SimpleDateFormat("yyyy-MM-dd").parse(to.get());
+        
+        if (fromDate != null && toDate != null && fromDate.after(toDate)) {
+            throw new InvalidInputException("From date must be before or equal to to date");
         }
 
         if (Objects.isNull(fromDate) && Objects.isNull(toDate))

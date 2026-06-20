@@ -1,35 +1,49 @@
-#FROM openjdk:8-jdk-alpine
-#RUN addgroup -S spring && adduser -S spring -G spring
-#USER spring:spring
-#ARG DEPENDENCY=target/dependency
-#COPY ${DEPENDENCY}/BOOT-INF/lib /app/lib
-#COPY ${DEPENDENCY}/META-INF /app/META-INF
-#COPY ${DEPENDENCY}/BOOT-INF/classes /app
-#EXPOSE 8084
-#ENTRYPOINT ["java","-cp","app:app/lib/*","com.companyx.equity.MainApplicationClass"]
+# Multi-stage build for production
 
-FROM maven:3.6.3-jdk-11-slim AS builder
-
-RUN apt-get update \
-    && apt-get -y install make git python python-dev tzdata python-pip \
-    && curl -Ls \
-        https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 \
-        -o /usr/local/bin/cc-test-reporter && \
-        chmod +x /usr/local/bin/cc-test-reporter
+# Stage 1: Build
+FROM maven:3.9-eclipse-temurin-17-alpine AS build
 
 WORKDIR /app
 
-COPY ./pom.xml /app/pom.xml
-#RUN mvn --no-transfer-progress dependency:go-offline
+# Copy POM and download dependencies (cached layer)
+COPY pom.xml .
+RUN mvn dependency:go-offline -B
 
-#COPY . /app
-#WORKDIR /app
+# Copy source and build
+COPY src ./src
+RUN mvn clean package -DskipTests -B
 
-#RUN mvn --no-transfer-progress -DskipTets=true package
+# Stage 2: Runtime
+FROM eclipse-temurin:17-jre-alpine
 
-#FROM openjdk:11.0.10-jdk-slim
-#RUN apt-get update \
-#    && apt-get install -y awscli \
-#    && rm -rf /var/lib/apt/lists/*
-#COPY --from=builder /app/target/equity-1.0-SNAPSHOT.jar /app/
+# Create non-root user
+RUN addgroup -g 1001 -S appuser && \
+    adduser -u 1001 -S appuser -G appuser
 
+WORKDIR /app
+
+# Copy JAR from build stage
+COPY --from=build /app/target/equity-*.jar app.jar
+
+# Change ownership
+RUN chown -R appuser:appuser /app
+
+# Switch to non-root user
+USER appuser
+
+# Expose port
+EXPOSE 8080
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
+    CMD wget --no-verbose --tries=1 --spider http://localhost:8080/actuator/health || exit 1
+
+# JVM options for container
+ENV JAVA_OPTS="-XX:+UseContainerSupport \
+    -XX:MaxRAMPercentage=75.0 \
+    -XX:InitialRAMPercentage=50.0 \
+    -XX:+ExitOnOutOfMemoryError \
+    -Djava.security.egd=file:/dev/./urandom"
+
+# Run application
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]
