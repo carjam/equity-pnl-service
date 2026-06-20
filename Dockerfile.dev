@@ -1,0 +1,21 @@
+# Development Dockerfile with hot reload
+
+FROM maven:3.9-eclipse-temurin-17
+
+WORKDIR /app
+
+# Install utilities
+RUN apt-get update && apt-get install -y curl wget && rm -rf /var/lib/apt/lists/*
+
+# Copy POM for dependency caching
+COPY pom.xml .
+RUN mvn dependency:go-offline -B
+
+# Expose ports
+EXPOSE 8080 5005
+
+# JVM debug options
+ENV MAVEN_OPTS="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"
+
+# Run with spring-boot:run for hot reload
+CMD ["mvn", "spring-boot:run"]

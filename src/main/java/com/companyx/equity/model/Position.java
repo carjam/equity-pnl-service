@@ -27,6 +27,18 @@ public class Position {
         this.unrealized = BigDecimal.ZERO;
     }
 
+    public Position(Position other) {
+        this.id = other.id;
+        this.user = other.user;
+        this.timestamp = other.timestamp;
+        this.symbol = other.symbol;
+        this.quantity = other.quantity;
+        this.value = other.value;
+        this.realized = other.realized;
+        this.unrealized = other.unrealized;
+        this.price = other.price;
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
