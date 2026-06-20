@@ -36,7 +36,7 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 /**
- * Tests to verify bug fixes documented in BUG_REPORT.md
+ * Regression tests for PnL service fixes (controller types, validation, exceptions, deep copy).
  * 
  * Bug #1 & #2: Type mismatches in controller - FIXED (already converted LocalDate to Date/String)
  * Bug #6: Gson deep clone inefficiency - FIXED (now using copy constructor)

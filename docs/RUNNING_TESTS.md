@@ -210,7 +210,7 @@ Tests use in-memory data created by `TestDataBuilder`:
 
 None blocking as of June 20, 2026. All 257 tests pass.
 
-For historical bug analysis see `BUG_REPORT.md`. For deferred features see `FUTURE_ENHANCEMENTS.md`.
+For deferred features see [FUTURE_ENHANCEMENTS.md](FUTURE_ENHANCEMENTS.md).
 
 ## CI/CD Integration
 
@@ -257,7 +257,7 @@ jobs:
 ## Getting Help
 
 - **Test Documentation**: See `TEST_DOCUMENTATION.md`
-- **Bug Report**: See `BUG_REPORT.md`
+- **Future work**: See [FUTURE_ENHANCEMENTS.md](FUTURE_ENHANCEMENTS.md)
 - **Coverage Report**: See `TEST_COVERAGE_REPORT.md`
 - **JUnit 5 Docs**: https://junit.org/junit5/docs/current/user-guide/
 - **Mockito Docs**: https://javadoc.io/doc/org.mockito/mockito-core/latest/org/mockito/Mockito.html
@@ -265,4 +265,4 @@ jobs:
 
 ---
 
-*For detailed analysis of bugs found and test coverage, see `BUG_REPORT.md` and `TEST_COVERAGE_REPORT.md`*
+*For test coverage detail see [TEST_COVERAGE_REPORT.md](TEST_COVERAGE_REPORT.md).*

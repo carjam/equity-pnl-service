@@ -98,12 +98,12 @@
    - ❌ Was: Hardcoded "GMT-7" (wrong for PST months)
    - ✅ Fixed: Using "America/Los_Angeles" (handles PST/PDT automatically)
 
-### Bugs Documented (Require Further Analysis)
+### Bugs Documented (all resolved)
 
-4. **P&L calculation sign conventions** (see BUG_REPORT.md)
-5. **Inefficient Gson cloning** (performance concern)
-6. **Missing input validation** (negative quantities, prices)
-7. **Generic exception handling** (should use custom exceptions)
+4. **P&L calculation sign conventions** — verified correct (`PnLCalculationTest`)
+5. **Gson cloning** — replaced with copy constructor
+6. **Input validation** — added
+7. **Exception handling** — custom exceptions + `RestExceptionHandler`
 
 ---
 
@@ -212,10 +212,10 @@ src/test/java/
 │   └── application-test.properties
 ```
 
-### Documentation (2)
+### Documentation
 ```
-BUG_REPORT.md
-TEST_DOCUMENTATION.md
+docs/README.md, PROJECT_STATUS.md, RUNNING_TESTS.md, TEST_DOCUMENTATION.md
+docs/archive/BUG_REPORT.md  (historical — all issues resolved)
 ```
 
 ### Modified Files (2)
@@ -267,13 +267,7 @@ src/test/java/EquityTest.java  (placeholder test)
 
 ## Conclusion
 
-✅ **Mission Accomplished**: The equity-pnl-service now has comprehensive test coverage with 170+ test cases covering all major components, edge cases, and integration scenarios.
-
-🐛 **Critical Bugs Fixed**: Three compilation-blocking bugs have been resolved.
-
-📋 **Documentation Complete**: Comprehensive bug report and test documentation provided.
-
-⚠️ **Next Steps**: Verify P&L calculation logic against test expectations and address remaining mathematical concerns documented in BUG_REPORT.md.
+257 tests cover P&L core, corporate actions, security, and API layers. Initial review bugs (type mismatches, timezone, validation, exceptions) are resolved. For deferred product work see [FUTURE_ENHANCEMENTS.md](FUTURE_ENHANCEMENTS.md).
 
 ---
 

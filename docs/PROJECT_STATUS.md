@@ -65,7 +65,7 @@ Key test groups:
 ## What's Complete
 
 1. **Core P&L** — Long/short, transitions, average cost, realized/unrealized
-2. **Bug fixes** — Controller type mismatches, timezone, validation, exceptions (see [BUG_REPORT.md](BUG_REPORT.md))
+2. **Bug fixes** — Controller type mismatches, timezone, validation, exceptions (all resolved; covered by `PnLServiceBugFixTest` and related tests)
 3. **Corporate actions** — Full Phase 0 per spec
 4. **Test infrastructure** — `@ActiveProfiles("test")`, H2 test profile, WebMvcTest security mocks, Finhub retry tests with MockWebServer
 5. **Resilience fix** — Circuit breaker no longer bypasses retry fallback on first failure (`FinhubRepository`)

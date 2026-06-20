@@ -8,6 +8,7 @@ This directory contains historical progress reports and documentation that has b
 ## Recently Archived
 
 ### June 20, 2026
+- **BUG_REPORT.md** — Initial code-review bug log (all items resolved; kept for history)
 - **NIGHT_SESSION_SUMMARY.md** — Corporate actions night session summary (see `../corporate-actions/PROGRESS.md`)
 - **NEW_FILES.md** — File listing from corporate actions implementation
 
@@ -54,7 +55,7 @@ For up-to-date information, see:
 
 - **[../PROJECT_STATUS.md](../PROJECT_STATUS.md)** — Current project status
 - **[../corporate-actions/PROGRESS.md](../corporate-actions/PROGRESS.md)** — Corporate actions implementation status
-- **[../BUG_REPORT.md](../BUG_REPORT.md)** — Bug analysis
+- **[BUG_REPORT.md](BUG_REPORT.md)** — Historical bug analysis (all resolved)
 - **[../RUNNING_TESTS.md](../RUNNING_TESTS.md)** — Testing guide
 - **[../README.md](../README.md)** — Documentation index
 

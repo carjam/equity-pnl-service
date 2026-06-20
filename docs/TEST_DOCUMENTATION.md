@@ -168,7 +168,7 @@ Tests are organized by:
 
 ## Maintenance
 
-- Update tests when fixing bugs identified in BUG_REPORT.md
+- Add regression tests when fixing production bugs
 - Maintain test coverage above 90%
 - Keep test data builders updated with model changes
 - Document any test-specific assumptions

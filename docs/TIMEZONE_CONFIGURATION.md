@@ -323,4 +323,4 @@ ExecStart=/usr/bin/java -jar equity-pnl-service.jar
 
 ---
 
-*For questions or issues, refer to BUG_REPORT.md or TEST_DOCUMENTATION.md*
+*For questions, see [TEST_DOCUMENTATION.md](TEST_DOCUMENTATION.md) or [PROJECT_STATUS.md](PROJECT_STATUS.md).*

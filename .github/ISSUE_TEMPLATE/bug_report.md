@@ -35,5 +35,5 @@ If applicable, add logs or screenshots to help explain your problem.
 Add any other context about the problem here.
 
 **Related Documentation**
-- Check [docs/BUG_REPORT.md](../docs/BUG_REPORT.md) for known issues
+- Review [docs/PROJECT_STATUS.md](../docs/PROJECT_STATUS.md) for known scope
 - Review [docs/RUNNING_TESTS.md](../docs/RUNNING_TESTS.md) for testing

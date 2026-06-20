@@ -20,7 +20,8 @@ All project documentation is in the [`docs/`](docs/) directory:
 | **[Project Status](docs/PROJECT_STATUS.md)** | Current status and next steps |
 | **[Corporate Actions](docs/corporate-actions/README.md)** | Phase 0 implementation docs |
 | **[Running Tests](docs/RUNNING_TESTS.md)** | Quick start guide for testing |
-| **[Bug Report](docs/BUG_REPORT.md)** | Known issues and fixes |
+| **[Project Status](docs/PROJECT_STATUS.md)** | Current status and next steps |
+| **[Future Enhancements](docs/FUTURE_ENHANCEMENTS.md)** | Deferred work (not blocking demo) |
 | **[Test Coverage](docs/TEST_COVERAGE_REPORT.md)** | Detailed test analysis |
 | **[Timezone Config](docs/TIMEZONE_CONFIGURATION.md)** | Configure application timezone |
 | **[Notice](docs/NOTICE.md)** | Portfolio and licensing notice |
@@ -180,14 +181,16 @@ GET  /Candle/{symbol}?from={date}&to={date}  # Historical candles
 
 See [docs/TEST_COVERAGE_REPORT.md](docs/TEST_COVERAGE_REPORT.md) for detailed analysis.
 
-## 🐛 Known Issues
+## Known Issues
 
-Core bugs from the initial review are resolved. Remaining work is optional enhancement, not blocking merge:
+**No open bugs.** Initial code-review findings (controller types, timezone, validation, exceptions) are resolved and covered by tests.
 
-- **Production M&A data feed** — Phase 2 logic is implemented; live secondary provider (paid API or SEC EDGAR) deferred until needed. Dev/test fixtures cover FOX→DIS, EBAY→PYPL, FB→META, TWTR cash merger.
-- **CI/CD** — GitHub Actions not yet configured.
+Optional product work — not bugs:
 
-See [docs/BUG_REPORT.md](docs/BUG_REPORT.md) and [docs/PROJECT_STATUS.md](docs/PROJECT_STATUS.md) for details.
+- **Production M&A data** — Complex-event logic works; live secondary provider deferred. Fixtures cover FOX→DIS, EBAY→PYPL, FB→META, TWTR.
+- **Load testing / prod deploy** — See [docs/FUTURE_ENHANCEMENTS.md](docs/FUTURE_ENHANCEMENTS.md).
+
+See [docs/PROJECT_STATUS.md](docs/PROJECT_STATUS.md) for current status.
 
 ## 📦 Project Structure
 
@@ -195,8 +198,9 @@ See [docs/BUG_REPORT.md](docs/BUG_REPORT.md) and [docs/PROJECT_STATUS.md](docs/P
 equity-pnl-service/
 ├── docs/                          # 📚 All documentation
 │   ├── README.md                  # Documentation index
-│   ├── BUG_REPORT.md             # Bug analysis & fixes
-│   ├── RUNNING_TESTS.md          # Testing guide
+│   ├── PORTFOLIO_DEMO.md          # Demo script
+│   ├── PROJECT_STATUS.md          # Current status
+│   ├── RUNNING_TESTS.md           # Testing guide
 │   ├── TEST_COVERAGE_REPORT.md   # Coverage analysis
 │   └── TIMEZONE_CONFIGURATION.md # Timezone setup
 ├── src/
@@ -246,8 +250,8 @@ Production (secured):
 
 ## 🤝 Contributing
 
-1. Review [docs/BUG_REPORT.md](docs/BUG_REPORT.md) for known issues
-2. Run tests: `mvn test` (must pass with >90% coverage)
+1. Review [docs/PORTFOLIO_DEMO.md](docs/PORTFOLIO_DEMO.md) and [docs/PROJECT_STATUS.md](docs/PROJECT_STATUS.md)
+2. Run tests: `.\mvnw.cmd test` (257 tests must pass)
 3. Follow existing code patterns and conventions
 4. Update documentation for any changes
 5. Add tests for new functionality
@@ -276,7 +280,8 @@ See [LICENSE](LICENSE) for full terms.
 
 ### Documentation
 - [Complete Documentation Index](docs/README.md)
-- [Bug Report & Known Issues](docs/BUG_REPORT.md)
+- [Portfolio Demo Guide](docs/PORTFOLIO_DEMO.md)
+- [Project Status](docs/PROJECT_STATUS.md)
 - [Testing Guide](docs/RUNNING_TESTS.md)
 - [Timezone Configuration](docs/TIMEZONE_CONFIGURATION.md)
 
@@ -288,7 +293,7 @@ See [LICENSE](LICENSE) for full terms.
 ---
 
 **Latest Update:** June 20, 2026  
-**Test Coverage:** ~95% (255 tests, all passing)  
-**Status:** Merge-ready on `feature/bug-fixes-and-retry-strategy`
+**Tests:** 257 passing on `main`  
+**Status:** Portfolio-ready — see [docs/PORTFOLIO_DEMO.md](docs/PORTFOLIO_DEMO.md)
 
 *For detailed documentation, see the [`docs/`](docs/) directory.*
