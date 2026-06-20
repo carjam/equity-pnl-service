@@ -109,4 +109,12 @@ class IntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").exists());
     }
+
+    @Test
+    public void testOpenApiDocsAvailable() throws Exception {
+        mockMvc.perform(get("/v3/api-docs"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.openapi").exists())
+                .andExpect(jsonPath("$.info.title").value("Equity P&L Service API"));
+    }
 }

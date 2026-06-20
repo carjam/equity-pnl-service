@@ -3,6 +3,9 @@ package com.companyx.equity.controller;
 import com.companyx.equity.dto.AuthRequest;
 import com.companyx.equity.dto.AuthResponse;
 import com.companyx.equity.security.JwtUtil;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
+@Tag(name = "Authentication", description = "JWT login")
 public class AuthController {
 
     private final AuthenticationManager authenticationManager;
@@ -24,6 +28,8 @@ public class AuthController {
     private final JwtUtil jwtUtil;
 
     @PostMapping("/login")
+    @Operation(summary = "Login and obtain JWT bearer token")
+    @SecurityRequirements
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody AuthRequest request) {
         log.info("Login attempt for user: {}", request.getUid());
         

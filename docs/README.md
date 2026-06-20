@@ -17,6 +17,7 @@ All essential documentation for the Equity P&L Service.
 
 ### Status & Planning
 - **[PROJECT_STATUS.md](PROJECT_STATUS.md)** — Current status and next steps
+- **[PHASE1_AUDIT.md](PHASE1_AUDIT.md)** — Phase 1 security & stability sign-off
 - **[BUG_REPORT.md](BUG_REPORT.md)** — Bug analysis (all core issues resolved)
 - **[FUTURE_ENHANCEMENTS.md](FUTURE_ENHANCEMENTS.md)** — Deferred work (DB cache, etc.)
 - **[../spec/CHECKLIST.md](../spec/CHECKLIST.md)** — Production readiness checklist

@@ -4,6 +4,7 @@ import com.companyx.equity.model.Position;
 import com.companyx.equity.model.Transaction;
 import com.companyx.equity.service.PnLService;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -23,6 +24,7 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/v1")
 @RequiredArgsConstructor
+@Tag(name = "Transactions & P&L", description = "Portfolio transactions and profit/loss queries")
 public class TransactionController {
     
     private final PnLService pnLService;

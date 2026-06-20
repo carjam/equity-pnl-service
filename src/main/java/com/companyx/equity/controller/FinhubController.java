@@ -2,10 +2,9 @@ package com.companyx.equity.controller;
 
 import com.companyx.equity.dto.CandleDto;
 import com.companyx.equity.dto.MarkDto;
-import com.companyx.equity.model.Transaction;
 import com.companyx.equity.repository.FinhubRepository;
-import com.companyx.equity.repository.TransactionRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.hateoas.EntityModel;
@@ -19,13 +18,11 @@ import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
 
 @Slf4j
 @RestController
 @RequiredArgsConstructor
+@Tag(name = "Market Data", description = "Finnhub quote and candle endpoints (legacy paths)")
 public class FinhubController {
 
     private final FinhubRepository finhubRepository;

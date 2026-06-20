@@ -16,7 +16,9 @@
 | Docker / containerization | ✅ Complete |
 | **Corporate actions (Phase 0)** | ✅ **Complete** — splits, dividends, Phase 2 logic, REST API, fixtures |
 | Phase 2 production data (M&A feed) | ⏸ Deferred — optional paid API or SEC EDGAR |
-| CI/CD pipeline | ✅ GitHub Actions (`mvn test` on push/PR to `main`) |
+| CI/CD pipeline | ✅ GitHub Actions (tests + OWASP dependency-check) |
+| OpenAPI / Swagger | ✅ SpringDoc (`/swagger-ui.html` in dev) |
+| Phase 1 security audit | ✅ [PHASE1_AUDIT.md](PHASE1_AUDIT.md) |
 | FIFO/LIFO lot tracking | ⬜ Future |
 
 ---
@@ -75,9 +77,10 @@ Key test groups:
 2. Open PR from `feature/bug-fixes-and-retry-strategy` → `main`
 
 ### After merge
-1. ~~**CI/CD** — GitHub Actions (`mvn test` on PR)~~ ✅ Done — see `.github/workflows/ci.yml`
-2. **Documentation sync** — Keep [spec/CHECKLIST.md](../spec/CHECKLIST.md) aligned with shipped work
-3. **Production Phase 2 data** — Only when a user hits wrong P&L on M&A, or paid tier requires it
+1. ~~**CI/CD** — GitHub Actions~~ ✅ Tests + OWASP scan
+2. ~~**OpenAPI/Swagger**~~ ✅ SpringDoc in dev profile
+3. ~~**Phase 1 audit**~~ ✅ [PHASE1_AUDIT.md](PHASE1_AUDIT.md)
+4. **Production Phase 2 data** — Only when a user hits wrong P&L on M&A, or paid tier requires it
 
 ### Future enhancements
 - FIFO/LIFO lot tracking

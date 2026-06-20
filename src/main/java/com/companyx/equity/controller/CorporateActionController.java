@@ -7,6 +7,7 @@ import com.companyx.equity.provider.CorporateActionProviderFactory;
 import com.companyx.equity.service.CorporateActionService;
 import com.companyx.equity.service.PnLService;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -27,6 +28,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/v1")
 @RequiredArgsConstructor
+@Tag(name = "Corporate Actions", description = "Dividends, splits, mergers, spinoffs, and total return")
 public class CorporateActionController {
 
     private final CorporateActionService corporateActionService;

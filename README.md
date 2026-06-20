@@ -44,6 +44,8 @@ See [docs/RUNNING_TESTS.md](docs/RUNNING_TESTS.md) for detailed instructions.
 mvn spring-boot:run -Dspring-boot.run.profiles=dev
 ```
 
+**API docs (dev):** [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html) — authenticate via **Authentication → POST /api/v1/auth/login**, then **Authorize** with `Bearer <token>`.
+
 **Production Mode:**
 ```bash
 java -jar target/equity-pnl-service.jar --spring.profiles.active=prod

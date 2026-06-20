@@ -198,9 +198,12 @@ For historical bug analysis see `BUG_REPORT.md`. For deferred features see `FUTU
 GitHub Actions runs on every push and pull request to `main`:
 
 - Workflow: [`.github/workflows/ci.yml`](../.github/workflows/ci.yml)
-- Job: JDK 21 (Temurin), Maven cache, `./mvnw test -B`
+- **Maven Test:** JDK 21, `./mvnw test -B`
+- **OWASP Dependency-Check:** `./mvnw dependency-check:check -B` (fails on CVSS ≥ 7)
 
-View runs under **Actions** on GitHub.
+Optional: add an `NVD_API_KEY` repository secret ([NIST NVD API key](https://nvd.nist.gov/developers/request-an-api-key)) for faster, more reliable NVD updates in CI.
+
+View runs under **Actions** on GitHub. Download the dependency-check HTML report from workflow artifacts if the security job runs.
 
 ### GitHub Actions Example (reference — implemented in repo)
 
