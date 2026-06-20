@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 
 import java.util.Optional;
@@ -16,8 +17,9 @@ import static org.junit.jupiter.api.Assertions.*;
  * Integration tests for UserRepository
  */
 @DataJpaTest
+@ActiveProfiles("test")
 @TestPropertySource(locations = "classpath:application-test.properties")
-public class UserRepositoryTest {
+class UserRepositoryTest {
     
     @Autowired
     private TestEntityManager entityManager;
@@ -27,7 +29,7 @@ public class UserRepositoryTest {
     
     @Test
     public void testFindByUid_Success() {
-        User user = TestDataBuilder.createTestUser("test-user-123", "password");
+        User user = TestDataBuilder.createPersistableUser("test-user-123", "password");
         entityManager.persistAndFlush(user);
         
         Optional<User> found = userRepository.findByUid("test-user-123");
@@ -45,7 +47,7 @@ public class UserRepositoryTest {
     
     @Test
     public void testFindByUid_CaseSensitive() {
-        User user = TestDataBuilder.createTestUser("TestUser", "password");
+        User user = TestDataBuilder.createPersistableUser("TestUser", "password");
         entityManager.persistAndFlush(user);
         
         Optional<User> found1 = userRepository.findByUid("TestUser");
@@ -58,7 +60,7 @@ public class UserRepositoryTest {
     
     @Test
     public void testSaveUser() {
-        User user = TestDataBuilder.createTestUser("new-user", "password123");
+        User user = TestDataBuilder.createPersistableUser("new-user", "password123");
         
         User saved = userRepository.save(user);
         
@@ -69,7 +71,7 @@ public class UserRepositoryTest {
     
     @Test
     public void testDeleteUser() {
-        User user = TestDataBuilder.createTestUser("temp-user", "password");
+        User user = TestDataBuilder.createPersistableUser("temp-user", "password");
         user = entityManager.persistAndFlush(user);
         int userId = user.getId();
         

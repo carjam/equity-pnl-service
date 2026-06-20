@@ -440,7 +440,7 @@ GET https://finnhub.io/api/v1/stock/split
   - [ ] Update `CorporateActionService` to use new providers
   - [ ] Update `PnLService` to handle mergers and spinoffs
   - [ ] Integration tests with real provider API
-  - [ ] Test real-world examples (DIS/FOX merger, EBAY/PYPL spinoff)
+  - [x] Test real-world examples (DIS/FOX merger, EBAY/PYPL spinoff, FB→META, TWTR cash merger)
   - [ ] Update API documentation
   - [ ] Deploy to staging
   - [ ] Deploy to production

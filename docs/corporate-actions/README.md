@@ -7,7 +7,7 @@ Implementation docs for Phase 0 corporate actions (splits, dividends, stateless 
 | **[PLAN.md](PLAN.md)** | Executive summary, timeline, and architecture overview |
 | **[PROGRESS.md](PROGRESS.md)** | Implementation status, test results, and integration next steps |
 | **[PROVIDER_STRATEGY.md](PROVIDER_STRATEGY.md)** | Primary vs secondary data sources, cost tradeoffs, SEC EDGAR option |
-| **Fixture provider** | `FixtureCorporateActionProvider` — FOX→DIS and EBAY→PYPL scenarios for dev/demo (`corporate-actions.fixture.enabled=true`) |
+| **Fixture provider** | `FixtureCorporateActionProvider` — FOX→DIS, EBAY→PYPL, FB→META, TWTR cash merger (`corporate-actions.fixture.enabled=true` in dev) |
 
 **Specification:** [spec/phase-0-corporate-actions/01-corporate-actions-support.md](../../spec/phase-0-corporate-actions/01-corporate-actions-support.md)
 

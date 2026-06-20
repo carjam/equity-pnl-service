@@ -38,7 +38,8 @@ import static org.mockito.Mockito.when;
 
 /**
  * End-to-end P&amp;L tests using {@link FixtureCorporateActionProvider} with SEC-documented
- * real-world scenarios (Disney/Fox merger, eBay/PayPal spinoff).
+ * real-world scenarios (Disney/Fox merger, eBay/PayPal spinoff, Meta ticker change,
+ * Twitter cash acquisition).
  */
 @ExtendWith(MockitoExtension.class)
 @DisplayName("Real-World Corporate Actions P&L End-to-End")
@@ -168,6 +169,64 @@ class RealWorldCorporateActionsPnLEndToEndTest {
                 "EBAY unrealized should be break-even at allocated basis per share");
         assertEquals(0, new BigDecimal("0.00").compareTo(pypl.getUnrealized()),
                 "PYPL unrealized should be break-even at allocated basis per share");
+    }
+
+    @Test
+    @DisplayName("FB→META symbol change (June 2022) retitles position without changing economics")
+    void fbMetaSymbolChangeEndToEnd() throws JsonProcessingException {
+        when(userRepository.findByUid("test-user")).thenReturn(Optional.of(testUser));
+        when(transactionRepository.findAllBefore(anyInt(), any(Date.class))).thenReturn(List.of(
+                TestDataBuilder.createDepositTransaction(testUser,
+                        TestDataBuilder.createTransactionType(3, TransactionType.DEPOSIT),
+                        LocalDateTime.of(2022, 1, 1, 10, 0), 50_000.0),
+                TestDataBuilder.createBuyTransaction(testUser,
+                        TestDataBuilder.createTransactionType(1, TransactionType.BUY),
+                        "FB", LocalDateTime.of(2022, 1, 15, 10, 0), 100, 20_000.0)
+        ));
+        when(transactionRepository.findAllBetween(anyInt(), any(Date.class), any(Date.class)))
+                .thenReturn(List.of());
+        when(transactionRepository.findEarliestByUserAndSymbol(1, "FB"))
+                .thenReturn(Optional.of(java.sql.Timestamp.valueOf(LocalDateTime.of(2022, 1, 15, 10, 0))));
+
+        Date end = java.sql.Date.valueOf("2022-12-31");
+        stubEndPrice("META", end, new BigDecimal("200.00"));
+
+        Map<String, Position> result = pnLService.getPositions("test-user",
+                java.sql.Date.valueOf("2022-01-01"), end);
+
+        assertNull(result.get("FB"), "FB should be retitled to META");
+        Position meta = result.get("META");
+        assertNotNull(meta);
+        assertEquals(BigInteger.valueOf(100), meta.getQuantity());
+        assertEquals(0, new BigDecimal("-20000.00").compareTo(meta.getValue()),
+                "Cost basis should be unchanged after symbol change");
+    }
+
+    @Test
+    @DisplayName("TWTR cash merger ($54.20/share, Oct 2022) closes position with realized gain")
+    void twtrCashMergerEndToEnd() throws JsonProcessingException {
+        when(userRepository.findByUid("test-user")).thenReturn(Optional.of(testUser));
+        when(transactionRepository.findAllBefore(anyInt(), any(Date.class))).thenReturn(List.of(
+                TestDataBuilder.createDepositTransaction(testUser,
+                        TestDataBuilder.createTransactionType(3, TransactionType.DEPOSIT),
+                        LocalDateTime.of(2022, 1, 1, 10, 0), 50_000.0),
+                TestDataBuilder.createBuyTransaction(testUser,
+                        TestDataBuilder.createTransactionType(1, TransactionType.BUY),
+                        "TWTR", LocalDateTime.of(2022, 1, 15, 10, 0), 100, 3_000.0)
+        ));
+        when(transactionRepository.findAllBetween(anyInt(), any(Date.class), any(Date.class)))
+                .thenReturn(List.of());
+        when(transactionRepository.findEarliestByUserAndSymbol(1, "TWTR"))
+                .thenReturn(Optional.of(java.sql.Timestamp.valueOf(LocalDateTime.of(2022, 1, 15, 10, 0))));
+
+        Map<String, Position> result = pnLService.getPositions("test-user",
+                java.sql.Date.valueOf("2022-01-01"), java.sql.Date.valueOf("2022-12-31"));
+
+        Position twtr = result.get("TWTR");
+        assertNotNull(twtr);
+        assertEquals(BigInteger.ZERO, twtr.getQuantity(), "Position should close after cash merger");
+        assertEquals(0, new BigDecimal("2420.00").compareTo(twtr.getRealized()),
+                "100 shares × $54.20 cash − $3,000 basis = $2,420 realized gain");
     }
 
     private void stubDistributionPrices(LocalDate distributionDate) throws JsonProcessingException {

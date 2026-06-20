@@ -2,6 +2,7 @@ package com.companyx.equity.provider;
 
 import com.companyx.equity.model.corporateaction.Merger;
 import com.companyx.equity.model.corporateaction.Spinoff;
+import com.companyx.equity.model.corporateaction.SymbolChange;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
@@ -41,9 +42,28 @@ class FixtureCorporateActionProviderTest {
     }
 
     @Test
+    void shouldReturnTwtrCashMergerForTwtrSymbolInRange() {
+        List<Merger> mergers = provider.getMergers(
+                "TWTR", LocalDate.of(2022, 1, 1), LocalDate.of(2022, 12, 31));
+
+        assertEquals(1, mergers.size());
+        assertEquals(FixtureCorporateActionData.TWTR_CASH_MERGER, mergers.get(0));
+    }
+
+    @Test
+    void shouldReturnFbMetaSymbolChangeForFbSymbolInRange() {
+        List<SymbolChange> changes = provider.getSymbolChanges(
+                "FB", LocalDate.of(2022, 1, 1), LocalDate.of(2022, 12, 31));
+
+        assertEquals(1, changes.size());
+        assertEquals(FixtureCorporateActionData.FB_META_SYMBOL_CHANGE, changes.get(0));
+    }
+
+    @Test
     void shouldReturnEmptyForUnknownSymbols() {
         assertTrue(provider.getMergers("AAPL", LocalDate.of(2019, 1, 1), LocalDate.of(2019, 12, 31)).isEmpty());
         assertTrue(provider.getSpinoffs("AAPL", LocalDate.of(2015, 1, 1), LocalDate.of(2015, 12, 31)).isEmpty());
+        assertTrue(provider.getSymbolChanges("AAPL", LocalDate.of(2022, 1, 1), LocalDate.of(2022, 12, 31)).isEmpty());
     }
 
     @Test

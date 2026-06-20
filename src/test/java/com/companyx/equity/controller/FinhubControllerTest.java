@@ -2,13 +2,20 @@ package com.companyx.equity.controller;
 
 import com.companyx.equity.dto.CandleDto;
 import com.companyx.equity.dto.MarkDto;
+import com.companyx.equity.error.RestExceptionHandler;
+import com.companyx.equity.error.VendorConnectivityException;
 import com.companyx.equity.repository.FinhubRepository;
+import com.companyx.equity.security.JwtAuthenticationEntryPoint;
+import com.companyx.equity.security.JwtUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.math.BigDecimal;
@@ -27,15 +34,26 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * Tests for FinhubController
  */
 @WebMvcTest(FinhubController.class)
+@Import(RestExceptionHandler.class)
 @AutoConfigureMockMvc(addFilters = false)
-public class FinhubControllerTest {
-    
+@ActiveProfiles("test")
+class FinhubControllerTest {
+
     @Autowired
     private MockMvc mockMvc;
-    
+
     @MockBean
     private FinhubRepository finhubRepository;
-    
+
+    @MockBean
+    private JwtUtil jwtUtil;
+
+    @MockBean
+    private JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+
+    @MockBean
+    private UserDetailsService userDetailsService;
+
     @Autowired
     private ObjectMapper objectMapper;
     
@@ -54,18 +72,18 @@ public class FinhubControllerTest {
         
         mockMvc.perform(get("/Mark/AAPL"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.currentPrice").value(150.25))
-                .andExpect(jsonPath("$.change").value(2.50))
-                .andExpect(jsonPath("$.precentChange").value(1.69));
+                .andExpect(jsonPath("$.c").value(150.25))
+                .andExpect(jsonPath("$.d").value(2.50))
+                .andExpect(jsonPath("$.dp").value(1.69));
     }
     
     @Test
     public void testGetMark_InvalidSymbol() throws Exception {
         when(finhubRepository.getMark("INVALID"))
-                .thenThrow(new RuntimeException("Symbol not found"));
+                .thenThrow(new VendorConnectivityException("Symbol not found"));
         
         mockMvc.perform(get("/Mark/INVALID"))
-                .andExpect(status().is5xxServerError());
+                .andExpect(status().isServiceUnavailable());
     }
     
     @Test
@@ -110,11 +128,11 @@ public class FinhubControllerTest {
                 .param("from", "2024-01-01")
                 .param("to", "2024-01-31"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.status").value("ok"))
-                .andExpect(jsonPath("$.open").isArray())
-                .andExpect(jsonPath("$.open[0]").value(150.0))
-                .andExpect(jsonPath("$.close").isArray())
-                .andExpect(jsonPath("$.close[2]").value(153.0));
+                .andExpect(jsonPath("$.s").value("ok"))
+                .andExpect(jsonPath("$.o").isArray())
+                .andExpect(jsonPath("$.o[0]").value(150.0))
+                .andExpect(jsonPath("$.c").isArray())
+                .andExpect(jsonPath("$.c[2]").value(153.0));
     }
     
     @Test
@@ -151,6 +169,6 @@ public class FinhubControllerTest {
                 .param("from", "2024-01-01")
                 .param("to", "2024-01-31"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.status").value("no_data"));
+                .andExpect(jsonPath("$.s").value("no_data"));
     }
 }

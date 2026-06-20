@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 
 import java.sql.Timestamp;
@@ -16,6 +17,7 @@ import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -23,8 +25,9 @@ import static org.junit.jupiter.api.Assertions.*;
  * Integration tests for TransactionRepository
  */
 @DataJpaTest
+@ActiveProfiles("test")
 @TestPropertySource(locations = "classpath:application-test.properties")
-public class TransactionRepositoryTest {
+class TransactionRepositoryTest {
     
     @Autowired
     private TestEntityManager entityManager;
@@ -38,7 +41,7 @@ public class TransactionRepositoryTest {
     
     @BeforeEach
     public void setup() {
-        testUser = TestDataBuilder.createTestUser("test-user", "password");
+        testUser = TestDataBuilder.createPersistableUser("txn-user-" + UUID.randomUUID(), "password");
         testUser = entityManager.persistAndFlush(testUser);
         
         buyType = TestDataBuilder.createTransactionType(0, TransactionType.BUY);

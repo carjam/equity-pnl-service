@@ -60,7 +60,11 @@ public class FixtureCorporateActionProvider implements CorporateActionProvider {
 
     @Override
     public List<SymbolChange> getSymbolChanges(String symbol, LocalDate from, LocalDate to) {
-        return Collections.emptyList();
+        List<SymbolChange> changes = FixtureCorporateActionData.symbolChangesFor(symbol, from, to);
+        if (!changes.isEmpty()) {
+            log.debug("Fixture provider returning {} symbol change(s) for {}", changes.size(), symbol);
+        }
+        return changes;
     }
 
     @Override

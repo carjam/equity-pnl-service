@@ -2,7 +2,9 @@
 
 ## Executive Summary
 
-This document outlines critical bugs, mathematical errors, and improvements needed in the equity-pnl-service codebase. The application was built hastily and contains several compilation-blocking bugs and mathematical inconsistencies in P&L calculations.
+This document records bugs found during code review of the equity-pnl-service codebase. **All critical and medium-priority items listed below are resolved.** The P&L engine and corporate actions integration are verified by 255 passing tests (June 20, 2026).
+
+Remaining gaps are optional (production M&A data feed, CI/CD) — see [PROJECT_STATUS.md](PROJECT_STATUS.md).
 
 ---
 
@@ -231,9 +233,11 @@ The P&L calculation logic has been verified against comprehensive test scenarios
 
 ---
 
-## 🎯 Status: ALL COMPLETE ✅
+## 🎯 Status: ALL CORE ISSUES RESOLVED ✅
 
-1. ✅ Test suite created and executed - 170+ tests
+Corporate actions (Phase 0) shipped June 2026 — see [corporate-actions/PROGRESS.md](corporate-actions/PROGRESS.md).
+
+1. ✅ Test suite — 200+ tests including corporate action e2e
 2. ✅ Compilation errors fixed (bugs #1, #2)
 3. ✅ P&L calculation logic verified mathematically correct
 4. ✅ All medium and low priority bugs fixed

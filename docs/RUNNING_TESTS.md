@@ -28,8 +28,8 @@ mvn test -Dtest=PnLServiceTest
 # Run specific test method
 mvn test -Dtest=PnLServiceTest#testSimpleLongPosition_BuyAndSellForProfit
 
-# Run multiple test classes
-mvn test -Dtest=PnLServiceTest,TransactionControllerTest
+# Run corporate action tests
+mvn test -Dtest=RealWorldCorporateActionsPnLEndToEndTest,CorporateActionsPnLEndToEndTest,FixtureCorporateActionProviderTest
 
 # Run tests matching pattern
 mvn test -Dtest=*ServiceTest
@@ -95,7 +95,7 @@ If not already present, add to `pom.xml`:
 
 ### Successful Run
 ```
-[INFO] Tests run: 170, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 255, Failures: 0, Errors: 0, Skipped: 0
 [INFO] BUILD SUCCESS
 ```
 
@@ -113,6 +113,7 @@ src/test/java/com/companyx/equity/
 ├── IntegrationTest.java          # Full E2E tests
 ├── controller/                   # Controller tests (MockMvc)
 │   ├── AuthControllerTest
+│   ├── CorporateActionControllerTest
 │   ├── FinhubControllerTest
 │   └── TransactionControllerTest
 ├── dto/                          # DTO validation tests
@@ -157,9 +158,14 @@ mvn dependency:resolve
 ```
 
 ### H2 Database Issues
-Tests use H2 in-memory database. If you see errors:
-1. Check `src/test/resources/application-test.properties`
-2. Ensure H2 is in `pom.xml` dependencies with `test` scope
+Tests use H2 in-memory database via `src/test/resources/application-test.properties`:
+- Profile: `@ActiveProfiles("test")` on integration and repository tests
+- Flyway disabled; Hibernate `create-drop`
+- Each Spring context gets an isolated DB (`jdbc:h2:mem:equity_${random.uuid}`)
+
+If you see errors:
+1. Confirm tests use the `test` profile
+2. Ensure H2 is in `pom.xml` with `test` scope
 
 ### Port Already in Use
 If integration tests fail with port conflicts:
@@ -183,17 +189,9 @@ Tests use in-memory data created by `TestDataBuilder`:
 
 ## Known Issues
 
-1. **PnL Calculation Tests**: May fail due to sign convention issues in implementation
-   - See `BUG_REPORT.md` for details
-   - Tests are correct; implementation needs verification
+None blocking merge as of June 20, 2026. All 255 tests pass.
 
-2. **Type Mismatch Bugs**: FIXED in `TransactionController`
-   - Conversion from LocalDate to Date added
-   - Tests should now pass
-
-3. **Timezone Tests**: FIXED in `DateUtils`
-   - Now uses "America/Los_Angeles" instead of "GMT-7"
-   - Tests should pass year-round
+For historical bug analysis see `BUG_REPORT.md`. For deferred features see `FUTURE_ENHANCEMENTS.md`.
 
 ## CI/CD Integration
 
@@ -222,10 +220,9 @@ jobs:
 ## Next Steps After Running Tests
 
 1. ✅ Review test output for failures
-2. ✅ Check coverage report for gaps
-3. ✅ Fix failing tests (especially PnL calculations)
-4. ✅ Address issues in `BUG_REPORT.md`
-5. ✅ Add more tests as code evolves
+2. ✅ Check coverage report for gaps (optional)
+3. Open PR when `mvn test` is green
+4. See `PROJECT_STATUS.md` for post-merge priorities
 
 ## Getting Help
 

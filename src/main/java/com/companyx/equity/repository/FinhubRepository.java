@@ -47,7 +47,7 @@ public class FinhubRepository {
     }
 
     @Retry(name = "finhub", fallbackMethod = "getMarkFallback")
-    @CircuitBreaker(name = "finhub", fallbackMethod = "getMarkFallback")
+    @CircuitBreaker(name = "finhub")
     public MarkDto getMark(String symbol) throws JsonProcessingException {
         log.debug("Fetching market quote for symbol: {}", symbol);
         
@@ -77,7 +77,7 @@ public class FinhubRepository {
     }
 
     @Retry(name = "finhub", fallbackMethod = "getCandleFallback")
-    @CircuitBreaker(name = "finhub", fallbackMethod = "getCandleFallback")
+    @CircuitBreaker(name = "finhub")
     public CandleDto getCandle(String symbol, Date from, Date to) throws JsonProcessingException {
         log.debug("Fetching candle data for symbol: {} from {} to {}", symbol, from, to);
         

@@ -1,266 +1,100 @@
 # Project Status - Equity P&L Service
 
-**Last Updated:** June 19, 2026  
-**Status:** Production-Ready Core, Test Infrastructure Complete
+**Last Updated:** June 20, 2026  
+**Branch:** `feature/bug-fixes-and-retry-strategy`  
+**Status:** Production-ready core + corporate actions complete (Phase 0)
 
 ---
 
-## 🎯 Current State
+## Current State
 
-### Core Application: ✅ PRODUCTION-READY
-- **Spring Boot 3.2.5** with Java 21
-- **Security:** JWT authentication implemented
-- **Resilience:** Circuit breaker, retry, bulkhead patterns
-- **Performance:** Database indexes, connection pooling optimized
-- **Docker:** Multi-stage builds, health checks configured
-
-### Test Suite: ✅ COMPREHENSIVE
-- **170+ tests** across 15 test files
-- **~95% coverage** of business logic
-- **P&L Calculation Math:** Fully validated and correct
-
----
-
-## 📊 Test Results Summary
-
-### PnLCalculationTest Status (11 scenarios)
-**Math Verification:** ✅ **100% CORRECT**  
-**Test Status:** ✅ **ALL PASSING** (as of June 19, 2026)
-
-| Category | Tests | Status |
-|----------|-------|--------|
-| Realized P&L Logic | 11 | ✅ All Passing |
-| Long Positions | 4 | ✅ All Passing |
-| Short Positions | 3 | ✅ All Passing |
-| Position Transitions | 2 | ✅ All Passing |
-| Average Cost Basis | 1 | ✅ All Passing |
-| Edge Cases | 1 | ✅ All Passing |
-
-**Test Infrastructure:** ✅ **RESOLVED**
-- Fixed BigDecimal scale comparison issues using `compareTo()` helper
-- Added missing `FinhubRepository.getCandle()` mocks
-- All 11 tests now pass successfully
-
-**Critical Finding:** The P&L calculation logic is mathematically sound and all tests pass.
+| Area | Status |
+|------|--------|
+| P&L calculation engine | ✅ Verified correct (170+ tests) |
+| Security (JWT, validation, exceptions) | ✅ Complete |
+| Resilience (circuit breaker, retry, bulkhead) | ✅ Complete |
+| Docker / containerization | ✅ Complete |
+| **Corporate actions (Phase 0)** | ✅ **Complete** — splits, dividends, Phase 2 logic, REST API, fixtures |
+| Phase 2 production data (M&A feed) | ⏸ Deferred — optional paid API or SEC EDGAR |
+| CI/CD pipeline | ⬜ Not started |
+| FIFO/LIFO lot tracking | ⬜ Future |
 
 ---
 
-## ✅ What's Complete
+## Corporate Actions (Phase 0) — Complete
 
-### 1. Build & Testing Infrastructure
-- Maven wrapper installed and working
-- Comprehensive test suite (170+ tests)
-- Test coverage: ~95%
-- All compilation successful
+Implemented with a **stateless architecture** (no DB tables; Finnhub + Caffeine cache):
 
-### 2. Security & Stability (Phase 1)
-- JWT authentication
-- Spring Security configured
-- Input validation
-- Database performance indexes
-- Connection pooling optimized
-- Custom exception handling
+- **Phase 1:** Stock splits, cash/stock dividends via Finnhub
+- **Phase 2 logic:** Mergers, spinoffs, symbol changes, delistings
+- **PnL integration:** Adjustments applied before unrealized P&L; dividend income in realized
+- **REST API:** `/api/v1/corporate-actions/*`, `/api/v1/pnl/total-return`
+- **Fixtures (dev/test):** FOX→DIS, EBAY→PYPL, FB→META, TWTR cash merger — see [corporate-actions/PROGRESS.md](corporate-actions/PROGRESS.md)
 
-### 3. Resilience & Observability (Phase 2)
-- Circuit breaker pattern (Resilience4j)
-- Retry with exponential backoff
-- Bulkhead for thread isolation
-- WebClient with proper timeouts
-- Caching framework (Caffeine)
-
-### 4. Docker & Deployment (Phase 4 - Partial)
-- Multi-stage Dockerfile (<200MB)
-- docker-compose for dev and prod
-- Health checks configured
-- Non-root container user
-- JVM container-aware settings
-
-### 5. Bug Fixes (9 of 11)
-- ✅ Type mismatches in controllers
-- ✅ Timezone configuration
-- ✅ Input validation
-- ✅ Custom exception handling
-- ✅ Thread-safe date formatting
-- ✅ Dependency injection cleanup
-- ✅ Logging optimization
-- ✅ Gson deep-clone replaced
-- ✅ Consistent error responses
+**Remaining (optional):** Wire a live secondary provider for production M&A data when needed. See [corporate-actions/PROVIDER_STRATEGY.md](corporate-actions/PROVIDER_STRATEGY.md).
 
 ---
 
-## 🔄 Outstanding Work
+## Test Suite
 
-### ✅ Test Infrastructure (COMPLETE - June 19, 2026)
-1. ✅ **Fixed BigDecimal Assertions**
-   - Added `assertBigDecimalEquals()` helper using `compareTo()`
-   - All scale comparison issues resolved
+**Status:** ✅ All **255 tests** passing (June 20, 2026)
 
-2. ✅ **Added Finhub Mocks**
-   - Mocked `getCandle()` responses for all relevant tests
-   - Used lenient mocking for timing-sensitive tests
-   - All 11 PnL calculation tests now passing
+Run before merge:
 
-### Optional Enhancements (Future)
-- **Phase 3: Testing & Quality**
-  - Formal test documentation
-  - Contract tests for Finhub API
-  - Load testing
-  
-- **Phase 4: CI/CD**
-  - GitHub Actions pipeline
-  - Automated testing
-  - Docker registry push
-
-- **Phase 5: Advanced Features**
-  - FIFO/LIFO lot tracking
-  - Tax lot optimization
-  - Real-time streaming updates
-  - Event-driven architecture
-
----
-
-## 🎯 Business Logic Validation
-
-### P&L Calculation Engine: ✅ VERIFIED CORRECT
-
-All mathematical scenarios validated:
-
-1. ✅ **Simple Long Positions**
-   - Buy 100 @ $50, Sell 100 @ $60 = $1,000 profit ✅
-   - Buy 100 @ $50, Sell 100 @ $40 = -$1,000 loss ✅
-   - Partial sales and holding positions ✅
-
-2. ✅ **Simple Short Positions**
-   - Short 100 @ $50, Cover @ $40 = $1,000 profit ✅
-   - Short 100 @ $50, Cover @ $60 = -$1,000 loss ✅
-   - Holding short positions ✅
-
-3. ✅ **Position Transitions**
-   - Long → Short transition ✅
-   - Short → Long transition ✅
-   - Correct realized P&L on crossing zero ✅
-
-4. ✅ **Average Cost Basis**
-   - Multiple buys at different prices ✅
-   - Correct weighted average calculation ✅
-
-5. ✅ **Edge Cases**
-   - Multiple round trips ✅
-   - Zero quantity after complex sequences ✅
-
-**Conclusion:** The core P&L calculation engine is production-ready.
-
----
-
-## 🚀 Quick Start
-
-### Run Tests
 ```powershell
-# All tests
 .\mvnw.cmd test
-
-# Specific test
-.\mvnw.cmd test -Dtest=PnLCalculationTest
-
-# With coverage
-.\mvnw.cmd test jacoco:report
 ```
 
-### Build & Run
-```powershell
-# Compile
-.\mvnw.cmd clean compile
+Key test groups:
 
-# Package
-.\mvnw.cmd package
-
-# Run locally
-.\mvnw.cmd spring-boot:run -Dspring-boot.run.profiles=dev
-
-# Docker
-docker-compose up
-```
-
-### Authentication
-```bash
-# Login
-curl -X POST http://localhost:8080/api/v1/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{"uid":"user","password":"password"}'
-
-# Use JWT token
-curl -H "Authorization: Bearer <token>" \
-  http://localhost:8080/api/v1/pnl?from=2024-01-01&to=2024-12-31
-```
+| Suite | Purpose |
+|-------|---------|
+| `PnLCalculationTest` | Core P&L math (11 scenarios) |
+| `PnLServiceCorporateActionsTest` | Corporate action integration |
+| `CorporateActionsPnLEndToEndTest` | AAPL split, KO dividends, XYZ merger |
+| `RealWorldCorporateActionsPnLEndToEndTest` | FOX, EBAY, FB, TWTR fixtures |
+| `CorporateActionControllerTest` | REST endpoints |
+| `TransactionControllerTest` | P&L and transaction endpoints |
 
 ---
 
-## 📚 Documentation
+## What's Complete
 
-### Essential Reading
-- **[README.md](../README.md)** - Project overview and setup
-- **[BUG_REPORT.md](BUG_REPORT.md)** - Detailed bug analysis (needs update)
-- **[RUNNING_TESTS.md](RUNNING_TESTS.md)** - Testing guide
-- **[TIMEZONE_CONFIGURATION.md](TIMEZONE_CONFIGURATION.md)** - Timezone setup
-
-### Configuration Files
-- **`.env.template`** - Environment variable template
-- **`application.properties`** - Main configuration
-- **`application-dev.properties`** - Development profile
-- **`application-prod.properties`** - Production profile
+1. **Core P&L** — Long/short, transitions, average cost, realized/unrealized
+2. **Bug fixes** — Controller type mismatches, timezone, validation, exceptions (see [BUG_REPORT.md](BUG_REPORT.md))
+3. **Corporate actions** — Full Phase 0 per spec
+4. **Test infrastructure** — `@ActiveProfiles("test")`, H2 test profile, WebMvcTest security mocks, Finhub retry tests with MockWebServer
+5. **Resilience fix** — Circuit breaker no longer bypasses retry fallback on first failure (`FinhubRepository`)
 
 ---
 
-## 🎉 Key Achievements
+## Recommended Next Steps
 
-1. ✅ **Math Correctness:** P&L calculations verified mathematically correct
-2. ✅ **Test Coverage:** 170+ tests, ~95% coverage
-3. ✅ **Security:** JWT auth, input validation, secure configuration
-4. ✅ **Resilience:** Circuit breaker, retry, timeout patterns
-5. ✅ **Performance:** Database indexes, connection pooling
-6. ✅ **Docker:** Production-ready containerization
-7. ✅ **Documentation:** Comprehensive guides and specs
+### Before merge
+1. ~~Run `.\mvnw.cmd test` — all tests green~~ ✅ Done (255/255)
+2. Open PR from `feature/bug-fixes-and-retry-strategy` → `main`
 
----
+### After merge
+1. **CI/CD** — GitHub Actions (`mvn test` on PR)
+2. **Documentation sync** — Keep [spec/CHECKLIST.md](../spec/CHECKLIST.md) aligned with shipped work
+3. **Production Phase 2 data** — Only when a user hits wrong P&L on M&A, or paid tier requires it
 
-## 💡 Next Steps (Recommended Priority)
-
-### 1. Production Deployment (When Ready)
-- Set up CI/CD pipeline
-- Configure production database
-- Set up monitoring (Prometheus/Grafana)
-- Security audit and penetration testing
-
-### 2. Minor Test Cleanup (Optional)
-- Fix BigDecimal scale assertions
-- Add missing Finhub mocks
-- Generate test coverage report
-
-### 3. Advanced Features (Future)
+### Future enhancements
 - FIFO/LIFO lot tracking
-- Tax lot optimization
-- Real-time streaming
-- Advanced analytics
+- Database-backed corporate action cache (if rate limits bite) — [FUTURE_ENHANCEMENTS.md](FUTURE_ENHANCEMENTS.md)
+- Monitoring (Prometheus/Grafana)
 
 ---
 
-## 📊 Metrics
+## Quick Start
 
-| Metric | Value |
-|--------|-------|
-| Test Coverage | ~95% |
-| Tests | 170+ |
-| Test Files | 15 |
-| Code Quality | High |
-| Security | Production-Ready |
-| Performance | Optimized |
-| Docker | Ready |
-| Documentation | Comprehensive |
+```powershell
+.\mvnw.cmd test
+.\mvnw.cmd spring-boot:run -Dspring-boot.run.profiles=dev
+```
+
+See [RUNNING_TESTS.md](RUNNING_TESTS.md) and the main [README.md](../README.md).
 
 ---
 
-**Status:** ✅ **Production-Ready**  
-**Confidence:** High  
-**Risk:** Low
-
-*The application is ready for production deployment. Minor test infrastructure improvements are optional enhancements.*
+**Confidence:** High for splits/dividends and P&L core. Phase 2 complex events apply correctly when fixture or secondary data is present.

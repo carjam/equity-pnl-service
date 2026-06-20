@@ -3,6 +3,7 @@ package com.companyx.equity.config;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 
 import java.util.TimeZone;
@@ -13,8 +14,9 @@ import static org.junit.jupiter.api.Assertions.*;
  * Tests for TimeZoneConfig
  */
 @SpringBootTest
+@ActiveProfiles("test")
 @TestPropertySource(locations = "classpath:application-test.properties")
-public class TimeZoneConfigTest {
+class TimeZoneConfigTest {
     
     @Autowired
     private TimeZoneConfig timeZoneConfig;

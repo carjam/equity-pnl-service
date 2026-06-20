@@ -1,19 +1,27 @@
-# Corporate Actions Implementation - Night Session Progress Report
+# Corporate Actions Implementation — Progress Report
 
 ## Summary
 
-Successfully implemented the **core corporate actions functionality** for the equity P&L service using Test-Driven Development (TDD). All 69 new tests pass, providing a solid foundation for handling stock splits and dividends.
+**Phase 0 corporate actions are complete** and integrated into P&L calculation, REST API, and the test suite (255 tests passing as of June 20, 2026).
 
-**Date:** June 19, 2026  
-**Session Duration:** ~1 hour autonomous work  
-**Approach:** TDD (Test-Driven Development)  
-**Tests Created:** 69  
-**Tests Passing:** 69/69 (100%)  
-**Code Created:** 49 new Java files
+Fixtures for dev/test (no live API required): FOX→DIS merger, EBAY→PYPL spinoff, FB→META symbol change, TWTR cash merger.
+
+**Deferred:** Live secondary provider for production M&A data — see [PROVIDER_STRATEGY.md](PROVIDER_STRATEGY.md).
 
 ---
 
-## What Was Accomplished
+## Historical — Night Session (June 19, 2026)
+
+Successfully implemented the **core corporate actions functionality** for the equity P&L service using Test-Driven Development (TDD). All 69 new tests pass, providing a solid foundation for handling stock splits and dividends.
+
+**Session Duration:** ~1 hour autonomous work  
+**Approach:** TDD (Test-Driven Development)  
+**Tests Created (session):** 69  
+**Code Created (session):** 49 new Java files
+
+---
+
+## What Was Accomplished (June 19 session)
 
 ### ✅ Domain Models (Completed)
 **Files:** 5 domain model classes + 4 comprehensive test files
@@ -268,53 +276,16 @@ Stock Dividend: New Quantity = Old Quantity × (1 + Dividend Rate)
 
 ## Known Issues & Limitations
 
-### 1. Phase 2 Events Not Implemented
-**Status:** Mergers, acquisitions, spinoffs not implemented
-**Impact:** Only handles splits and dividends
-**Priority:** Medium (covers 80% of use cases)
-
-### 2. Controller Tests (Other Controllers)
-**Status:** `TransactionControllerTest` needs the same security `@MockBean` setup as `CorporateActionControllerTest`
-**Impact:** Pre-existing WebMvcTest context failures unrelated to corporate actions logic
+### 1. Production Phase 2 Data
+**Status:** Complex events apply when fixture (dev) or secondary provider supplies data  
+**Impact:** M&A/spinoffs no-op in production until paid API or EDGAR wired  
+**Priority:** Low until user reports wrong P&L
 
 ---
 
 ## Recommendations
 
-### Immediate Next Steps (Before User Returns)
-
-1. **Fix Existing Tests (30 minutes)**
-   - Add `@Mock CorporateActionService corporateActionService` to PnLServiceTest
-   - Add default mock behavior returning unchanged positions
-   - Verify all tests pass
-
-2. **Integrate with PnLService (60 minutes)**
-   - Add call to `corporateActionService.applyToPosition()` in getPositions()
-   - Add dividend income to total return calculation
-   - Write integration test verifying end-to-end flow
-
-3. **Add Application Properties**
-   - Document cache configuration options
-   - Add examples for different environments
-
-### Future Enhancements
-
-4. **REST API Endpoints (4 hours)**
-   - Create CorporateActionController
-   - Add 4 endpoints per spec
-   - Write controller tests
-
-5. **Phase 2: M&A Events (40 hours)**
-   - Implement Merger, Spinoff, SymbolChange models
-   - Integrate Databento or QUODD provider
-   - Handle complex scenarios
-
-6. **Performance Optimization**
-   - Add metrics for cache hit rate
-   - Tune cache TTL based on data freshness needs
-   - Add bulk fetch optimization
-
----
+### Deferred (optional)
 
 ## Success Metrics
 
@@ -335,7 +306,10 @@ Stock Dividend: New Quantity = Old Quantity × (1 + Dividend Rate)
 
 ### 🔧 In Progress
 - [ ] Secondary data source: paid API (Polygon/Databento) **or** SEC EDGAR integration — see [PROVIDER_STRATEGY.md](PROVIDER_STRATEGY.md)
-- [x] Real-world validation cases (DIS/FOX, EBAY/PYPL) — `FixtureCorporateActionData` + `RealWorldCorporateActionsPnLEndToEndTest`
+
+### ✅ Completed (June 20, 2026)
+- [x] Real-world validation fixtures: FOX→DIS, EBAY→PYPL, FB→META, TWTR cash merger
+- [x] `RealWorldCorporateActionsPnLEndToEndTest` + `FixtureCorporateActionProvider`
 
 ---
 

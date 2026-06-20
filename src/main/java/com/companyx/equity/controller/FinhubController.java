@@ -6,12 +6,10 @@ import com.companyx.equity.model.Transaction;
 import com.companyx.equity.repository.FinhubRepository;
 import com.companyx.equity.repository.TransactionRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.EntityModel;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -27,10 +25,10 @@ import java.util.Optional;
 
 @Slf4j
 @RestController
+@RequiredArgsConstructor
 public class FinhubController {
 
-    @Autowired
-    FinhubRepository finhubRepository;
+    private final FinhubRepository finhubRepository;
 
     @GetMapping(value = "/Mark/{symbol}", produces = MediaType.APPLICATION_JSON_VALUE)
     public EntityModel<MarkDto> mark(@PathVariable String symbol) throws JsonProcessingException {

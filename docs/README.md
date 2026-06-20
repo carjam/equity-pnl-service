@@ -6,8 +6,10 @@ All essential documentation for the Equity P&L Service.
 
 ## Start Here
 
-### **[PROJECT_STATUS.md](PROJECT_STATUS.md)**
-Current project status, test results, and production readiness assessment.
+| Document | Description |
+|----------|-------------|
+| **[PROJECT_STATUS.md](PROJECT_STATUS.md)** | Current status, test summary, merge readiness |
+| **[../README.md](../README.md)** | Project overview, quick start, architecture |
 
 ---
 
@@ -15,13 +17,15 @@ Current project status, test results, and production readiness assessment.
 
 ### Status & Planning
 - **[PROJECT_STATUS.md](PROJECT_STATUS.md)** — Current status and next steps
-- **[BUG_REPORT.md](BUG_REPORT.md)** — Bug analysis and resolution status
-- **[FUTURE_ENHANCEMENTS.md](FUTURE_ENHANCEMENTS.md)** — Roadmap and deferred work
+- **[BUG_REPORT.md](BUG_REPORT.md)** — Bug analysis (all core issues resolved)
+- **[FUTURE_ENHANCEMENTS.md](FUTURE_ENHANCEMENTS.md)** — Deferred work (DB cache, etc.)
+- **[../spec/CHECKLIST.md](../spec/CHECKLIST.md)** — Production readiness checklist
 
-### Corporate Actions (Phase 0)
+### Corporate Actions (Phase 0 — Complete)
 - **[corporate-actions/README.md](corporate-actions/README.md)** — Index
-- **[corporate-actions/PLAN.md](corporate-actions/PLAN.md)** — Architecture and timeline
 - **[corporate-actions/PROGRESS.md](corporate-actions/PROGRESS.md)** — Implementation status
+- **[corporate-actions/PLAN.md](corporate-actions/PLAN.md)** — Architecture overview
+- **[corporate-actions/PROVIDER_STRATEGY.md](corporate-actions/PROVIDER_STRATEGY.md)** — Data sources (Finnhub, fixtures, paid API, EDGAR)
 
 ### Testing
 - **[RUNNING_TESTS.md](RUNNING_TESTS.md)** — How to run tests
@@ -29,52 +33,27 @@ Current project status, test results, and production readiness assessment.
 - **[TEST_COVERAGE_REPORT.md](TEST_COVERAGE_REPORT.md)** — Coverage metrics
 
 ### Configuration & Legal
-- **[TIMEZONE_CONFIGURATION.md](TIMEZONE_CONFIGURATION.md)** — Timezone setup guide
+- **[TIMEZONE_CONFIGURATION.md](TIMEZONE_CONFIGURATION.md)** — Timezone setup
 - **[NOTICE.md](NOTICE.md)** — Portfolio and licensing notice
 
 ---
 
 ## Quick Reference
 
-### For New Developers
-1. Read **[PROJECT_STATUS.md](PROJECT_STATUS.md)** for current state
-2. Check **[BUG_REPORT.md](BUG_REPORT.md)** for known issues
-3. Follow **[RUNNING_TESTS.md](RUNNING_TESTS.md)** to verify setup
-4. Review main **[README.md](../README.md)** for architecture
+### New developers
+1. [PROJECT_STATUS.md](PROJECT_STATUS.md)
+2. [RUNNING_TESTS.md](RUNNING_TESTS.md) — run `.\mvnw.cmd test`
+3. [../README.md](../README.md)
 
-### For Corporate Actions Work
-1. **[corporate-actions/PROGRESS.md](corporate-actions/PROGRESS.md)** — What's done and what's next
-2. **[corporate-actions/PLAN.md](corporate-actions/PLAN.md)** — Design and timeline
-3. **[../spec/phase-0-corporate-actions/01-corporate-actions-support.md](../spec/phase-0-corporate-actions/01-corporate-actions-support.md)** — Full specification
+### Corporate actions
+1. [corporate-actions/PROGRESS.md](corporate-actions/PROGRESS.md)
+2. [../spec/phase-0-corporate-actions/01-corporate-actions-support.md](../spec/phase-0-corporate-actions/01-corporate-actions-support.md)
 
 ---
 
 ## Historical Documentation
 
-The **[archive/](archive/)** directory contains superseded progress reports and session notes. See **[archive/README.md](archive/README.md)**.
-
----
-
-## Documentation Structure
-
-```
-docs/
-├── README.md                      (This file)
-├── PROJECT_STATUS.md
-├── BUG_REPORT.md
-├── FUTURE_ENHANCEMENTS.md
-├── RUNNING_TESTS.md
-├── TEST_DOCUMENTATION.md
-├── TEST_COVERAGE_REPORT.md
-├── TIMEZONE_CONFIGURATION.md
-├── NOTICE.md
-├── corporate-actions/
-│   ├── README.md
-│   ├── PLAN.md
-│   └── PROGRESS.md
-└── archive/                       Historical documents
-    └── README.md
-```
+Superseded session notes live in **[archive/](archive/)**. Do not use for current status — see PROJECT_STATUS.md instead.
 
 ---
 

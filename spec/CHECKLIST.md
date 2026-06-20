@@ -4,10 +4,50 @@
 Use this checklist to track progress through all phases of making the Equity PnL Service production-ready.
 
 **Estimated Total Effort:** 5 weeks (Phase 0) + 8-12 weeks (Phases 1-5) = 13-17 weeks  
-**Current Status:** POC  
+**Current Status:** Phase 0 complete; Phases 1–2 partially complete on feature branch  
 **Target Status:** Production-Ready
 
 ---
+
+## ✅ Phase 0: Corporate Actions Support — COMPLETE (June 20, 2026)
+
+**Status:** ✅ **Shipped** on `feature/bug-fixes-and-retry-strategy`
+
+Phase 0 is no longer blocking. Implementation details: [docs/corporate-actions/PROGRESS.md](../docs/corporate-actions/PROGRESS.md)
+
+### Delivered
+
+| Component | Status |
+|-----------|--------|
+| Domain models (Dividend, StockSplit, Merger, Spinoff, SymbolChange, Delisting) | ✅ |
+| Finnhub provider + Caffeine cache | ✅ |
+| SplitAdjustmentService, DividendService | ✅ |
+| MergerService, SpinoffService, SymbolMappingService, DelistingService | ✅ |
+| PnLService integration + total-return endpoint | ✅ |
+| CorporateActionController REST API | ✅ |
+| Composite + fixture + secondary provider stubs | ✅ |
+| End-to-end tests (AAPL, KO, FOX, EBAY, FB, TWTR) | ✅ |
+
+### Deferred (not required for merge)
+
+- [ ] Live paid secondary API (Polygon/Databento) or SEC EDGAR for production M&A data
+- [ ] Daily sync job / database persistence (stateless design — see FUTURE_ENHANCEMENTS.md)
+- [ ] OpenAPI/Swagger for corporate action endpoints
+- [ ] UAT vs brokerage statements at scale
+
+### Phase 0 Acceptance Criteria (core)
+
+- [x] Stock splits adjust quantity and cost basis correctly
+- [x] Dividends included in total return / realized income
+- [x] Stock-for-stock mergers transfer cost basis (FOX→DIS fixture)
+- [x] Cash acquisitions close with realized P&L (TWTR fixture)
+- [x] Spinoffs allocate basis (EBAY→PYPL fixture)
+- [x] Symbol changes retitle positions (FB→META fixture)
+- [ ] >99% accuracy vs brokerage statements (manual UAT — not automated)
+- [ ] Daily sync job (N/A — stateless architecture)
+
+<details>
+<summary>Original Phase 0 task breakdown (historical)</summary>
 
 ## ⚠️ Phase 0: Corporate Actions Support (Week 1-5) - 🔴 BLOCKING
 
@@ -241,6 +281,8 @@ Without corporate actions support, the P&L service produces fundamentally incorr
 - [ ] Performance: P&L calculation degradation <20%
 - [ ] >90% code coverage for corporate action modules
 - [ ] Zero high/critical bugs in staging testing
+
+</details>
 
 ---
 
@@ -609,34 +651,32 @@ Without corporate actions support, the P&L service produces fundamentally incorr
 
 ### Summary by Priority
 
-| Priority | Phases | Days | Status |
-|----------|--------|------|--------|
-| **BLOCKING** | **Phase 0** | **17** | **⬜ 0%** |
-| Critical | Phase 1 | 25 | ⬜ 0% |
-| High | Phase 2-3 | 44.5 | ⬜ 0% |
-| Medium | Phase 4 | 18 | ⬜ 0% |
-| Low | Phase 5 | 40 | ⬜ 0% |
-| **Total** | **All** | **144.5** | **⬜ 0%** |
+| Priority | Phases | Status (June 20, 2026) |
+|----------|--------|------------------------|
+| **BLOCKING** | **Phase 0** | **✅ Complete** |
+| Critical | Phase 1 | 🔄 Partial (JWT, validation, config on feature branch) |
+| High | Phase 2–3 | 🔄 Partial (Resilience4j, 255 tests) |
+| Medium | Phase 4 | 🔄 Partial (Docker); CI/CD not started |
+| Low | Phase 5 | ⬜ Not started |
 
-### Critical Path (Must Complete)
+### Critical Path
 
-1. 🔴 **Phase 0 complete** (BLOCKING - service broken without this)
-2. ✅ Phase 1 complete
-3. ✅ Phase 2 complete
-4. ✅ Phase 3 complete
-5. ✅ Phase 4 complete
-6. ⚠️ Phase 5 optional (but recommended)
+1. ✅ **Phase 0 complete** — corporate actions shipped
+2. 🔄 Phase 1 — security & stability (largely done on branch; checklist items not fully audited)
+3. 🔄 Phase 2 — resilience (Finnhub retry/circuit breaker; Redis cache deferred)
+4. 🔄 Phase 3 — testing (255 tests green; load/contract testing deferred)
+5. 🔄 Phase 4 — deployment (Docker done; CI/CD pending)
+6. ⬜ Phase 5 — optional enhancements
 
 ### Production-Ready Minimum
 
-To be considered production-ready, **Phases 0-4 must be 100% complete**:
-- [ ] **Phase 0: Corporate Actions Support** ← 🔴 MUST DO FIRST
-- [ ] Phase 1: Security & Stability
-- [ ] Phase 2: Resilience & Observability
-- [ ] Phase 3: Testing & Quality
-- [ ] Phase 4: Deployment & Operations
+Phases 0–4 must be 100% complete for full production readiness:
 
-**Minimum viable effort: 104.5 days (~21 weeks with 1 developer)**
+- [x] **Phase 0: Corporate Actions Support**
+- [ ] Phase 1: Security & Stability (partial)
+- [ ] Phase 2: Resilience & Observability (partial)
+- [ ] Phase 3: Testing & Quality (partial — unit/integration strong; load tests pending)
+- [ ] Phase 4: Deployment & Operations (partial — CI/CD pending)
 
 ---
 
@@ -681,10 +721,9 @@ To be considered production-ready, **Phases 0-4 must be 100% complete**:
 
 ## Notes
 
-**Last Updated:** June 19, 2026  
+**Last Updated:** June 20, 2026  
 **Review Frequency:** Weekly  
 **Owner:** Engineering Team  
-**Stakeholders:** Product, DevOps, Security, QA
 
 **Status Legend:**
 - ⬜ Not Started
@@ -697,19 +736,7 @@ To be considered production-ready, **Phases 0-4 must be 100% complete**:
 
 ## Quick Start
 
-To begin transforming this POC to production:
-
-1. **🔴 START WITH PHASE 0** - Service is broken without corporate actions support
-   - Stock splits show as massive losses
-   - Mergers appear as delistings
-   - Dividends not included in returns
-   - This is the single most important feature
-2. **Then Phase 1** (critical security & stability)
-3. **Focus on security** - upgrade dependencies and implement authentication
-4. **Don't skip testing** - Phase 3 is critical for confidence
-5. **Automate everything** - CI/CD in Phase 4 prevents human error
-6. **Phase 5 is optional** but provides significant long-term value
-
-**Priority: Phase 0 → Phase 1 → Phase 2 → Phase 3 → Phase 4 → Phase 5**
-
-**Good luck! 🚀**
+1. **Phase 0 is done** — see [docs/corporate-actions/PROGRESS.md](../docs/corporate-actions/PROGRESS.md)
+2. **Run tests before merge:** `.\mvnw.cmd test` (255 tests)
+3. **Next priority:** CI/CD (Phase 4), then production M&A data source if needed
+4. **Branch:** `feature/bug-fixes-and-retry-strategy` → PR to `main`

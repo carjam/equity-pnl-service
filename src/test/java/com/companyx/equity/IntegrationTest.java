@@ -13,6 +13,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -25,8 +26,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  */
 @SpringBootTest
 @AutoConfigureMockMvc
+@ActiveProfiles("test")
 @TestPropertySource(locations = "classpath:application-test.properties")
-public class IntegrationTest {
+class IntegrationTest {
     
     @Autowired
     private MockMvc mockMvc;
@@ -53,6 +55,8 @@ public class IntegrationTest {
         User user = new User();
         user.setUid("integration-test-user");
         user.setPassword(passwordEncoder.encode("password123"));
+        user.setRole("USER");
+        user.setEnabled(true);
         userRepository.save(user);
         
         // Create transaction types
@@ -80,7 +84,6 @@ public class IntegrationTest {
         String token = objectMapper.readTree(response).get("token").asText();
         
         // Use token to access protected endpoint
-        // NOTE: This will fail due to the type mismatch bug in TransactionController
         mockMvc.perform(get("/api/v1/transactions")
                 .header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk());

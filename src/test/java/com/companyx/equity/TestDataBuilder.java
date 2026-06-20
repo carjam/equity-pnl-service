@@ -19,6 +19,15 @@ public class TestDataBuilder {
         user.setId(1);
         user.setUid(uid);
         user.setPassword(password);
+        user.setRole("USER");
+        user.setEnabled(true);
+        return user;
+    }
+
+    /** User without preset ID for JPA persist tests. */
+    public static User createPersistableUser(String uid, String password) {
+        User user = createTestUser(uid, password);
+        user.setId(0);
         return user;
     }
     

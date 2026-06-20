@@ -107,6 +107,14 @@ GET  /api/v1/transactions/{id}        # Get specific transaction
 GET  /api/v1/pnl?from={date}&to={date}  # Get P&L for date range
 ```
 
+#### Corporate Actions
+```
+GET  /api/v1/corporate-actions?symbol={}&from={}&to={}
+GET  /api/v1/corporate-actions/dividends|splits|mergers|spinoffs|symbol-changes|delistings
+GET  /api/v1/corporate-actions/providers
+GET  /api/v1/pnl/total-return?symbol={}&from={}&to={}
+```
+
 #### Market Data (Finhub Integration)
 ```
 GET  /Mark/{symbol}                          # Current quote
@@ -128,18 +136,17 @@ GET  /Candle/{symbol}?from={date}&to={date}  # Historical candles
 ### Features
 
 ✅ **Implemented:**
-- Real-time P&L calculation
+- Real-time P&L calculation with **corporate actions** (splits, dividends, mergers, spinoffs, symbol changes)
 - Long and short position support
 - JWT authentication
 - Market data integration (Finnhub)
 - Circuit breaker pattern
-- Comprehensive test suite (170+ tests, ~95% coverage)
+- Comprehensive test suite (255 tests, all passing)
 - Configurable timezone support
 - Input validation
 - Error handling
 
-🔴 **CRITICAL MISSING FEATURE:**
-- **Corporate actions (dividends, splits, mergers)** - Service produces incorrect P&L without this
+**Corporate actions:** See [docs/corporate-actions/README.md](docs/corporate-actions/README.md). Production M&A data optional (fixtures for dev/test).
 
 🚧 **Future Enhancements:**
 - Event-driven architecture with message queues
@@ -155,41 +162,29 @@ GET  /Candle/{symbol}?from={date}&to={date}  # Historical candles
 
 ## 🧪 Testing
 
-### Test Coverage: ~95%
+### Test Coverage
 
-- **170+ test cases** across 15 test files
-- Unit tests for all services and controllers
-- Integration tests for repositories
-- Security and JWT tests
-- End-to-end integration tests
-- Edge case coverage
+- **255 test cases** — full suite green (June 20, 2026)
+- Key suites: `PnLCalculationTest`, `CorporateActionsPnLEndToEndTest`, `RealWorldCorporateActionsPnLEndToEndTest`, controller and repository tests
 
-Run tests with coverage:
 ```bash
-mvn test jacoco:report
-open target/site/jacoco/index.html
+# Windows
+.\mvnw.cmd test
+
+# Corporate actions only
+.\mvnw.cmd test -Dtest=*CorporateAction*
 ```
 
 See [docs/TEST_COVERAGE_REPORT.md](docs/TEST_COVERAGE_REPORT.md) for detailed analysis.
 
 ## 🐛 Known Issues
 
-Several bugs were identified during code review:
+Core bugs from the initial review are resolved. Remaining work is optional enhancement, not blocking merge:
 
-✅ **Fixed:**
-- Type mismatches in `TransactionController`
-- Timezone hardcoded incorrectly (now configurable)
-- P&L calculation logic verified mathematically correct
+- **Production M&A data feed** — Phase 2 logic is implemented; live secondary provider (paid API or SEC EDGAR) deferred until needed. Dev/test fixtures cover FOX→DIS, EBAY→PYPL, FB→META, TWTR cash merger.
+- **CI/CD** — GitHub Actions not yet configured.
 
-🔴 **CRITICAL - BLOCKING PRODUCTION:**
-- **No corporate actions support** - Service cannot handle stock splits, dividends, or mergers
-  - Stock splits appear as massive losses (e.g., 4:1 split shows as 75% loss)
-  - Mergers appear as delistings with 100% losses
-  - Dividends not included in total return calculations
-  - **Status:** Core implementation complete; PnL integration pending
-  - See [docs/corporate-actions/PROGRESS.md](docs/corporate-actions/PROGRESS.md) and [spec/phase-0-corporate-actions/01-corporate-actions-support.md](spec/phase-0-corporate-actions/01-corporate-actions-support.md)
-
-See [docs/BUG_REPORT.md](docs/BUG_REPORT.md) for complete details and recommendations.
+See [docs/BUG_REPORT.md](docs/BUG_REPORT.md) and [docs/PROJECT_STATUS.md](docs/PROJECT_STATUS.md) for details.
 
 ## 📦 Project Structure
 
@@ -289,8 +284,8 @@ See [LICENSE](LICENSE) for full terms.
 
 ---
 
-**Latest Update:** June 19, 2026  
-**Test Coverage:** ~95% (170+ tests)  
-**Status:** Active Development
+**Latest Update:** June 20, 2026  
+**Test Coverage:** ~95% (255 tests, all passing)  
+**Status:** Merge-ready on `feature/bug-fixes-and-retry-strategy`
 
 *For detailed documentation, see the [`docs/`](docs/) directory.*
