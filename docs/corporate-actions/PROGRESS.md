@@ -2,7 +2,7 @@
 
 ## Summary
 
-**Phase 0 corporate actions are complete** and integrated into P&L calculation, REST API, and the test suite (255 tests passing as of June 20, 2026).
+**Phase 0 corporate actions are complete** and integrated into P&L calculation, REST API, and the test suite (257 tests passing as of June 20, 2026).
 
 Fixtures for dev/test (no live API required): FOX→DIS merger, EBAY→PYPL spinoff, FB→META symbol change, TWTR cash merger.
 

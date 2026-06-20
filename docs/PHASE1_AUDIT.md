@@ -33,8 +33,8 @@
 | Test dependencies | ✅ | H2, MockWebServer, spring-security-test |
 | OWASP dependency scan | ✅ | `dependency-check-maven` plugin + CI job |
 | Zero high/critical CVEs | 🔄 | CI enforces CVSS ≥ 7 fail; review each run |
-| All tests passing | ✅ | 256 tests (includes OpenAPI integration test) |
-| Docker builds | ✅ | `Dockerfile`, `docker-compose.yml` |
+| All tests passing | ✅ | 257 tests (OpenAPI + correlation ID integration tests) |
+| Docker builds | ✅ | JDK 21 `Dockerfile`, GHCR CI job, `docker-compose.staging.yml` |
 
 **Open:** Formal CVE triage on each dependency-check report; add suppressions only with justification in `dependency-check-suppressions.xml`.
 
@@ -73,9 +73,10 @@
 | No hardcoded prod secrets | ✅ | `${DATABASE_URL}`, `${JWT_SECRET}`, etc. |
 | Flyway not hardcoded in pom | ✅ | Uses Spring Boot Flyway starter |
 | `docker-compose.yml` | ✅ | Dev stack |
-| `application-staging.properties` | ⬜ | Not created — copy prod with staging URLs when needed |
+| `application-staging.properties` | ✅ | Staging profile — Redis, Prometheus, Swagger, JSON logging |
+| `docker-compose.staging.yml` | ✅ | App + MySQL + Redis for staging demos |
 | Type-safe `@ConfigurationProperties` | ⬜ | Uses `@Value` injection — acceptable for current size |
-| Test all profiles startup | 🔄 | dev/test/prod files exist; staging not validated |
+| Test all profiles startup | 🔄 | dev/test/prod/staging files exist; staging compose not yet smoke-tested |
 
 ---
 
@@ -126,11 +127,11 @@
 
 ## Recommended Follow-ups (non-blocking)
 
-1. Add `application-staging.properties` when a staging environment exists.
-2. Configure MySQL SSL (`spring.datasource.url` params) for production deployments.
-3. Add request body size limits if exposing the API publicly.
-4. Run load tests (Phase 3) before high-traffic production.
-5. Optional: `@ConfigurationProperties` for Finhub/JWT settings.
+1. Configure MySQL SSL (`spring.datasource.url` params) for production deployments.
+2. Add request body size limits if exposing the API publicly beyond demo scope.
+3. Run load tests (Phase 3) before high-traffic production.
+4. Optional: `@ConfigurationProperties` for Finhub/JWT settings.
+5. Smoke-test `docker-compose.staging.yml` once for portfolio demo confidence.
 
 ---
 
@@ -138,4 +139,4 @@
 
 Phase 1 **critical security and stability requirements are met** for the current scope: JWT auth, validation, dependency upgrades, resilience basics, database indexes, and automated test + security scanning in CI.
 
-**Next phase focus:** Phase 2 observability (metrics, structured logging, Redis cache) and Phase 4 staging deployment.
+**Portfolio demo:** See [PORTFOLIO_DEMO.md](PORTFOLIO_DEMO.md). **Full production:** Phase 3 load tests, prod deploy runbook, live M&A data provider when needed.

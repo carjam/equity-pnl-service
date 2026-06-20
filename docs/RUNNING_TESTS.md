@@ -114,7 +114,7 @@ If not already present, add to `pom.xml`:
 
 ### Successful Run
 ```
-[INFO] Tests run: 255, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 257, Failures: 0, Errors: 0, Skipped: 0
 [INFO] BUILD SUCCESS
 ```
 
@@ -208,7 +208,7 @@ Tests use in-memory data created by `TestDataBuilder`:
 
 ## Known Issues
 
-None blocking merge as of June 20, 2026. All 255 tests pass.
+None blocking as of June 20, 2026. All 257 tests pass.
 
 For historical bug analysis see `BUG_REPORT.md`. For deferred features see `FUTURE_ENHANCEMENTS.md`.
 
@@ -218,11 +218,12 @@ GitHub Actions runs on every push and pull request to `main`:
 
 - Workflow: [`.github/workflows/ci.yml`](../.github/workflows/ci.yml)
 - **Maven Test:** JDK 21, `./mvnw test -B`
-- **OWASP Dependency-Check:** `./mvnw dependency-check:check -B` (fails on CVSS ≥ 7)
+- **OWASP Dependency-Check:** `./mvnw dependency-check:check -B` (fails on CVSS ≥ 7; skips NVD update when cache restores)
+- **Docker Build:** pushes to `ghcr.io/<repo>` on push to `main` (after tests pass)
 
-Optional: add an `NVD_API_KEY` repository secret ([NIST NVD API key](https://nvd.nist.gov/developers/request-an-api-key)) for faster, more reliable NVD updates in CI.
+Add an **`NVD_API_KEY`** repository secret ([NIST NVD API key](https://nvd.nist.gov/developers/request-an-api-key)) for faster, more reliable NVD updates. Without it, the first OWASP run can take 30+ minutes.
 
-View runs under **Actions** on GitHub. Download the dependency-check HTML report from workflow artifacts if the security job runs.
+See also [PORTFOLIO_DEMO.md](PORTFOLIO_DEMO.md) for CI talking points.
 
 ### GitHub Actions Example (reference — implemented in repo)
 
@@ -248,10 +249,10 @@ jobs:
 
 ## Next Steps After Running Tests
 
-1. ✅ Review test output for failures
-2. ✅ Check coverage report for gaps (optional)
-3. Open PR when `mvn test` is green
-4. See `PROJECT_STATUS.md` for post-merge priorities
+1. Review test output for failures
+2. Check coverage report for gaps (optional)
+3. See [PORTFOLIO_DEMO.md](PORTFOLIO_DEMO.md) for demo paths (tests-only, Swagger, Docker staging)
+4. See [PROJECT_STATUS.md](PROJECT_STATUS.md) for deferred production items
 
 ## Getting Help
 

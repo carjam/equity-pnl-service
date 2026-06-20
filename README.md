@@ -16,6 +16,7 @@ All project documentation is in the [`docs/`](docs/) directory:
 | Document | Description |
 |----------|-------------|
 | **[Documentation Index](docs/README.md)** | Complete documentation overview |
+| **[Portfolio Demo Guide](docs/PORTFOLIO_DEMO.md)** | Demo script for interviews and reviewers |
 | **[Project Status](docs/PROJECT_STATUS.md)** | Current status and next steps |
 | **[Corporate Actions](docs/corporate-actions/README.md)** | Phase 0 implementation docs |
 | **[Running Tests](docs/RUNNING_TESTS.md)** | Quick start guide for testing |

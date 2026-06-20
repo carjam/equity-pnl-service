@@ -621,17 +621,17 @@ Without corporate actions support, the P&L service produces fundamentally incorr
 |----------|--------|------------------------|
 | **BLOCKING** | **Phase 0** | **✅ Complete** |
 | Critical | Phase 1 | ✅ Critical path complete — [PHASE1_AUDIT.md](../docs/PHASE1_AUDIT.md) |
-| High | Phase 2–3 | 🔄 Partial (Resilience4j, 255 tests) |
-| Medium | Phase 4 | 🔄 Partial (Docker CI, staging deploy workflow) |
+| High | Phase 2–3 | 🔄 Partial (observability done; load tests deferred) — **257 tests** |
+| Medium | Phase 4 | 🔄 Partial (Docker CI + staging compose; smoke test pending) |
 | Low | Phase 5 | ⬜ Not started |
 
 ### Critical Path
 
-1. ✅ **Phase 0 complete** — corporate actions shipped
-2. 🔄 Phase 1 — security & stability (largely done on branch; checklist items not fully audited)
-3. 🔄 Phase 2 — resilience (Finnhub retry/circuit breaker; Redis cache deferred)
-4. 🔄 Phase 3 — testing (255 tests green; load/contract testing deferred)
-5. 🔄 Phase 4 — deployment (Docker done; CI/CD pending)
+1. ✅ **Phase 0 complete** — corporate actions shipped on `main`
+2. ✅ Phase 1 — security & stability (critical path — [PHASE1_AUDIT.md](../docs/PHASE1_AUDIT.md))
+3. 🔄 Phase 2 — resilience & observability (~70%; Grafana/load tests deferred)
+4. 🔄 Phase 3 — testing (257 tests green; load/contract testing deferred)
+5. 🔄 Phase 4 — deployment (CI + Docker + staging workflow; smoke test pending)
 6. ⬜ Phase 5 — optional enhancements
 
 ### Production-Ready Minimum
@@ -640,9 +640,9 @@ Phases 0–4 must be 100% complete for full production readiness:
 
 - [x] **Phase 0: Corporate Actions Support**
 - [x] Phase 1: Security & Stability (critical path — see PHASE1_AUDIT.md)
-- [ ] Phase 2: Resilience & Observability (partial)
+- [x] Phase 2: Resilience & Observability (core — metrics, logging, optional Redis)
 - [ ] Phase 3: Testing & Quality (partial — unit/integration strong; load tests pending)
-- [ ] Phase 4: Deployment & Operations (partial — CI/CD pending)
+- [ ] Phase 4: Deployment & Operations (partial — CI/Docker done; staging smoke pending)
 
 ---
 
@@ -655,10 +655,10 @@ Phases 0–4 must be 100% complete for full production readiness:
 - [ ] Circuit breaker configuration (wrong settings = issues)
 
 ### Validation Gates
-- [ ] Phase 1: Security audit required
-- [ ] Phase 2: Load test required
+- [x] Phase 1: Security audit ([PHASE1_AUDIT.md](../docs/PHASE1_AUDIT.md))
+- [ ] Phase 2: Load test required (deferred for portfolio demo)
 - [ ] Phase 3: QA sign-off required
-- [ ] Phase 4: DevOps approval required
+- [ ] Phase 4: DevOps approval required (staging smoke pending)
 
 ---
 
@@ -703,6 +703,6 @@ Phases 0–4 must be 100% complete for full production readiness:
 ## Quick Start
 
 1. **Phase 0 is done** — see [docs/corporate-actions/PROGRESS.md](../docs/corporate-actions/PROGRESS.md)
-2. **Run tests before merge:** `.\mvnw.cmd test` (255 tests)
-3. **Next priority:** CI/CD (Phase 4), then production M&A data source if needed
-4. **Branch:** `feature/bug-fixes-and-retry-strategy` → PR to `main`
+2. **Portfolio demo:** [docs/PORTFOLIO_DEMO.md](../docs/PORTFOLIO_DEMO.md)
+3. **Run tests:** `.\mvnw.cmd test` (257 tests)
+4. **Branch:** `main` — CI runs test, OWASP, and Docker build on every push

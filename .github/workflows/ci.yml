@@ -65,6 +65,7 @@ jobs:
           ./mvnw -version
 
       - name: Cache OWASP NVD data
+        id: owasp-cache
         uses: actions/cache@v4
         with:
           path: |
@@ -82,9 +83,14 @@ jobs:
           if [ -z "$NVD_API_KEY" ]; then
             echo "::notice::NVD_API_KEY secret not set — add it in repo Settings → Secrets for faster, more reliable NVD sync (https://nvd.nist.gov/developers/request-an-api-key)"
           fi
+          EXTRA_ARGS=""
+          if [ "${{ steps.owasp-cache.outputs.cache-hit }}" = "true" ]; then
+            echo "NVD cache hit — skipping feed update (uses cached .dependency-check-data)"
+            EXTRA_ARGS="-Ddependency-check.autoUpdate=false"
+          fi
           for attempt in 1 2 3; do
             echo "Dependency-Check attempt $attempt..."
-            if ./mvnw dependency-check:check -B; then
+            if ./mvnw dependency-check:check -B $EXTRA_ARGS; then
               exit 0
             fi
             sleep 30

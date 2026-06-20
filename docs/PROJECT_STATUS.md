@@ -72,22 +72,15 @@ Key test groups:
 
 ---
 
-## Recommended Next Steps
+## Recommended Next Steps (portfolio demo)
 
-### Before merge
-1. ~~Run `.\mvnw.cmd test` — all tests green~~ ✅ Done (255/255)
-2. Open PR from `feature/bug-fixes-and-retry-strategy` → `main`
+See **[PORTFOLIO_DEMO.md](PORTFOLIO_DEMO.md)** for the full demo script.
 
-### After merge
-1. ~~**CI/CD** — GitHub Actions~~ ✅ Tests + OWASP + Docker (GHCR)
-2. ~~**OpenAPI/Swagger**~~ ✅ SpringDoc + Postman collection
-3. ~~**Phase 1 audit**~~ ✅ [PHASE1_AUDIT.md](PHASE1_AUDIT.md)
-4. ~~**Phase 2 observability**~~ ✅ Prometheus, structured logging, correlation IDs, optional Redis
-5. **OWASP CI reliability** — Add repo secret `NVD_API_KEY` ([request key](https://nvd.nist.gov/developers/request-an-api-key)) if NVD sync flakes
-6. **Staging host** — Set `STAGING_HOST`, `STAGING_USER`, `STAGING_SSH_KEY` secrets; run **Deploy Staging** workflow
-7. **Production Phase 2 data** — Only when a user hits wrong P&L on M&A, or paid tier requires it
+1. **OWASP CI** — Add repo secret `NVD_API_KEY` if the security job is slow or flaky
+2. **Staging smoke** — Run `docker compose -f docker-compose.staging.yml up` once with the GHCR image
+3. **Optional polish** — 2–3 min screen recording walking through tests + Swagger + corporate-action fixtures
 
-### Future enhancements
+### Deferred (not required for portfolio)
 - FIFO/LIFO lot tracking
 - Database-backed corporate action cache (if rate limits bite) — [FUTURE_ENHANCEMENTS.md](FUTURE_ENHANCEMENTS.md)
 - Grafana dashboards wired to `/actuator/prometheus`
@@ -101,7 +94,7 @@ Key test groups:
 .\mvnw.cmd spring-boot:run -Dspring-boot.run.profiles=dev
 ```
 
-See [RUNNING_TESTS.md](RUNNING_TESTS.md) and the main [README.md](../README.md).
+See [PORTFOLIO_DEMO.md](PORTFOLIO_DEMO.md), [RUNNING_TESTS.md](RUNNING_TESTS.md), and the main [README.md](../README.md).
 
 ---
 

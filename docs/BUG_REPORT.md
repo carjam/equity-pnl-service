@@ -2,7 +2,7 @@
 
 ## Executive Summary
 
-This document records bugs found during code review of the equity-pnl-service codebase. **All critical and medium-priority items listed below are resolved.** The P&L engine and corporate actions integration are verified by 255 passing tests (June 20, 2026).
+This document records bugs found during code review of the equity-pnl-service codebase. **All critical and medium-priority items listed below are resolved.** The P&L engine and corporate actions integration are verified by 257 passing tests (June 20, 2026).
 
 Remaining gaps are optional (production M&A data feed, CI/CD) — see [PROJECT_STATUS.md](PROJECT_STATUS.md).
 
