@@ -135,6 +135,9 @@ GET  /Candle/{symbol}?from={date}&to={date}  # Historical candles
 - Input validation
 - Error handling
 
+🔴 **CRITICAL MISSING FEATURE:**
+- **Corporate actions (dividends, splits, mergers)** - Service produces incorrect P&L without this
+
 🚧 **Future Enhancements:**
 - Event-driven architecture with message queues
 - Real-time transaction ingestion
@@ -144,7 +147,6 @@ GET  /Candle/{symbol}?from={date}&to={date}  # Historical candles
 - ITD/YTD/MTD snapshots
 - Transaction costs
 - Fractional shares
-- Corporate actions (dividends, splits)
 - Attribution analysis (beta/alpha)
 - FIFO/LIFO lot tracking
 
@@ -174,9 +176,16 @@ Several bugs were identified during code review:
 ✅ **Fixed:**
 - Type mismatches in `TransactionController`
 - Timezone hardcoded incorrectly (now configurable)
+- P&L calculation logic verified mathematically correct
 
-⚠️ **Under Review:**
-- P&L calculation sign conventions need verification against standard formulas
+🔴 **CRITICAL - BLOCKING PRODUCTION:**
+- **No corporate actions support** - Service cannot handle stock splits, dividends, or mergers
+  - Stock splits appear as massive losses (e.g., 4:1 split shows as 75% loss)
+  - Mergers appear as delistings with 100% losses
+  - Dividends not included in total return calculations
+  - **Status:** Comprehensive specification created, ready for implementation
+  - **Timeline:** 25 days (5 weeks)
+  - See [spec/phase-0-corporate-actions/01-corporate-actions-support.md](spec/phase-0-corporate-actions/01-corporate-actions-support.md)
 
 See [docs/BUG_REPORT.md](docs/BUG_REPORT.md) for complete details and recommendations.
 

@@ -3,10 +3,21 @@
 ## Overview
 This directory contains detailed specifications for transforming the Equity PnL Service from a proof-of-concept to a production-ready system.
 
-## Timeline & Phases
-**Total Estimated Effort:** 8-12 weeks (1 developer)
+## ⚠️ CRITICAL: Phase 0 Must Be Completed First
 
-### Phase 1: Security & Stability (Week 1-2) - CRITICAL
+**The service is fundamentally broken without corporate actions support.** Stock splits, dividends, and mergers directly affect P&L calculations. Phase 0 must be completed before any other work.
+
+## Timeline & Phases
+**Total Estimated Effort:** 5 weeks (Phase 0) + 8-12 weeks (Phases 1-5) = 13-17 weeks
+
+### Phase 0: Corporate Actions Support (Week 1-5) - 🔴 BLOCKING
+**The most critical missing feature. Without this, P&L calculations are incorrect.**
+
+- [01-corporate-actions-support.md](./phase-0-corporate-actions/01-corporate-actions-support.md)
+  - Phase 0.1: Dividends & Splits using Finnhub (15 days)
+  - Phase 0.2: Mergers, Acquisitions, Spinoffs (10 days)
+
+### Phase 1: Security & Stability (Week 6-7) - CRITICAL
 Focus on addressing critical security vulnerabilities and outdated dependencies that pose immediate risk.
 
 - [01-dependency-upgrades.md](./phase-1-security-stability/01-dependency-upgrades.md)
@@ -61,6 +72,15 @@ Long-term improvements and technical debt reduction.
 
 ## Success Criteria
 
+### Phase 0 Complete When:
+- [ ] Stock splits automatically adjust position quantities and cost basis
+- [ ] Dividends tracked and included in total return calculations
+- [ ] Mergers/acquisitions processed with correct symbol and cost basis updates
+- [ ] Spinoffs create new positions with allocated cost basis
+- [ ] Daily sync job fetches corporate actions automatically
+- [ ] >99% accuracy compared to brokerage statements
+- [ ] Multi-provider support (Finnhub + Databento/QUODD)
+
 ### Phase 1 Complete When:
 - [ ] All dependencies updated to latest stable versions
 - [ ] Zero high/critical CVEs in dependency scan
@@ -102,6 +122,8 @@ Long-term improvements and technical debt reduction.
 
 | Risk | Impact | Mitigation |
 |------|--------|------------|
+| **Missing corporate actions** | **CRITICAL** | **Phase 0 must complete before production** |
+| Incorrect P&L without splits/mergers | CRITICAL | Extensive testing with known historical events |
 | Finhub API rate limits | HIGH | Implement caching early (Phase 2) |
 | Database migration issues | HIGH | Test migrations in staging thoroughly |
 | Breaking API changes | MEDIUM | Version API before changes (Phase 4) |
