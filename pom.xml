@@ -305,6 +305,9 @@
                 <configuration>
                     <failBuildOnCVSS>7</failBuildOnCVSS>
                     <skipTestScope>true</skipTestScope>
+                    <!-- Bulk JSON 2.0 feeds (~25 files) instead of NVD API pagination (360k+ requests) -->
+                    <nvdDatafeedUrl>https://nvd.nist.gov/feeds/json/cve/2.0/nvdcve-2.0-{0}.json.gz</nvdDatafeedUrl>
+                    <readTimeout>300000</readTimeout>
                     <nvdApiDelay>4000</nvdApiDelay>
                     <nvdMaxRetryCount>30</nvdMaxRetryCount>
                     <nvdApiKeyEnvironmentVariable>NVD_API_KEY</nvdApiKeyEnvironmentVariable>

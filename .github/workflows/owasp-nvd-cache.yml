@@ -1,5 +1,5 @@
 # Populates the OWASP NVD H2 cache used by owasp.yml.
-# Full initial sync can take 2–4 h with NVD_API_KEY; re-runs resume partial progress.
+# Uses NIST JSON 2.0 bulk feeds (see pom.xml nvdDatafeedUrl) — ~15–45 min, not API pagination.
 name: OWASP NVD Cache Refresh
 
 on:
@@ -19,7 +19,7 @@ jobs:
   refresh:
     name: Refresh NVD cache
     runs-on: ubuntu-latest
-    timeout-minutes: 360
+    timeout-minutes: 120
 
     steps:
       - name: Checkout
@@ -36,7 +36,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: .dependency-check-data
-          key: owasp-nvd-${{ runner.os }}-dc12
+          key: owasp-nvd-${{ runner.os }}-dc12feed
           restore-keys: |
             owasp-nvd-${{ runner.os }}-
 
@@ -45,35 +45,37 @@ jobs:
           NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
         run: |
           chmod +x mvnw
-          if [ -z "$NVD_API_KEY" ]; then
-            echo "::warning::NVD_API_KEY not set — sync will be very slow and may hit the 6 h job limit"
-          fi
 
           if [ -f .dependency-check-data/odc.mv.db ]; then
-            echo "Resuming/updating existing NVD cache ($(du -sh .dependency-check-data | cut -f1))"
+            echo "Updating existing NVD cache ($(du -sh .dependency-check-data | cut -f1))"
           else
-            echo "No NVD cache yet — full sync of ~360k CVEs; expect 2–4 h with NVD_API_KEY"
+            echo "No NVD cache yet — downloading NIST JSON 2.0 feeds (~25 files, expect 15–45 min)"
+            echo "Logs should show 'Download Started for NVD Cache - ...nvdcve-2.0-YYYY.json.gz', NOT 'Downloaded N/359,555'"
           fi
 
           sync_nvd() {
-            ./mvnw dependency-check:update-only -B
+            ./mvnw dependency-check:update-only -B 2>&1 | tee /tmp/odc-update.log
+            test ${PIPESTATUS[0]} -eq 0
           }
 
           for attempt in 1 2 3 4 5; do
             echo "NVD update-only attempt $attempt/5..."
             if sync_nvd && [ -f .dependency-check-data/odc.mv.db ]; then
+              if grep -q 'Downloaded [0-9]*/359,555' /tmp/odc-update.log; then
+                echo "::error::NVD API pagination detected — nvdDatafeedUrl is not active. Check pom.xml spelling (lowercase 'feed')."
+                exit 1
+              fi
               echo "NVD cache ready ($(du -sh .dependency-check-data | cut -f1))"
               exit 0
             fi
             echo "NVD sync failed (NIST 503/524, timeout, or HTTP client shutdown); waiting $((attempt * 120))s..."
-            # Only wipe a corrupt partial download; keep progress so retries resume from last checkpoint
             if [ -d .dependency-check-data ] && [ ! -f .dependency-check-data/odc.mv.db ]; then
               rm -rf .dependency-check-data
             fi
             sleep $((attempt * 120))
           done
 
-          echo "::error::NVD sync failed after 5 attempts. Re-run this workflow when https://nvd.nist.gov is healthy — partial progress is kept in cache when odc.mv.db exists."
+          echo "::error::NVD sync failed after 5 attempts. Re-run when https://nvd.nist.gov is healthy."
           exit 1
 
       - name: Save OWASP NVD cache
@@ -81,4 +83,4 @@ jobs:
         uses: actions/cache/save@v4
         with:
           path: .dependency-check-data
-          key: owasp-nvd-${{ runner.os }}-dc12
+          key: owasp-nvd-${{ runner.os }}-dc12feed
