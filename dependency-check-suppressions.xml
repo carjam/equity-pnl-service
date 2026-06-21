@@ -1,4 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.3.xsd">
-    <!-- Add suppressions here with justification when a CVE is accepted risk or a false positive. -->
+    <!--
+      CVE-2026-42582: HTTP/3 QpackDecoder OOB allocation in netty-codec-http3 (Netty 4.2.x, fixed 4.2.13 / backport 4.1.133).
+      NVD CPE cpe:2.3:a:netty:netty:*:*:*:*:*:*:*:* versions before 4.2.13 matches ALL netty JARs including netty-transport.
+      Spring Boot 3.5.15 ships Netty 4.1.135.Final; dependency tree has no netty-codec-http3. Not exploitable in this app.
+      Ref: https://netty.io/news/2026/05/04/4-1-133-Final.html
+    -->
+    <suppress>
+        <notes><![CDATA[False positive: CVE-2026-42582 is HTTP/3 QPACK in netty-codec-http3 (4.2.x). We use Netty 4.1.135.Final without http3.]]></notes>
+        <packageUrl regex="true">^pkg:maven/io\.netty/.*@4\.1\.135\.Final$</packageUrl>
+        <cve>CVE-2026-42582</cve>
+    </suppress>
 </suppressions>
