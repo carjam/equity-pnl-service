@@ -305,7 +305,7 @@
                 <configuration>
                     <failBuildOnCVSS>7</failBuildOnCVSS>
                     <skipTestScope>true</skipTestScope>
-                    <nvdApiDelay>10000</nvdApiDelay>
+                    <nvdApiDelay>4000</nvdApiDelay>
                     <nvdMaxRetryCount>30</nvdMaxRetryCount>
                     <nvdApiKeyEnvironmentVariable>NVD_API_KEY</nvdApiKeyEnvironmentVariable>
                     <nvdValidForHours>168</nvdValidForHours>

@@ -1,5 +1,5 @@
-# Populates the OWASP NVD H2 cache used by CI (see ci.yml dependency-check job).
-# Requires dependency-check 12.x (cache key dc12). Run manually after NVD outages.
+# Populates the OWASP NVD H2 cache used by owasp.yml.
+# Full initial sync can take 2–4 h with NVD_API_KEY; re-runs resume partial progress.
 name: OWASP NVD Cache Refresh
 
 on:
@@ -19,7 +19,7 @@ jobs:
   refresh:
     name: Refresh NVD cache
     runs-on: ubuntu-latest
-    timeout-minutes: 180
+    timeout-minutes: 360
 
     steps:
       - name: Checkout
@@ -46,12 +46,16 @@ jobs:
         run: |
           chmod +x mvnw
           if [ -z "$NVD_API_KEY" ]; then
-            echo "::warning::NVD_API_KEY not set — sync will be slow and may fail (503/524/timeouts)"
+            echo "::warning::NVD_API_KEY not set — sync will be very slow and may hit the 6 h job limit"
+          fi
+
+          if [ -f .dependency-check-data/odc.mv.db ]; then
+            echo "Resuming/updating existing NVD cache ($(du -sh .dependency-check-data | cut -f1))"
+          else
+            echo "No NVD cache yet — full sync of ~360k CVEs; expect 2–4 h with NVD_API_KEY"
           fi
 
           sync_nvd() {
-            # Fresh JVM + clean data dir avoids corrupt H2 after NVD disconnects
-            rm -rf .dependency-check-data
             ./mvnw dependency-check:update-only -B
           }
 
@@ -61,15 +65,19 @@ jobs:
               echo "NVD cache ready ($(du -sh .dependency-check-data | cut -f1))"
               exit 0
             fi
-            echo "NVD sync failed (NIST 503/524 or HTTP client shutdown); waiting $((attempt * 120))s..."
-            rm -rf .dependency-check-data
+            echo "NVD sync failed (NIST 503/524, timeout, or HTTP client shutdown); waiting $((attempt * 120))s..."
+            # Only wipe a corrupt partial download; keep progress so retries resume from last checkpoint
+            if [ -d .dependency-check-data ] && [ ! -f .dependency-check-data/odc.mv.db ]; then
+              rm -rf .dependency-check-data
+            fi
             sleep $((attempt * 120))
           done
 
-          echo "::error::NVD sync failed after 5 attempts. Re-run when https://nvd.nist.gov is healthy."
+          echo "::error::NVD sync failed after 5 attempts. Re-run this workflow when https://nvd.nist.gov is healthy — partial progress is kept in cache when odc.mv.db exists."
           exit 1
 
       - name: Save OWASP NVD cache
+        if: always() && hashFiles('.dependency-check-data/odc.mv.db') != ''
         uses: actions/cache/save@v4
         with:
           path: .dependency-check-data
