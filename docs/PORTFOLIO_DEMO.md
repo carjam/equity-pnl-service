@@ -67,11 +67,11 @@ Manual: `docker compose -f docker-compose.staging.yml up -d` (DB name **`equity`
 
 ### OWASP / NVD
 
-- **Plugin:** dependency-check **12.2.2** (requires 12.1+ for NIST API)
-- **Secret:** `NVD_API_KEY` in repo Settings → Secrets
-- **First run:** slow (60–90+ min) — runs in a **separate workflow** so new pushes do not cancel NVD download
-- **Warm cache:** Actions → **OWASP NVD Cache Refresh** or let **OWASP Dependency Check** finish once
-- **Steady state:** CI restores cache and skips NVD API (`autoUpdate=false`) — ~2–5 min
+- **Plugin:** dependency-check **12.2.2** · CVSS ≥ 7 fails build
+- **NVD data:** NIST JSON 2.0 bulk feeds (not API pagination)
+- **Steady state:** **OWASP Dependency Check** ~5 min (warm cache, `autoUpdate=false`)
+- **Cache warm:** Actions → **OWASP NVD Cache Refresh** if cache missing (~15–45 min, one-time)
+- **Suppressions:** documented false positive for Netty CVE-2026-42582 — see `dependency-check-suppressions.xml`
 
 ---
 
@@ -96,7 +96,7 @@ Manual: `docker compose -f docker-compose.staging.yml up -d` (DB name **`equity`
 - [x] OpenAPI + Postman
 - [x] Phase 1 audit doc
 - [x] `NVD_API_KEY` secret
-- [ ] OWASP job green (NVD cache warming — in progress)
+- [x] OWASP job green (June 21, 2026)
 - [ ] GitHub About + topics ([GITHUB_REPO_SETUP.md](GITHUB_REPO_SETUP.md))
 - [ ] Screen recording (optional)
 

@@ -5,8 +5,9 @@
 > 💼 **Portfolio Project:** This is a demonstration of enterprise-grade financial software engineering. Code available for review only. See [LICENSE](LICENSE) for terms.
 
 [![CI](https://github.com/carjam/equity-pnl-service/actions/workflows/ci.yml/badge.svg)](https://github.com/carjam/equity-pnl-service/actions/workflows/ci.yml)
+[![OWASP](https://github.com/carjam/equity-pnl-service/actions/workflows/owasp.yml/badge.svg)](https://github.com/carjam/equity-pnl-service/actions/workflows/owasp.yml)
 [![Java](https://img.shields.io/badge/Java-21-orange.svg)](https://www.oracle.com/java/)
-[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.2.5-brightgreen.svg)](https://spring.io/projects/spring-boot)
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.5.15-brightgreen.svg)](https://spring.io/projects/spring-boot)
 [![Tests](https://img.shields.io/badge/Tests-258-brightgreen.svg)](docs/RUNNING_TESTS.md)
 [![License](https://img.shields.io/badge/License-Proprietary-red.svg)](LICENSE)
 
@@ -128,7 +129,7 @@ GET  /Candle/{symbol}?from={date}&to={date}  # Historical candles
 
 | Component | Technology |
 |-----------|-----------|
-| Framework | Spring Boot 3.2.5 |
+| Framework | Spring Boot 3.5.15 |
 | Security | Spring Security + JWT |
 | Database | MySQL 8.0 + Flyway |
 | Caching | Caffeine |

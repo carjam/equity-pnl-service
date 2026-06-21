@@ -4,9 +4,9 @@ This repository is a **portfolio demonstration** of enterprise-grade financial A
 
 ## Highlights
 
-- Java 21 · Spring Boot 3.2 · JWT · Resilience4j · Docker · CI/CD
+- Java 21 · Spring Boot 3.5 · JWT · Resilience4j · Docker · CI/CD
 - Equity P&L with corporate actions (splits, dividends, M&A logic)
-- **257 automated tests**
+- **258 automated tests**
 
 ## For reviewers
 

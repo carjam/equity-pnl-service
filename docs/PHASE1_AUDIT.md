@@ -1,9 +1,9 @@
 # Phase 1 Security & Stability — Audit Report
 
-**Date:** June 20, 2026  
+**Date:** June 21, 2026  
 **Branch audited:** `main`  
 **Auditor:** Engineering (post-merge checklist review)  
-**Verdict:** **Substantially complete** — suitable for portfolio/demo production; a few operational items remain deferred.
+**Verdict:** **Critical path complete** — all CI green (test, Docker, OWASP); suitable for portfolio/demo.
 
 ---
 
@@ -26,17 +26,17 @@
 
 | Item | Status | Evidence |
 |------|--------|----------|
-| Spring Boot 3.2.5 | ✅ | `pom.xml` parent |
+| Spring Boot 3.5.15 | ✅ | `pom.xml` parent (upgraded from 3.2.5, June 2026) |
 | Java 21 LTS | ✅ | `java.version` property |
 | `javax.*` → `jakarta.*` | ✅ | Codebase uses jakarta |
 | JUnit 5 | ✅ | All tests under `src/test` |
 | Test dependencies | ✅ | H2, MockWebServer, spring-security-test |
-| OWASP dependency scan | ✅ | `dependency-check-maven` plugin + CI job |
-| Zero high/critical CVEs | 🔄 | CI enforces CVSS ≥ 7 fail; review each run |
-| All tests passing | ✅ | 257 tests |
+| OWASP dependency scan | ✅ | `dependency-check-maven` 12.2.2 + [`owasp.yml`](../.github/workflows/owasp.yml) |
+| Zero high/critical CVEs (CVSS ≥ 7) | ✅ | CI green; Netty CVE-2026-42582 suppressed (false positive) — see `dependency-check-suppressions.xml` |
+| All tests passing | ✅ | 258 tests |
 | Docker builds | ✅ | JDK 21 `Dockerfile`, GHCR CI job, `docker-compose.staging.yml` |
 
-**Open:** Formal CVE triage on each dependency-check report; add suppressions only with justification in `dependency-check-suppressions.xml`.
+**Open:** Re-triage if dependency-check report adds new CVSS ≥ 7 findings after upgrades.
 
 ---
 
@@ -119,7 +119,7 @@
 | Gate | Status | Notes |
 |------|--------|-------|
 | Security audit (Phase 1) | ✅ | This document |
-| OWASP scan in CI | ✅ | `.github/workflows/ci.yml` |
+| OWASP scan in CI | ✅ | [`.github/workflows/owasp.yml`](../.github/workflows/owasp.yml) |
 | All tests green | ✅ | `./mvnw test` |
 | API documentation | ✅ | SpringDoc at `/swagger-ui.html` (dev) |
 

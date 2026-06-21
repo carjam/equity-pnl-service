@@ -1,5 +1,7 @@
 # Dependency Upgrades Specification
 
+> **Implementation status (June 21, 2026):** Complete. Spring Boot **3.5.15**, Java 21, Log4j **2.25.4**, springdoc **2.8.14**. OWASP dependency-check **12.2.2** green in CI (NIST JSON 2.0 feeds + Actions cache). See [PHASE1_AUDIT.md](../../docs/PHASE1_AUDIT.md) and [PROJECT_STATUS.md](../../docs/PROJECT_STATUS.md).
+
 ## Objective
 Upgrade all outdated and vulnerable dependencies to latest stable versions, reducing security vulnerabilities and improving performance.
 

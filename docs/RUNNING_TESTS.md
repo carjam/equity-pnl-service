@@ -78,7 +78,7 @@ Coverage snapshot: [TEST_COVERAGE_REPORT.md](TEST_COVERAGE_REPORT.md)
 
 [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) runs `./mvnw test -B` on every push/PR to `main`, plus Docker build on `main`.
 
-**OWASP:** [`.github/workflows/owasp.yml`](../.github/workflows/owasp.yml) — dependency-check **12.2.2**, separate from CI so NVD sync is not canceled by pushes. Add **`NVD_API_KEY`**. First sync is slow; run **OWASP NVD Cache Refresh** or wait for **OWASP Dependency Check** to finish once (~2–5 min after cache exists).
+**OWASP:** [`.github/workflows/owasp.yml`](../.github/workflows/owasp.yml) — dependency-check **12.2.2**, separate from CI. Uses NIST JSON 2.0 bulk feeds + Actions cache (`dc12feed`). Steady-state scan ~5 min. If cache is missing, run **OWASP NVD Cache Refresh** once (~15–45 min).
 
 ---
 
@@ -101,4 +101,4 @@ Coverage snapshot: [TEST_COVERAGE_REPORT.md](TEST_COVERAGE_REPORT.md)
 
 ---
 
-*Last updated: June 20, 2026*
+*Last updated: June 21, 2026*

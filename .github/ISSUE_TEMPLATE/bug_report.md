@@ -28,7 +28,7 @@ If applicable, add logs or screenshots to help explain your problem.
 **Environment (please complete the following information):**
 - OS: [e.g. Windows, Linux, macOS]
 - Java Version: [e.g. 17]
-- Spring Boot Version: [e.g. 3.2.5]
+- Spring Boot Version: [e.g. 3.5.15]
 - Profile: [e.g. dev, prod]
 
 **Additional context**

@@ -36,4 +36,4 @@ Session notes and superseded docs: [archive/](archive/) — not maintained for c
 
 ---
 
-*Last updated: June 20, 2026*
+*Last updated: June 21, 2026*

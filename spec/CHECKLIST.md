@@ -288,20 +288,20 @@ Without corporate actions support, the P&L service produces fundamentally incorr
 
 ## Phase 1: Security & Stability (Week 6-7) - CRITICAL
 
-**Audit:** [docs/PHASE1_AUDIT.md](../docs/PHASE1_AUDIT.md) (June 20, 2026) — **~80% complete, critical path done**
+**Audit:** [docs/PHASE1_AUDIT.md](../docs/PHASE1_AUDIT.md) (June 21, 2026) — **critical path complete; CI green**
 
 ### 01. Dependency Upgrades
-- [x] Update to Spring Boot 3.2.5
+- [x] Update to Spring Boot 3.2.5 → **3.5.15** (June 2026, CVE patches)
 - [x] Update to Java 21 LTS
 - [x] Migrate `javax.*` to `jakarta.*`
 - [x] Update JUnit 4 to JUnit 5
 - [x] Update all test dependencies
 - [x] Run OWASP dependency scan (CI + Maven plugin)
-- [ ] Zero high/critical CVEs (enforced in CI; triage per release)
-- [x] All tests passing
+- [x] Zero high/critical CVEs at CVSS ≥ 7 (CI green; one documented Netty suppression)
+- [x] All tests passing (258)
 - [x] Docker builds successfully
 
-**Effort:** 6 days | **Status:** ✅ Complete (CVE triage ongoing)
+**Effort:** 6 days | **Status:** ✅ Complete
 
 ### 02. Security & Authentication
 - [x] Add Spring Security dependencies
@@ -470,13 +470,13 @@ Without corporate actions support, the P&L service produces fundamentally incorr
 **Effort:** 3 days | **Status:** ⬜ Not Started
 
 ### 04. Security Scanning
-- [ ] Set up OWASP dependency check
+- [x] Set up OWASP dependency check (Phase 1 — [`owasp.yml`](../.github/workflows/owasp.yml))
 - [ ] Run Snyk security scan
-- [ ] Fix critical vulnerabilities
-- [ ] Set up automated scanning in CI
-- [ ] Document security posture
+- [x] Fix critical vulnerabilities (Spring Boot 3.5.15, Log4j 2.25.4, OWASP suppressions)
+- [x] Set up automated scanning in CI
+- [x] Document security posture ([PHASE1_AUDIT.md](../docs/PHASE1_AUDIT.md), `dependency-check-suppressions.xml`)
 
-**Effort:** 2 days | **Status:** ⬜ Not Started
+**Effort:** 2 days | **Status:** 🔄 OWASP complete; Snyk optional
 
 ### 05. Load & Performance Testing
 - [ ] Set up JMeter or Gatling
