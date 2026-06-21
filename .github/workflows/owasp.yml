@@ -42,19 +42,8 @@ jobs:
           restore-keys: |
             owasp-nvd-${{ runner.os }}-
 
-      - name: Prepare NVD cache
-        id: nvd-cache
-        run: |
-          if [ -f .dependency-check-data/odc.mv.db ]; then
-            echo "has_db=true" >> $GITHUB_OUTPUT
-            echo "Using restored NVD H2 cache ($(du -sh .dependency-check-data | cut -f1))"
-          else
-            echo "has_db=false" >> $GITHUB_OUTPUT
-            echo "No NVD cache yet — cold sync may take 60–90+ min (not canceled by Maven Test pushes)"
-            rm -rf .dependency-check-data
-          fi
-
-      - name: Run OWASP Dependency-Check
+      - name: Sync NVD data
+        id: nvd-sync
         env:
           NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
         run: |
@@ -63,15 +52,13 @@ jobs:
             echo "::notice::NVD_API_KEY secret not set — add it in repo Settings → Secrets"
           fi
 
-          run_check() {
-            ./mvnw dependency-check:check -B "$@"
-          }
-
-          if [ "${{ steps.nvd-cache.outputs.has_db }}" = "true" ]; then
-            run_check -Ddependency-check.autoUpdate=false
-            exit $?
+          if [ -f .dependency-check-data/odc.mv.db ]; then
+            echo "Using restored NVD H2 cache ($(du -sh .dependency-check-data | cut -f1))"
+            echo "synced=true" >> $GITHUB_OUTPUT
+            exit 0
           fi
 
+          echo "No NVD cache yet — cold sync may take 60–90+ min (not canceled by Maven Test pushes)"
           sync_nvd() {
             rm -rf .dependency-check-data
             ./mvnw dependency-check:update-only -B
@@ -80,8 +67,9 @@ jobs:
           for attempt in 1 2 3 4 5; do
             echo "NVD update-only attempt $attempt/5..."
             if sync_nvd && [ -f .dependency-check-data/odc.mv.db ]; then
-              run_check -Ddependency-check.autoUpdate=false
-              exit $?
+              echo "NVD cache ready ($(du -sh .dependency-check-data | cut -f1))"
+              echo "synced=true" >> $GITHUB_OUTPUT
+              exit 0
             fi
             echo "NVD sync failed; waiting $((attempt * 120))s before retry..."
             rm -rf .dependency-check-data
@@ -92,11 +80,18 @@ jobs:
           exit 1
 
       - name: Save OWASP NVD cache
-        if: success() && hashFiles('.dependency-check-data/odc.mv.db') != ''
+        if: steps.nvd-sync.outputs.synced == 'true' && hashFiles('.dependency-check-data/odc.mv.db') != ''
         uses: actions/cache/save@v4
         with:
           path: .dependency-check-data
           key: owasp-nvd-${{ runner.os }}-dc12
+
+      - name: Run OWASP Dependency-Check
+        env:
+          NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
+        run: |
+          chmod +x mvnw
+          ./mvnw dependency-check:check -B -Ddependency-check.autoUpdate=false
 
       - name: Purge invalid NVD cache
         if: always()
