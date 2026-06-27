@@ -33,6 +33,13 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
     })
     List<Transaction> findAllBetween(@Param("uid") Long uid, @Param("start") Date start, @Param("end") Date end);
     
+    @Query("SELECT t FROM Transaction t WHERE t.user.id = :uid ORDER BY t.timestamp")
+    @QueryHints({
+        @QueryHint(name = "org.hibernate.fetchSize", value = "100"),
+        @QueryHint(name = "org.hibernate.readOnly", value = "true")
+    })
+    List<Transaction> findAllByUser(@Param("uid") Long uid);
+
     @Query("SELECT COUNT(t) FROM Transaction t WHERE t.user.id = :uid")
     long countByUserId(@Param("uid") Long uid);
 

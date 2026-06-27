@@ -420,7 +420,7 @@ public class PnLService {
         }
 
         if (Objects.isNull(fromDate) && Objects.isNull(toDate))
-            return transactionRepository.findAll();
+            return transactionRepository.findAllByUser(user.get().getId());
         else if (Objects.isNull(fromDate))
             return transactionRepository.findAllBefore(user.get().getId(), toDate);
         else

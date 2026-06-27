@@ -405,6 +405,44 @@ public class PnLServiceTest {
         assertEquals(BigInteger.valueOf(-50), position.getQuantity());
     }
     
+    // ==================== GET TRANSACTIONS BY DATES ====================
+
+    @Test
+    public void testGetTransactionsByDates_NoDates_ScopedToAuthenticatedUser() throws Exception {
+        when(userRepository.findByUid("test-user")).thenReturn(Optional.of(testUser));
+
+        List<Transaction> userTransactions = Arrays.asList(
+                TestDataBuilder.createBuyTransaction(testUser, buyType, "AAPL",
+                        LocalDateTime.of(2024, 1, 15, 10, 0), 100, 5000.0)
+        );
+        when(transactionRepository.findAllByUser(testUser.getId())).thenReturn(userTransactions);
+
+        List<Transaction> result = pnLService.getTransactionsByDates("test-user", Optional.empty(), Optional.empty());
+
+        assertEquals(1, result.size());
+        verify(transactionRepository).findAllByUser(testUser.getId());
+        verify(transactionRepository, never()).findAll();
+    }
+
+    @Test
+    public void testGetTransactionsByDates_WithDates_ScopedToAuthenticatedUser() throws Exception {
+        when(userRepository.findByUid("test-user")).thenReturn(Optional.of(testUser));
+
+        List<Transaction> userTransactions = Arrays.asList(
+                TestDataBuilder.createBuyTransaction(testUser, buyType, "AAPL",
+                        LocalDateTime.of(2024, 1, 15, 10, 0), 100, 5000.0)
+        );
+        when(transactionRepository.findAllBetween(eq(testUser.getId()), any(Date.class), any(Date.class)))
+                .thenReturn(userTransactions);
+
+        List<Transaction> result = pnLService.getTransactionsByDates(
+                "test-user", Optional.of("2024-01-01"), Optional.of("2024-01-31"));
+
+        assertEquals(1, result.size());
+        verify(transactionRepository).findAllBetween(eq(testUser.getId()), any(Date.class), any(Date.class));
+        verify(transactionRepository, never()).findAll();
+    }
+
     // ==================== ERROR CONDITIONS ====================
     
     @Test
