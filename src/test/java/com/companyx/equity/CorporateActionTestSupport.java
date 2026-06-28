@@ -30,6 +30,10 @@ public final class CorporateActionTestSupport {
                 any(), anyString(), any(LocalDate.class), any(LocalDate.class)))
                 .thenReturn(BigDecimal.ZERO);
 
+        lenient().when(corporateActionService.calculateDividendIncome(
+                any(), anyList(), anyString(), any(LocalDate.class), any(LocalDate.class)))
+                .thenReturn(BigDecimal.ZERO);
+
         lenient().when(corporateActionService.applyComplexAdjustments(
                 any(Position.class), anyString(), any(LocalDate.class), any(LocalDate.class), any()))
                 .thenAnswer(invocation -> new CorporateActionService.ComplexAdjustmentResult(

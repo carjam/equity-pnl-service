@@ -1,5 +1,7 @@
 package com.companyx.equity.service;
 
+import com.companyx.equity.model.Transaction;
+import com.companyx.equity.model.TransactionType;
 import com.companyx.equity.model.corporateaction.Dividend;
 import com.companyx.equity.model.corporateaction.DividendType;
 import com.companyx.equity.model.Position;
@@ -11,6 +13,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -294,6 +297,112 @@ class DividendServiceTest {
         assertEquals(new BigDecimal("83.00"), income);
     }
 
+    // ==================== TRANSACTION-AWARE INCOME (ex-date quantity) ====================
+
+    @Test
+    void calculateIncome_withTransactions_buyAfterExDate_usesPreBuyQuantity() {
+        // 100 shares at start; dividend ex Jan 15; buy 100 more on Jan 20
+        // Only the 100 held at ex-date should receive the dividend
+        Dividend div = createCashDividend("AAPL", LocalDate.of(2024, 1, 15), "1.00");
+        Transaction buy = createBuyTransaction(100, LocalDate.of(2024, 1, 20));
+
+        BigDecimal income = service.calculateIncome(BigInteger.valueOf(100), List.of(buy), List.of(div));
+
+        assertEquals(new BigDecimal("100.00"), income,
+                "Buy after ex-date must not inflate that dividend");
+    }
+
+    @Test
+    void calculateIncome_withTransactions_buyBeforeExDate_usesPostBuyQuantity() {
+        // 100 shares at start; buy 50 more on Jan 10; dividend ex Jan 15
+        Dividend div = createCashDividend("AAPL", LocalDate.of(2024, 1, 15), "1.00");
+        Transaction buy = createBuyTransaction(50, LocalDate.of(2024, 1, 10));
+
+        BigDecimal income = service.calculateIncome(BigInteger.valueOf(100), List.of(buy), List.of(div));
+
+        assertEquals(new BigDecimal("150.00"), income,
+                "Buy before ex-date must be included in that dividend");
+    }
+
+    @Test
+    void calculateIncome_withTransactions_sellBeforeExDate_usesReducedQuantity() {
+        // 200 shares at start; sell 50 on Jan 10; dividend ex Jan 15
+        Dividend div = createCashDividend("AAPL", LocalDate.of(2024, 1, 15), "1.00");
+        Transaction sell = createSellTransaction(50, LocalDate.of(2024, 1, 10));
+
+        BigDecimal income = service.calculateIncome(BigInteger.valueOf(200), List.of(sell), List.of(div));
+
+        assertEquals(new BigDecimal("150.00"), income,
+                "Sell before ex-date must reduce that dividend");
+    }
+
+    @Test
+    void calculateIncome_withTransactions_transactionOnExDate_doesNotAffectThatDividend() {
+        // Ex-date semantics: must hold shares at close of day BEFORE ex-date.
+        // A buy ON the ex-date does not entitle the buyer to that dividend.
+        Dividend div = createCashDividend("AAPL", LocalDate.of(2024, 1, 15), "1.00");
+        Transaction buy = createBuyTransaction(100, LocalDate.of(2024, 1, 15));
+
+        BigDecimal income = service.calculateIncome(BigInteger.valueOf(100), List.of(buy), List.of(div));
+
+        assertEquals(new BigDecimal("100.00"), income,
+                "Buy ON ex-date must not count for that dividend");
+    }
+
+    @Test
+    void calculateIncome_withTransactions_twoDividendsBuyBetween_correctPerDividend() {
+        // 100 shares; div1 Jan 15; buy 100 more Feb 1; div2 Feb 15
+        // div1 income: 100 × $1 = $100; div2 income: 200 × $1 = $200; total $300
+        Dividend div1 = createCashDividend("AAPL", LocalDate.of(2024, 1, 15), "1.00");
+        Dividend div2 = createCashDividend("AAPL", LocalDate.of(2024, 2, 15), "1.00");
+        Transaction buy = createBuyTransaction(100, LocalDate.of(2024, 2, 1));
+
+        BigDecimal income = service.calculateIncome(
+                BigInteger.valueOf(100), List.of(buy), List.of(div1, div2));
+
+        assertEquals(new BigDecimal("300.00"), income,
+                "Each dividend must use the quantity held at its own ex-date");
+    }
+
+    @Test
+    void calculateIncome_withTransactions_sellBetweenDividends_correctPerDividend() {
+        // 200 shares; div1 Jan 15; sell 100 Feb 1; div2 Feb 15
+        // div1 income: 200 × $1 = $200; div2 income: 100 × $1 = $100; total $300
+        Dividend div1 = createCashDividend("AAPL", LocalDate.of(2024, 1, 15), "1.00");
+        Dividend div2 = createCashDividend("AAPL", LocalDate.of(2024, 2, 15), "1.00");
+        Transaction sell = createSellTransaction(100, LocalDate.of(2024, 2, 1));
+
+        BigDecimal income = service.calculateIncome(
+                BigInteger.valueOf(200), List.of(sell), List.of(div1, div2));
+
+        assertEquals(new BigDecimal("300.00"), income,
+                "Sell between dividends must only affect subsequent dividends");
+    }
+
+    @Test
+    void calculateIncome_withTransactions_emptyTransactions_behavesLikeConstantQuantity() {
+        Dividend div = createCashDividend("AAPL", LocalDate.of(2024, 1, 15), "0.25");
+
+        BigDecimal income = service.calculateIncome(
+                BigInteger.valueOf(100), Collections.emptyList(), List.of(div));
+
+        assertEquals(new BigDecimal("25.00"), income);
+    }
+
+    @Test
+    void calculateIncome_withTransactions_shortPositionBuyToPartialCover_correctPerDividend() {
+        // Short 200 shares; div1 Jan 15 (cost = -200); cover 100 on Feb 1; div2 Feb 15 (cost = -100)
+        Dividend div1 = createCashDividend("AAPL", LocalDate.of(2024, 1, 15), "1.00");
+        Dividend div2 = createCashDividend("AAPL", LocalDate.of(2024, 2, 15), "1.00");
+        Transaction cover = createBuyTransaction(100, LocalDate.of(2024, 2, 1));
+
+        BigDecimal income = service.calculateIncome(
+                BigInteger.valueOf(-200), List.of(cover), List.of(div1, div2));
+
+        assertEquals(new BigDecimal("-300.00"), income,
+                "Short positions pay dividends; partial cover reduces obligation");
+    }
+
     // Helper methods
     private Dividend createCashDividend(String symbol, LocalDate exDate, String amount) {
         return Dividend.builder()
@@ -314,5 +423,27 @@ class DividendServiceTest {
         position.setRealized(BigDecimal.ZERO);
         position.setUnrealized(BigDecimal.ZERO);
         return position;
+    }
+
+    private Transaction createBuyTransaction(int qty, LocalDate date) {
+        TransactionType buyType = new TransactionType(1L, TransactionType.BUY);
+        return new Transaction(null,
+                Timestamp.valueOf(date.atTime(12, 0)),
+                "AAPL",
+                BigInteger.valueOf(qty),
+                BigDecimal.valueOf(qty * 10L),
+                testUser,
+                buyType);
+    }
+
+    private Transaction createSellTransaction(int qty, LocalDate date) {
+        TransactionType sellType = new TransactionType(2L, TransactionType.SALE);
+        return new Transaction(null,
+                Timestamp.valueOf(date.atTime(12, 0)),
+                "AAPL",
+                BigInteger.valueOf(qty),
+                BigDecimal.valueOf(qty * 10L),
+                testUser,
+                sellType);
     }
 }

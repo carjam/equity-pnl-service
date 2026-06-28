@@ -72,6 +72,8 @@ class PnLServiceCorporateActionsTest {
         when(transactionRepository.findAllBefore(anyLong(), any(Date.class))).thenReturn(prior);
         when(transactionRepository.findAllBetween(anyLong(), any(Date.class), any(Date.class)))
                 .thenReturn(Collections.emptyList());
+        when(transactionRepository.findAllByUserAndSymbol(anyLong(), anyString(), any(Date.class), any(Date.class)))
+                .thenReturn(Collections.emptyList());
         when(transactionRepository.findEarliestByUserAndSymbol(1L, "AAPL"))
                 .thenReturn(Optional.of(java.sql.Timestamp.valueOf(LocalDateTime.of(2020, 1, 15, 10, 0))));
 
@@ -93,7 +95,7 @@ class PnLServiceCorporateActionsTest {
                     }
                     return p;
                 });
-        when(corporateActionService.calculateDividendIncome(any(), eq("AAPL"), any(), any()))
+        when(corporateActionService.calculateDividendIncome(any(), anyList(), eq("AAPL"), any(), any()))
                 .thenReturn(BigDecimal.ZERO);
         when(corporateActionService.applyComplexAdjustments(any(), anyString(), any(), any(), any()))
                 .thenAnswer(invocation -> new CorporateActionService.ComplexAdjustmentResult(
@@ -131,6 +133,8 @@ class PnLServiceCorporateActionsTest {
         ));
         when(transactionRepository.findAllBetween(anyLong(), any(Date.class), any(Date.class)))
                 .thenReturn(Collections.emptyList());
+        when(transactionRepository.findAllByUserAndSymbol(anyLong(), anyString(), any(Date.class), any(Date.class)))
+                .thenReturn(Collections.emptyList());
         when(transactionRepository.findEarliestByUserAndSymbol(1L, "KO"))
                 .thenReturn(Optional.of(java.sql.Timestamp.valueOf(LocalDateTime.of(2024, 1, 15, 10, 0))));
 
@@ -141,7 +145,7 @@ class PnLServiceCorporateActionsTest {
                         invocation.getArgument(0),
                         java.util.Collections.emptyMap(),
                         BigDecimal.ZERO));
-        when(corporateActionService.calculateDividendIncome(any(), eq("KO"), any(), any()))
+        when(corporateActionService.calculateDividendIncome(any(), anyList(), eq("KO"), any(), any()))
                 .thenReturn(new BigDecimal("100.00"));
 
         CandleDto candle = new CandleDto();

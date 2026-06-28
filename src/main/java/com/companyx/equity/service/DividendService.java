@@ -1,6 +1,8 @@
 package com.companyx.equity.service;
 
 import com.companyx.equity.model.Position;
+import com.companyx.equity.model.Transaction;
+import com.companyx.equity.model.TransactionType;
 import com.companyx.equity.model.corporateaction.Dividend;
 import com.companyx.equity.model.corporateaction.DividendType;
 import lombok.extern.slf4j.Slf4j;
@@ -8,6 +10,10 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,26 +28,77 @@ import java.util.stream.Collectors;
 public class DividendService {
     
     /**
-     * Calculate total dividend income for a position.
-     * Only cash dividends contribute to income; stock dividends affect quantity.
-     * 
-     * @param shares Number of shares held (can be negative for short positions)
-     * @param dividends List of dividends
-     * @return Total dividend income
+     * Calculate total dividend income using a quantity timeline.
+     *
+     * For each cash dividend's ex-date, the quantity is determined by replaying
+     * periodTransactions (buys add, sells subtract) from startQuantity. Transactions
+     * on the ex-date itself are excluded — the holder-of-record is determined at the
+     * close of the day before the ex-date.
+     *
+     * @param startQuantity      shares held at the start of the reporting period
+     * @param periodTransactions transactions that occurred within the reporting period,
+     *                           in any order (sorted internally)
+     * @param dividends          list of dividends (cash and stock; stock are ignored)
+     * @return total dividend income for the period
      */
-    public BigDecimal calculateIncome(BigInteger shares, List<Dividend> dividends) {
+    public BigDecimal calculateIncome(BigInteger startQuantity,
+                                      List<Transaction> periodTransactions,
+                                      List<Dividend> dividends) {
         if (dividends == null || dividends.isEmpty()) {
             log.debug("No dividends to calculate income");
             return BigDecimal.ZERO;
         }
-        
-        BigDecimal totalIncome = dividends.stream()
+
+        List<Dividend> cashDividends = dividends.stream()
                 .filter(d -> d.getType() == DividendType.CASH)
-                .map(d -> d.getAmount().multiply(new BigDecimal(shares)))
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-        
-        log.debug("Calculated dividend income: {} for {} shares", totalIncome, shares);
+                .sorted(Comparator.comparing(Dividend::getExDate))
+                .collect(Collectors.toList());
+
+        if (cashDividends.isEmpty()) return BigDecimal.ZERO;
+
+        List<Transaction> sortedTx = (periodTransactions == null ? Collections.<Transaction>emptyList() : periodTransactions)
+                .stream()
+                .filter(t -> !TransactionType.CASH_TRANS.contains(t.getTransactionType().getDescription()))
+                .sorted(Comparator.comparing(Transaction::getTimestamp))
+                .collect(Collectors.toList());
+
+        BigDecimal totalIncome = BigDecimal.ZERO;
+        BigInteger currentQuantity = startQuantity;
+        int txIdx = 0;
+
+        for (Dividend div : cashDividends) {
+            LocalDate exDate = div.getExDate();
+
+            // Apply all transactions that settled strictly before the ex-date.
+            // Transactions ON the ex-date do not entitle the buyer to that dividend.
+            while (txIdx < sortedTx.size()) {
+                Transaction tx = sortedTx.get(txIdx);
+                LocalDate txDate = tx.getTimestamp().toInstant()
+                        .atZone(ZoneId.systemDefault()).toLocalDate();
+                if (!txDate.isBefore(exDate)) break;
+
+                String type = tx.getTransactionType().getDescription();
+                if (TransactionType.BUY.equals(type)) {
+                    currentQuantity = currentQuantity.add(tx.getQuantity());
+                } else if (TransactionType.SALE.equals(type)) {
+                    currentQuantity = currentQuantity.subtract(tx.getQuantity());
+                }
+                txIdx++;
+            }
+
+            totalIncome = totalIncome.add(div.getAmount().multiply(new BigDecimal(currentQuantity)));
+        }
+
+        log.debug("Calculated dividend income: {} (timeline-aware)", totalIncome);
         return totalIncome;
+    }
+
+    /**
+     * Convenience overload for callers that know the quantity is constant throughout
+     * the period (no share purchases or sales between dividends).
+     */
+    public BigDecimal calculateIncome(BigInteger shares, List<Dividend> dividends) {
+        return calculateIncome(shares, Collections.emptyList(), dividends);
     }
     
     /**

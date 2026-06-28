@@ -1,6 +1,7 @@
 package com.companyx.equity.service;
 
 import com.companyx.equity.model.Position;
+import com.companyx.equity.model.Transaction;
 import com.companyx.equity.model.corporateaction.CorporateActionType;
 import com.companyx.equity.model.corporateaction.Delisting;
 import com.companyx.equity.model.corporateaction.Dividend;
@@ -75,6 +76,18 @@ public class CorporateActionService {
         return dividendService.applyStockDividends(afterSplits, dividends);
     }
 
+    /**
+     * Timeline-aware dividend income: uses the quantity at each ex-date rather than
+     * a flat period-end quantity.
+     */
+    public BigDecimal calculateDividendIncome(BigInteger startQuantity,
+                                               List<Transaction> periodTransactions,
+                                               String symbol, LocalDate from, LocalDate to) {
+        List<Dividend> dividends = corporateActionProvider.getDividends(symbol, from, to);
+        return dividendService.calculateIncome(startQuantity, periodTransactions, dividends);
+    }
+
+    /** Convenience overload for constant-quantity scenarios (no intra-period trading). */
     public BigDecimal calculateDividendIncome(BigInteger shares, String symbol, LocalDate from, LocalDate to) {
         List<Dividend> dividends = corporateActionProvider.getDividends(symbol, from, to);
         return dividendService.calculateIncome(shares, dividends);

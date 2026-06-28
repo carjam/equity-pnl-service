@@ -65,7 +65,7 @@ public class PnLService {
         positions = getEndPositions(user.get(), start, end, positions);
 
         positions = calculateRealized(startPositions, positions);
-        positions = applyCorporateActions(user.get(), positions, start, end);
+        positions = applyCorporateActions(user.get(), positions, startPositions, start, end);
         positions = calculateUnrealized(positions, end);
         log.debug("Final Position: {}", positions);
         return positions;
@@ -273,7 +273,9 @@ public class PnLService {
      * Splits and stock dividends use full position history through the period end date.
      * Cash dividend income is limited to the requested P&L date range.
      */
-    private Map<String, Position> applyCorporateActions(User user, Map<String, Position> positions, Date start, Date end) {
+    private Map<String, Position> applyCorporateActions(User user, Map<String, Position> positions,
+                                                         Map<String, Position> startPositions,
+                                                         Date start, Date end) {
         LocalDate periodStart = toLocalDate(start);
         LocalDate periodEnd = toLocalDate(end);
 
@@ -298,8 +300,14 @@ public class PnLService {
             adjusted = complex.getPosition();
             adjusted.setRealized(adjusted.getRealized().add(complex.getAdditionalRealized()));
 
+            // Dividend income is quantity-timeline-aware: use start-of-period shares and
+            // replay period transactions so each ex-date gets the correct holder quantity.
+            BigInteger startQty = Optional.ofNullable(startPositions.get(symbol))
+                    .map(Position::getQuantity).orElse(BigInteger.ZERO);
+            List<Transaction> periodTx = transactionRepository.findAllByUserAndSymbol(
+                    user.getId(), symbol, start, end);
             BigDecimal dividendIncome = corporateActionService.calculateDividendIncome(
-                    adjusted.getQuantity(), symbol, periodStart, periodEnd);
+                    startQty, periodTx, symbol, periodStart, periodEnd);
 
             adjusted.setRealized(adjusted.getRealized().add(dividendIncome));
 
