@@ -24,11 +24,16 @@ public class Dividend implements CorporateAction {
     private final DividendType type;
     private final Integer frequency;         // Dividends per year (1=annual, 4=quarterly, etc.)
     private final BigDecimal sharesPerShare; // For stock dividends (e.g., 0.05 = 5% stock dividend)
-    
+    /**
+     * True if the dividend qualifies for preferential tax rates under IRC §1(h)(11).
+     * Null when the provider has not classified the dividend (treated as ordinary income).
+     */
+    private final Boolean qualified;
+
     @Builder
     private Dividend(String symbol, LocalDate exDate, LocalDate payDate, LocalDate recordDate,
-                    BigDecimal amount, String currency, DividendType type, 
-                    Integer frequency, BigDecimal sharesPerShare) {
+                    BigDecimal amount, String currency, DividendType type,
+                    Integer frequency, BigDecimal sharesPerShare, Boolean qualified) {
         // Validation
         if (symbol == null || symbol.trim().isEmpty()) {
             throw new IllegalArgumentException("Symbol cannot be null or empty");
@@ -56,6 +61,7 @@ public class Dividend implements CorporateAction {
         this.type = type;
         this.frequency = frequency;
         this.sharesPerShare = sharesPerShare;
+        this.qualified = qualified;
     }
     
     @Override

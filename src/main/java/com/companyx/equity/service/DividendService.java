@@ -99,6 +99,32 @@ public class DividendService {
     public BigDecimal calculateIncome(BigDecimal shares, List<Dividend> dividends) {
         return calculateIncome(shares, Collections.emptyList(), dividends);
     }
+
+    /**
+     * Returns only the qualified dividend income (IRC §1(h)(11)) for the period.
+     * Dividends with an undetermined qualified flag (null) are excluded — treated
+     * as ordinary income by default.
+     */
+    public BigDecimal calculateQualifiedIncome(BigDecimal shares, List<Dividend> dividends) {
+        if (dividends == null || dividends.isEmpty()) return BigDecimal.ZERO;
+        List<Dividend> qualifiedOnly = dividends.stream()
+                .filter(d -> Boolean.TRUE.equals(d.getQualified()))
+                .collect(Collectors.toList());
+        return calculateIncome(shares, qualifiedOnly);
+    }
+
+    /**
+     * Returns only the ordinary (non-qualified) dividend income for the period.
+     * Dividends with an undetermined qualified flag (null) are counted here as a
+     * conservative default.
+     */
+    public BigDecimal calculateOrdinaryIncome(BigDecimal shares, List<Dividend> dividends) {
+        if (dividends == null || dividends.isEmpty()) return BigDecimal.ZERO;
+        List<Dividend> ordinaryOnly = dividends.stream()
+                .filter(d -> !Boolean.TRUE.equals(d.getQualified()))
+                .collect(Collectors.toList());
+        return calculateIncome(shares, ordinaryOnly);
+    }
     
     /**
      * Apply stock dividends to a position IN MEMORY.

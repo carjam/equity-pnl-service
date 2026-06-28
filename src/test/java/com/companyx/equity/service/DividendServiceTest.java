@@ -447,6 +447,92 @@ class DividendServiceTest {
                 sellType);
     }
 
+    // ─── Qualified dividend income breakdown ─────────────────────────────────
+
+    @Test
+    void shouldReturnOnlyQualifiedIncome() {
+        BigDecimal shares = BigDecimal.valueOf(100);
+        Dividend qualified = Dividend.builder()
+                .symbol("AAPL")
+                .exDate(LocalDate.of(2024, 8, 9))
+                .amount(new BigDecimal("0.25"))
+                .type(DividendType.CASH)
+                .qualified(true)
+                .build();
+        Dividend ordinary = Dividend.builder()
+                .symbol("AAPL")
+                .exDate(LocalDate.of(2024, 11, 9))
+                .amount(new BigDecimal("1.00"))
+                .type(DividendType.CASH)
+                .qualified(false)
+                .build();
+
+        BigDecimal income = service.calculateQualifiedIncome(shares, Arrays.asList(qualified, ordinary));
+
+        assertEquals(0, new BigDecimal("25.00").compareTo(income),
+                "Only the qualified dividend (100 × $0.25) should be returned");
+    }
+
+    @Test
+    void shouldReturnOnlyOrdinaryIncome() {
+        BigDecimal shares = BigDecimal.valueOf(100);
+        Dividend qualified = Dividend.builder()
+                .symbol("AAPL")
+                .exDate(LocalDate.of(2024, 8, 9))
+                .amount(new BigDecimal("0.25"))
+                .type(DividendType.CASH)
+                .qualified(true)
+                .build();
+        Dividend ordinary = Dividend.builder()
+                .symbol("AAPL")
+                .exDate(LocalDate.of(2024, 11, 9))
+                .amount(new BigDecimal("1.00"))
+                .type(DividendType.CASH)
+                .qualified(false)
+                .build();
+
+        BigDecimal income = service.calculateOrdinaryIncome(shares, Arrays.asList(qualified, ordinary));
+
+        assertEquals(0, new BigDecimal("100.00").compareTo(income),
+                "Only the ordinary dividend (100 × $1.00) should be returned");
+    }
+
+    @Test
+    void shouldTreatUnknownQualifiedStatusAsOrdinary() {
+        // Dividends with null qualified flag (undetermined) are conservative-defaulted to ordinary
+        BigDecimal shares = BigDecimal.valueOf(100);
+        Dividend unknown = Dividend.builder()
+                .symbol("XYZ")
+                .exDate(LocalDate.of(2024, 6, 1))
+                .amount(new BigDecimal("0.50"))
+                .type(DividendType.CASH)
+                .build(); // no .qualified(...)
+
+        BigDecimal ordinary = service.calculateOrdinaryIncome(shares, List.of(unknown));
+        BigDecimal qualified = service.calculateQualifiedIncome(shares, List.of(unknown));
+
+        assertEquals(0, new BigDecimal("50.00").compareTo(ordinary),
+                "Unknown qualified status defaults to ordinary income");
+        assertEquals(0, BigDecimal.ZERO.compareTo(qualified),
+                "Unknown qualified status should not appear in qualified income total");
+    }
+
+    @Test
+    void shouldSumQualifiedAndOrdinaryToTotal() {
+        BigDecimal shares = BigDecimal.valueOf(200);
+        Dividend q = Dividend.builder().symbol("MSFT").exDate(LocalDate.of(2024, 5, 15))
+                .amount(new BigDecimal("0.75")).type(DividendType.CASH).qualified(true).build();
+        Dividend o = Dividend.builder().symbol("MSFT").exDate(LocalDate.of(2024, 8, 15))
+                .amount(new BigDecimal("0.50")).type(DividendType.CASH).qualified(false).build();
+
+        BigDecimal total = service.calculateIncome(shares, Arrays.asList(q, o));
+        BigDecimal qualifiedIncome = service.calculateQualifiedIncome(shares, Arrays.asList(q, o));
+        BigDecimal ordinaryIncome = service.calculateOrdinaryIncome(shares, Arrays.asList(q, o));
+
+        assertEquals(0, total.compareTo(qualifiedIncome.add(ordinaryIncome)),
+                "Qualified + Ordinary must equal Total income");
+    }
+
     // ─── Return of Capital (ROC) tests ───────────────────────────────────────
 
     @Test

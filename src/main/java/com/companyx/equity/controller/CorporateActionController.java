@@ -323,6 +323,7 @@ public class CorporateActionController {
                 .amount(dividend.getAmount())
                 .currency(dividend.getCurrency())
                 .type(dividend.getType().name())
+                .qualified(dividend.getQualified())
                 .build();
     }
 

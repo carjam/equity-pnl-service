@@ -234,4 +234,41 @@ class DividendTest {
         assertTrue(toString.contains("0.25") || toString.contains("0.2"), "ToString should contain amount");
         assertTrue(toString.contains("CASH") || toString.contains("Cash"), "ToString should contain type");
     }
+
+    // ─── Qualified dividend flag ──────────────────────────────────────────────
+
+    @Test
+    void shouldDefaultQualifiedFlagToNull() {
+        Dividend div = Dividend.builder()
+                .symbol("AAPL")
+                .exDate(LocalDate.of(2024, 8, 9))
+                .amount(new BigDecimal("0.25"))
+                .type(DividendType.CASH)
+                .build();
+        assertNull(div.getQualified(), "Qualified flag should be null (undetermined) when not set");
+    }
+
+    @Test
+    void shouldStoreQualifiedTrue() {
+        Dividend div = Dividend.builder()
+                .symbol("AAPL")
+                .exDate(LocalDate.of(2024, 8, 9))
+                .amount(new BigDecimal("0.25"))
+                .type(DividendType.CASH)
+                .qualified(true)
+                .build();
+        assertTrue(div.getQualified(), "Dividend built with qualified=true should report true");
+    }
+
+    @Test
+    void shouldStoreQualifiedFalse() {
+        Dividend div = Dividend.builder()
+                .symbol("REIT")
+                .exDate(LocalDate.of(2024, 8, 9))
+                .amount(new BigDecimal("1.00"))
+                .type(DividendType.CASH)
+                .qualified(false)
+                .build();
+        assertFalse(div.getQualified(), "REIT distributions are ordinary (non-qualified)");
+    }
 }

@@ -18,4 +18,6 @@ public class DividendDto {
     private BigDecimal amount;
     private String currency;
     private String type;
+    /** True = IRC §1(h)(11) qualified; false = ordinary; null = undetermined. */
+    private Boolean qualified;
 }
