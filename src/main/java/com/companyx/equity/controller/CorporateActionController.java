@@ -16,8 +16,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.math.MathContext;
 import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
@@ -217,13 +219,19 @@ public class CorporateActionController {
         Map<String, Position> positions = pnLService.getPositions(uid, fromDate, toDate);
         Position position = positions.get(symbol);
 
+        TotalReturnResponse.Period period = TotalReturnResponse.Period.builder()
+                .from(from).to(to).build();
+        long days = ChronoUnit.DAYS.between(from, to);
+
         if (position == null) {
             return ResponseEntity.ok(TotalReturnResponse.builder()
                     .symbol(symbol)
+                    .period(period)
                     .capitalGain(BigDecimal.ZERO)
                     .dividendIncome(BigDecimal.ZERO)
                     .totalReturn(BigDecimal.ZERO)
-                    .totalReturnPct(BigDecimal.ZERO)
+                    .hpr(BigDecimal.ZERO)
+                    .annualizedReturn(BigDecimal.ZERO)
                     .build());
         }
 
@@ -232,17 +240,30 @@ public class CorporateActionController {
         BigDecimal totalReturn = position.getRealized().add(position.getUnrealized());
         BigDecimal capitalGain = totalReturn.subtract(dividendIncome);
         BigDecimal basis = position.getValue().abs();
-        BigDecimal totalReturnPct = basis.compareTo(BigDecimal.ZERO) == 0
+
+        BigDecimal hpr = basis.compareTo(BigDecimal.ZERO) == 0
                 ? BigDecimal.ZERO
-                : totalReturn.divide(basis, 4, RoundingMode.HALF_UP).multiply(BigDecimal.valueOf(100));
+                : totalReturn.divide(basis, 6, RoundingMode.HALF_UP);
+
+        BigDecimal annualizedReturn = computeAnnualizedReturn(hpr, days);
 
         return ResponseEntity.ok(TotalReturnResponse.builder()
                 .symbol(symbol)
+                .period(period)
                 .capitalGain(capitalGain)
                 .dividendIncome(dividendIncome)
                 .totalReturn(totalReturn)
-                .totalReturnPct(totalReturnPct)
+                .hpr(hpr)
+                .annualizedReturn(annualizedReturn)
                 .build());
+    }
+
+    /** (1 + HPR)^(365/days) − 1, rounded to 6 decimal places. Returns HPR unchanged for ≤1-day periods. */
+    private BigDecimal computeAnnualizedReturn(BigDecimal hpr, long days) {
+        if (days <= 1 || hpr.compareTo(BigDecimal.ZERO) == 0) return hpr;
+        double hprDouble = hpr.doubleValue();
+        double annualized = Math.pow(1.0 + hprDouble, 365.0 / days) - 1.0;
+        return BigDecimal.valueOf(annualized).setScale(6, RoundingMode.HALF_UP);
     }
 
     private boolean includesType(CorporateActionType filter, CorporateActionType target) {

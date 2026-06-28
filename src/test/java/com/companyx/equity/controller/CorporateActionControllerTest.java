@@ -190,4 +190,64 @@ class CorporateActionControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.providers[0]").value("FINNHUB"));
     }
+
+    // ─── Total-return / HPR endpoint improvements ─────────────────────────────
+
+    @Test
+    void shouldIncludePeriodInTotalReturnResponse() throws Exception {
+        when(pnLService.getPositions(eq("test-user"), any(), any()))
+                .thenReturn(java.util.Map.of());
+        when(corporateActionService.calculateDividendIncome(any(), eq("AAPL"), any(), any()))
+                .thenReturn(BigDecimal.ZERO);
+
+        mockMvc.perform(get("/api/v1/pnl/total-return")
+                        .param("symbol", "AAPL")
+                        .param("from", "2024-01-01")
+                        .param("to", "2024-12-31"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.period.from").value("2024-01-01"))
+                .andExpect(jsonPath("$.period.to").value("2024-12-31"));
+    }
+
+    @Test
+    void shouldIncludeHprFieldInTotalReturnResponse() throws Exception {
+        // Position with $10,000 cost basis, $1,500 total P&L → HPR = 15%
+        com.companyx.equity.model.Position position = new com.companyx.equity.model.Position();
+        position.setSymbol("AAPL");
+        position.setQuantity(BigDecimal.valueOf(100));
+        position.setValue(new BigDecimal("-10000.00"));
+        position.setRealized(new BigDecimal("500.00"));
+        position.setUnrealized(new BigDecimal("1000.00"));
+        position.setPrice(new BigDecimal("115.00"));
+        position.setTimestamp(new java.sql.Timestamp(System.currentTimeMillis()));
+        position.setUser(null);
+
+        when(pnLService.getPositions(eq("test-user"), any(), any()))
+                .thenReturn(java.util.Map.of("AAPL", position));
+        when(corporateActionService.calculateDividendIncome(any(), eq("AAPL"), any(), any()))
+                .thenReturn(new BigDecimal("500.00"));
+
+        mockMvc.perform(get("/api/v1/pnl/total-return")
+                        .param("symbol", "AAPL")
+                        .param("from", "2024-01-01")
+                        .param("to", "2024-12-31"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalReturn").value(1500.00))
+                .andExpect(jsonPath("$.hpr").exists());
+    }
+
+    @Test
+    void shouldIncludeAnnualizedReturnInTotalReturnResponse() throws Exception {
+        when(pnLService.getPositions(eq("test-user"), any(), any()))
+                .thenReturn(java.util.Map.of());
+        when(corporateActionService.calculateDividendIncome(any(), eq("AAPL"), any(), any()))
+                .thenReturn(BigDecimal.ZERO);
+
+        mockMvc.perform(get("/api/v1/pnl/total-return")
+                        .param("symbol", "AAPL")
+                        .param("from", "2024-01-01")
+                        .param("to", "2024-12-31"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.annualizedReturn").exists());
+    }
 }
