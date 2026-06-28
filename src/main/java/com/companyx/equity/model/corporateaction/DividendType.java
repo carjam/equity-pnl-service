@@ -5,7 +5,8 @@ import lombok.Getter;
 @Getter
 public enum DividendType {
     CASH("Cash"),
-    STOCK("Stock");
+    STOCK("Stock"),
+    RETURN_OF_CAPITAL("Return of Capital");
 
     private final String displayName;
 
@@ -19,5 +20,9 @@ public enum DividendType {
 
     public boolean isStock() {
         return this == STOCK;
+    }
+
+    public boolean isReturnOfCapital() {
+        return this == RETURN_OF_CAPITAL;
     }
 }

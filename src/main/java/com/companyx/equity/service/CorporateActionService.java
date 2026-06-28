@@ -68,11 +68,22 @@ public class CorporateActionService {
         List<Dividend> dividends = corporateActionProvider.getDividends(symbol, from, to);
         List<StockSplit> splits = corporateActionProvider.getStockSplits(symbol, from, to);
 
-        log.debug("Applying {} splits and {} dividends (stock) to {} from {} to {}",
+        log.debug("Applying {} splits and {} dividends (stock+ROC) to {} from {} to {}",
                 splits.size(), dividends.size(), symbol, from, to);
 
         Position afterSplits = splitAdjustmentService.applySplits(position, splits);
-        return dividendService.applyStockDividends(afterSplits, dividends);
+        Position afterStockDivs = dividendService.applyStockDividends(afterSplits, dividends);
+        return dividendService.applyReturnOfCapital(afterStockDivs, dividends);
+    }
+
+    /**
+     * Returns the net realized gain from ROC distributions exceeding remaining basis.
+     * Normally zero; only positive when cumulative ROC wipes out the cost basis.
+     */
+    public BigDecimal calculateReturnOfCapitalGain(Position position, String symbol, LocalDate from, LocalDate to) {
+        List<Dividend> dividends = corporateActionProvider.getDividends(symbol, from, to);
+        Position adjusted = dividendService.applyReturnOfCapital(position, dividends);
+        return adjusted.getRealized().subtract(position.getRealized());
     }
 
     /**

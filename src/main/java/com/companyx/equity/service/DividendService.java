@@ -49,7 +49,7 @@ public class DividendService {
         }
 
         List<Dividend> cashDividends = dividends.stream()
-                .filter(d -> d.getType() == DividendType.CASH)
+                .filter(d -> d.getType() == DividendType.CASH)    // ROC and STOCK are not income
                 .sorted(Comparator.comparing(Dividend::getExDate))
                 .collect(Collectors.toList());
 
@@ -155,6 +155,61 @@ public class DividendService {
         return adjusted;
     }
     
+    /**
+     * Apply return-of-capital (ROC) distributions to a position IN MEMORY.
+     *
+     * ROC is a non-taxable distribution that reduces the cost basis of the position.
+     * The position value (which is negative for longs) is increased toward zero by the
+     * ROC amount per share × quantity held. If the total ROC exceeds the remaining basis,
+     * the excess is recognized as a realized gain and the basis is floored at zero.
+     *
+     * @param position  The position to adjust
+     * @param dividends List of dividends (only RETURN_OF_CAPITAL types are processed)
+     * @return A new Position with adjusted value (basis) and realized gain
+     */
+    public Position applyReturnOfCapital(Position position, List<Dividend> dividends) {
+        if (position == null) {
+            throw new IllegalArgumentException("Position cannot be null");
+        }
+
+        if (dividends == null || dividends.isEmpty()) {
+            return copyPosition(position);
+        }
+
+        List<Dividend> rocDividends = dividends.stream()
+                .filter(d -> d.getType() == DividendType.RETURN_OF_CAPITAL)
+                .sorted(Comparator.comparing(Dividend::getExDate))
+                .collect(Collectors.toList());
+
+        if (rocDividends.isEmpty()) {
+            return copyPosition(position);
+        }
+
+        Position adjusted = copyPosition(position);
+
+        for (Dividend roc : rocDividends) {
+            BigDecimal qty = adjusted.getQuantity().abs();
+            BigDecimal rocAmount = roc.getAmount().multiply(qty);
+
+            // value is negative for long positions; currentBasis is the positive dollar amount
+            BigDecimal currentBasis = adjusted.getValue().negate();
+
+            if (rocAmount.compareTo(currentBasis) >= 0) {
+                // ROC exceeds remaining basis — floor at zero, excess is realized gain
+                BigDecimal excess = rocAmount.subtract(currentBasis);
+                adjusted.setValue(BigDecimal.ZERO);
+                adjusted.setRealized(adjusted.getRealized().add(excess));
+                log.debug("ROC {} exhausted basis; excess {} recognized as realized gain",
+                        roc.getSymbol(), excess);
+            } else {
+                adjusted.setValue(adjusted.getValue().add(rocAmount));
+                log.debug("ROC {} reduced basis by {} to {}", roc.getSymbol(), rocAmount, adjusted.getValue());
+            }
+        }
+
+        return adjusted;
+    }
+
     /**
      * Create a copy of a position to avoid modifying the original
      */

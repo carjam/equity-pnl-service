@@ -65,9 +65,11 @@ public class Dividend implements CorporateAction {
     
     @Override
     public CorporateActionType getActionType() {
-        return type == DividendType.CASH 
-                ? CorporateActionType.CASH_DIVIDEND 
-                : CorporateActionType.STOCK_DIVIDEND;
+        return switch (type) {
+            case CASH -> CorporateActionType.CASH_DIVIDEND;
+            case STOCK -> CorporateActionType.STOCK_DIVIDEND;
+            case RETURN_OF_CAPITAL -> CorporateActionType.RETURN_OF_CAPITAL;
+        };
     }
     
     /**

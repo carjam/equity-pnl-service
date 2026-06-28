@@ -446,4 +446,102 @@ class DividendServiceTest {
                 testUser,
                 sellType);
     }
+
+    // ─── Return of Capital (ROC) tests ───────────────────────────────────────
+
+    @Test
+    void shouldReduceBasisByRocAmount() {
+        // 100 shares with $1,000 cost basis; $1/share ROC → basis becomes $900
+        Position position = createPosition("ENB", 100, new BigDecimal("-1000.00"));
+        Dividend roc = Dividend.builder()
+                .symbol("ENB")
+                .exDate(LocalDate.of(2024, 3, 15))
+                .amount(new BigDecimal("1.00"))
+                .type(DividendType.RETURN_OF_CAPITAL)
+                .build();
+
+        Position result = service.applyReturnOfCapital(position, List.of(roc));
+
+        assertEquals(0, new BigDecimal("-900.00").compareTo(result.getValue()),
+                "100 shares × $1.00 ROC should reduce $1,000 basis to $900");
+        assertEquals(0, BigDecimal.ZERO.compareTo(result.getRealized()),
+                "No realized gain when basis covers the ROC");
+        assertEquals(0, BigDecimal.valueOf(100).compareTo(result.getQuantity()),
+                "Quantity unchanged by ROC");
+    }
+
+    @Test
+    void shouldIgnoreRocInCashIncomeCalculation() {
+        // ROC is not income — cash income must exclude it
+        BigDecimal shares = BigDecimal.valueOf(100);
+        Dividend cash = createCashDividend("ENB", LocalDate.of(2024, 8, 9), "0.86");
+        Dividend roc = Dividend.builder()
+                .symbol("ENB")
+                .exDate(LocalDate.of(2024, 6, 15))
+                .amount(new BigDecimal("1.00"))
+                .type(DividendType.RETURN_OF_CAPITAL)
+                .build();
+
+        BigDecimal income = service.calculateIncome(shares, Arrays.asList(cash, roc));
+
+        assertEquals(0, new BigDecimal("86.00").compareTo(income),
+                "Only the cash dividend counts as income; ROC is a basis reduction");
+    }
+
+    @Test
+    void shouldCapRocAtZeroBasisAndRecognizeExcess() {
+        // Basis = $500; ROC of $8/share on 100 shares = $800 — excess $300 is a capital gain
+        Position position = createPosition("XYZ", 100, new BigDecimal("-500.00"));
+        Dividend roc = Dividend.builder()
+                .symbol("XYZ")
+                .exDate(LocalDate.of(2024, 5, 1))
+                .amount(new BigDecimal("8.00"))
+                .type(DividendType.RETURN_OF_CAPITAL)
+                .build();
+
+        Position result = service.applyReturnOfCapital(position, List.of(roc));
+
+        assertEquals(0, BigDecimal.ZERO.compareTo(result.getValue()),
+                "Basis cannot go below zero");
+        assertEquals(0, new BigDecimal("300.00").compareTo(result.getRealized()),
+                "Excess ROC ($800 − $500 basis) becomes $300 realized gain");
+    }
+
+    @Test
+    void shouldAccumulateMultipleRocDistributions() {
+        // Two quarterly ROC payments; basis steps down after each
+        Position position = createPosition("BPY", 200, new BigDecimal("-2000.00"));
+        Dividend roc1 = Dividend.builder()
+                .symbol("BPY")
+                .exDate(LocalDate.of(2024, 3, 1))
+                .amount(new BigDecimal("2.00"))
+                .type(DividendType.RETURN_OF_CAPITAL)
+                .build();
+        Dividend roc2 = Dividend.builder()
+                .symbol("BPY")
+                .exDate(LocalDate.of(2024, 6, 1))
+                .amount(new BigDecimal("1.50"))
+                .type(DividendType.RETURN_OF_CAPITAL)
+                .build();
+
+        Position result = service.applyReturnOfCapital(position, Arrays.asList(roc1, roc2));
+
+        // 200 × $2.00 = $400 → basis $1,600; 200 × $1.50 = $300 → basis $1,300
+        assertEquals(0, new BigDecimal("-1300.00").compareTo(result.getValue()),
+                "Two ROC payments should reduce $2,000 basis by $700 to $1,300");
+        assertEquals(0, BigDecimal.ZERO.compareTo(result.getRealized()),
+                "No realized gain; basis still positive");
+    }
+
+    @Test
+    void shouldReturnUnchangedPositionWhenNoRocDividends() {
+        // Passing only cash dividends to applyReturnOfCapital should be a no-op
+        Position position = createPosition("AAPL", 100, new BigDecimal("-15000.00"));
+        Dividend cash = createCashDividend("AAPL", LocalDate.of(2024, 8, 9), "0.25");
+
+        Position result = service.applyReturnOfCapital(position, List.of(cash));
+
+        assertEquals(0, new BigDecimal("-15000.00").compareTo(result.getValue()),
+                "Cash dividends must not alter basis in applyReturnOfCapital");
+    }
 }
