@@ -143,7 +143,7 @@ class FinhubRepositoryRetryTest {
         mockWebServer.enqueue(new MockResponse().setResponseCode(500).setBodyDelay(50, TimeUnit.MILLISECONDS));
         mockWebServer.enqueue(new MockResponse().setResponseCode(500).setBodyDelay(50, TimeUnit.MILLISECONDS));
 
-        long startTime = System.currentTimeMillis();
+        long startNanos = System.nanoTime();
 
         assertThrows(VendorConnectivityException.class, () -> {
             try {
@@ -153,9 +153,9 @@ class FinhubRepositoryRetryTest {
             }
         });
 
-        long duration = System.currentTimeMillis() - startTime;
-        assertTrue(duration >= 300,
-                "Expected exponential backoff to take at least 300ms, took: " + duration + "ms");
+        long durationMs = (System.nanoTime() - startNanos) / 1_000_000;
+        assertTrue(durationMs >= 300,
+                "Expected exponential backoff to take at least 300ms, took: " + durationMs + "ms");
     }
 
     @Test

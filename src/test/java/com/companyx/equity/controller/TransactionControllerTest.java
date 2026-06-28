@@ -87,9 +87,39 @@ class TransactionControllerTest {
                         .param("from", "2024-01-01")
                         .param("to", "2024-01-31"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.AAPL").exists())
-                .andExpect(jsonPath("$.AAPL.quantity").value(100))
-                .andExpect(jsonPath("$.AAPL.symbol").value("AAPL"));
+                .andExpect(jsonPath("$.positions.AAPL").exists())
+                .andExpect(jsonPath("$.positions.AAPL.quantity").value(100))
+                .andExpect(jsonPath("$.positions.AAPL.symbol").value("AAPL"));
+    }
+
+    @Test
+    void testPnlBetween_IncludesAvcoMethodologyDisclosure() throws Exception {
+        when(pnLService.getPositions(eq("test-user"), any(), any()))
+                .thenReturn(Collections.emptyMap());
+
+        mockMvc.perform(get("/api/v1/pnl")
+                        .param("from", "2024-01-01")
+                        .param("to", "2024-12-31"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.methodology").exists())
+                .andExpect(jsonPath("$.methodology.basis").value("AVCO"))
+                .andExpect(jsonPath("$.methodology.reportingType").value("performance"))
+                .andExpect(jsonPath("$.methodology.disclaimer").isString())
+                .andExpect(jsonPath("$.methodology.period.from").value("2024-01-01"))
+                .andExpect(jsonPath("$.methodology.period.to").value("2024-12-31"));
+    }
+
+    @Test
+    void testPnlBetween_MethodologyDisclaimerMentionsTaxReporting() throws Exception {
+        when(pnLService.getPositions(eq("test-user"), any(), any()))
+                .thenReturn(Collections.emptyMap());
+
+        mockMvc.perform(get("/api/v1/pnl")
+                        .param("from", "2024-01-01")
+                        .param("to", "2024-12-31"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.methodology.disclaimer",
+                        org.hamcrest.Matchers.containsStringIgnoringCase("tax")));
     }
 
     @Test
@@ -123,7 +153,8 @@ class TransactionControllerTest {
                         .param("from", "2024-01-01")
                         .param("to", "2024-01-31"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$").isEmpty());
+                .andExpect(jsonPath("$.positions").isEmpty())
+                .andExpect(jsonPath("$.methodology").exists());
     }
 
     @Test

@@ -1,5 +1,6 @@
 package com.companyx.equity.controller;
 
+import com.companyx.equity.dto.PnLResponseDto;
 import com.companyx.equity.model.Position;
 import com.companyx.equity.model.Transaction;
 import com.companyx.equity.service.PnLService;
@@ -30,17 +31,17 @@ public class TransactionController {
     private final PnLService pnLService;
 
     @GetMapping("/pnl")
-    public ResponseEntity<EntityModel<Map<String, Position>>> pnlBetween(
+    public ResponseEntity<EntityModel<PnLResponseDto>> pnlBetween(
             Authentication authentication,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to
     ) throws JsonProcessingException {
         String uid = authentication.getName();
         log.info("PnL query for user: {} from {} to {}", uid, from, to);
-        // Convert LocalDate to Date for service compatibility
         Date fromDate = java.sql.Date.valueOf(from);
         Date toDate = java.sql.Date.valueOf(to);
-        return ResponseEntity.ok(EntityModel.of(pnLService.getPositions(uid, fromDate, toDate)));
+        Map<String, Position> positions = pnLService.getPositions(uid, fromDate, toDate);
+        return ResponseEntity.ok(EntityModel.of(new PnLResponseDto(positions, from, to)));
     }
 
     @GetMapping("/transactions/{id}")
