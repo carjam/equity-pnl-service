@@ -433,4 +433,17 @@ public class PnLService {
         else
             return transactionRepository.findAllBetween(user.get().getId(), fromDate, toDate);
     }
+
+    /**
+     * Returns all transactions for the authenticated user and a specific symbol,
+     * for the entire history (inception-to-date). Used by tax-lot analysis so that
+     * FIFO matching starts from the first purchase, not just the query window.
+     */
+    public List<Transaction> getAllTransactionsBySymbol(String uid, String symbol) {
+        User user = userRepository.findByUid(uid).orElseThrow(() -> new UserNotFoundException(uid));
+        return transactionRepository.findAllByUser(user.getId()).stream()
+                .filter(t -> symbol.equalsIgnoreCase(t.getSymbol()))
+                .sorted(Comparator.comparing(Transaction::getTimestamp))
+                .toList();
+    }
 }

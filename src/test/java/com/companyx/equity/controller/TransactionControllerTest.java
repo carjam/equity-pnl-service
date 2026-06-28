@@ -6,9 +6,11 @@ import com.companyx.equity.model.Position;
 import com.companyx.equity.model.Transaction;
 import com.companyx.equity.model.TransactionType;
 import com.companyx.equity.model.User;
+import com.companyx.equity.model.ClosedLot;
 import com.companyx.equity.security.JwtAuthenticationEntryPoint;
 import com.companyx.equity.security.JwtUtil;
 import com.companyx.equity.service.PnLService;
+import com.companyx.equity.service.TaxLotService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -43,6 +45,9 @@ class TransactionControllerTest {
 
     @MockBean
     private PnLService pnLService;
+
+    @MockBean
+    private TaxLotService taxLotService;
 
     @MockBean
     private JwtUtil jwtUtil;
@@ -252,6 +257,81 @@ class TransactionControllerTest {
     @WithAnonymousUser
     void testTransactionsWithoutAuthentication_ShouldFail() throws Exception {
         mockMvc.perform(get("/api/v1/transactions"))
+                .andExpect(status().is4xxClientError());
+    }
+
+    // ─── Tax-lot endpoint (Issues 7 & 8) ────────────────────────────────────
+
+    @Test
+    void testTaxLots_ReturnsSummaryFields() throws Exception {
+        ClosedLot lot = ClosedLot.builder()
+                .symbol("AAPL")
+                .acquiredDate(java.time.LocalDate.of(2022, 1, 1))
+                .soldDate(java.time.LocalDate.of(2023, 6, 1))
+                .quantity(new BigDecimal("100"))
+                .proceedsPerShare(new BigDecimal("150.00"))
+                .costBasisPerShare(new BigDecimal("100.00"))
+                .gainLoss(new BigDecimal("5000.00"))
+                .term(ClosedLot.Term.LONG)
+                .washSale(false)
+                .disallowedLoss(BigDecimal.ZERO)
+                .build();
+
+        when(pnLService.getAllTransactionsBySymbol(eq("test-user"), eq("AAPL")))
+                .thenReturn(List.of());
+        when(taxLotService.computeClosedLots(any())).thenReturn(List.of(lot));
+
+        mockMvc.perform(get("/api/v1/pnl/tax-lots")
+                        .param("symbol", "AAPL")
+                        .param("from", "2023-01-01")
+                        .param("to", "2023-12-31"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.symbol").value("AAPL"))
+                .andExpect(jsonPath("$.longTermGainLoss").value(5000.00))
+                .andExpect(jsonPath("$.shortTermGainLoss").value(0))
+                .andExpect(jsonPath("$.totalGainLoss").value(5000.00))
+                .andExpect(jsonPath("$.washSaleDisallowedLoss").value(0))
+                .andExpect(jsonPath("$.disclaimer").exists())
+                .andExpect(jsonPath("$.closedLots").isArray())
+                .andExpect(jsonPath("$.closedLots[0].term").value("LONG"));
+    }
+
+    @Test
+    void testTaxLots_FlagsWashSale() throws Exception {
+        ClosedLot washLot = ClosedLot.builder()
+                .symbol("ENPH")
+                .acquiredDate(java.time.LocalDate.of(2023, 1, 1))
+                .soldDate(java.time.LocalDate.of(2023, 3, 1))
+                .quantity(new BigDecimal("100"))
+                .proceedsPerShare(new BigDecimal("80.00"))
+                .costBasisPerShare(new BigDecimal("100.00"))
+                .gainLoss(new BigDecimal("-2000.00"))
+                .term(ClosedLot.Term.SHORT)
+                .washSale(true)
+                .disallowedLoss(new BigDecimal("2000.00"))
+                .build();
+
+        when(pnLService.getAllTransactionsBySymbol(eq("test-user"), eq("ENPH")))
+                .thenReturn(List.of());
+        when(taxLotService.computeClosedLots(any())).thenReturn(List.of(washLot));
+
+        mockMvc.perform(get("/api/v1/pnl/tax-lots")
+                        .param("symbol", "ENPH")
+                        .param("from", "2023-01-01")
+                        .param("to", "2023-12-31"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.washSaleDisallowedLoss").value(2000.00))
+                .andExpect(jsonPath("$.closedLots[0].washSale").value(true))
+                .andExpect(jsonPath("$.closedLots[0].disallowedLoss").value(2000.00));
+    }
+
+    @Test
+    @WithAnonymousUser
+    void testTaxLotsWithoutAuthentication_ShouldFail() throws Exception {
+        mockMvc.perform(get("/api/v1/pnl/tax-lots")
+                        .param("symbol", "AAPL")
+                        .param("from", "2023-01-01")
+                        .param("to", "2023-12-31"))
                 .andExpect(status().is4xxClientError());
     }
 }
