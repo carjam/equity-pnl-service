@@ -1,6 +1,6 @@
 # Project Status
 
-**Last updated:** June 21, 2026 · **Branch:** `main`
+**Last updated:** June 27, 2026 · **Branch:** `main`
 
 ---
 
@@ -8,7 +8,7 @@
 
 | Item | Status |
 |------|--------|
-| 258 tests (`.\mvnw.cmd test`) | ✅ |
+| 307 tests (`.\mvnw.cmd test`) | ✅ |
 | CI: Maven Test + Docker → GHCR | ✅ |
 | CI: OWASP (dependency-check 12.2.2) | ✅ Green (June 21, 2026) |
 | Staging smoke (`scripts/staging-smoke.ps1`) | ✅ Verified locally |
@@ -23,9 +23,12 @@
 
 | Area | Notes |
 |------|--------|
-| P&L engine | Long/short, average cost, realized/unrealized — `PnLCalculationTest` |
-| Corporate actions | Splits, dividends, merger/spinoff/symbol/delisting logic + fixtures |
-| Security | JWT, validation, structured errors + correlation IDs |
+| P&L engine | Long/short, AVCO, realized/unrealized with methodology disclosure — `PnLCalculationTest` |
+| Corporate actions | Splits, dividends (cash/stock/ROC/qualified), mergers, spinoffs, symbol changes, delistings (incl. cash consideration) |
+| Fractional shares | `BigDecimal(20,8)` throughout; Flyway V1.4 |
+| Tax-lot reporting | FIFO, STCG/LTCG (IRC §1222), wash-sale detection (IRC §1091) — `GET /pnl/tax-lots` |
+| HPR endpoint | Holding period return, annualized return, income breakdown — `GET /pnl/total-return` |
+| Security | JWT, per-user data isolation, validation, structured errors + correlation IDs |
 | Resilience | Circuit breaker + retry on Finnhub |
 | Observability | Prometheus, JSON logging (staging/prod), optional Redis cache |
 | Containerization | JDK 21 Dockerfile, `docker-compose.staging.yml`, GHCR CI |
@@ -55,7 +58,7 @@
 
 ## Deferred (not portfolio blockers)
 
-See [FUTURE_ENHANCEMENTS.md](FUTURE_ENHANCEMENTS.md): live M&A feed, FIFO/LIFO, load tests, Grafana, prod deploy.
+See [FUTURE_ENHANCEMENTS.md](FUTURE_ENHANCEMENTS.md): live M&A feed, LIFO, wash-sale basis carry-forward, event-driven ingestion, load tests, Grafana, prod deploy.
 
 ---
 

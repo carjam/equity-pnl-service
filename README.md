@@ -8,14 +8,12 @@
 [![OWASP](https://github.com/carjam/equity-pnl-service/actions/workflows/owasp.yml/badge.svg)](https://github.com/carjam/equity-pnl-service/actions/workflows/owasp.yml)
 [![Java](https://img.shields.io/badge/Java-21-orange.svg)](https://www.oracle.com/java/)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.5.15-brightgreen.svg)](https://spring.io/projects/spring-boot)
-[![Tests](https://img.shields.io/badge/Tests-258-brightgreen.svg)](docs/RUNNING_TESTS.md)
+[![Tests](https://img.shields.io/badge/Tests-307-brightgreen.svg)](docs/RUNNING_TESTS.md)
 [![License](https://img.shields.io/badge/License-Proprietary-red.svg)](LICENSE)
 
 > **Reviewers:** start with **[Portfolio Demo Guide](docs/PORTFOLIO_DEMO.md)** (tests, Swagger, Docker smoke script).
 
 ## 📚 Documentation
-
-All project documentation is in the [`docs/`](docs/) directory:
 
 | Document | Description |
 |----------|-------------|
@@ -85,7 +83,6 @@ APP_TIMEZONE=America/Los_Angeles
 ### Database Setup
 
 ```sql
--- Create database and user
 CREATE USER 'your_user'@'localhost' IDENTIFIED BY 'your_password';
 GRANT ALL PRIVILEGES ON *.* TO 'your_user'@'localhost';
 FLUSH PRIVILEGES;
@@ -102,13 +99,14 @@ Flyway migrations run automatically on startup.
 ```
 POST /api/v1/auth/login
 ```
-Authenticate and receive JWT token.
 
-#### Transactions
+#### Transactions & P&L
 ```
-GET  /api/v1/transactions             # Get all transactions
-GET  /api/v1/transactions/{id}        # Get specific transaction
-GET  /api/v1/pnl?from={date}&to={date}  # Get P&L for date range
+GET  /api/v1/transactions                          # All transactions (scoped to authenticated user)
+GET  /api/v1/transactions/{id}                     # Specific transaction
+GET  /api/v1/pnl?from={date}&to={date}             # P&L with AVCO methodology disclosure
+GET  /api/v1/pnl/total-return?symbol={}&from={}&to={}  # HPR, annualized return, income breakdown
+GET  /api/v1/pnl/tax-lots?symbol={}&from={}&to={}  # FIFO lots, STCG/LTCG, wash-sale flags
 ```
 
 #### Corporate Actions
@@ -116,10 +114,9 @@ GET  /api/v1/pnl?from={date}&to={date}  # Get P&L for date range
 GET  /api/v1/corporate-actions?symbol={}&from={}&to={}
 GET  /api/v1/corporate-actions/dividends|splits|mergers|spinoffs|symbol-changes|delistings
 GET  /api/v1/corporate-actions/providers
-GET  /api/v1/pnl/total-return?symbol={}&from={}&to={}
 ```
 
-#### Market Data (Finhub Integration)
+#### Market Data (Finnhub Integration)
 ```
 GET  /Mark/{symbol}                          # Current quote
 GET  /Candle/{symbol}?from={date}&to={date}  # Historical candles
@@ -140,52 +137,53 @@ GET  /Candle/{symbol}?from={date}&to={date}  # Historical candles
 ### Features
 
 ✅ **Implemented:**
-- Real-time P&L calculation with **corporate actions** (splits, dividends, mergers, spinoffs, symbol changes)
+- Real-time P&L with **corporate actions**: splits, dividends, mergers, spinoffs, symbol changes, delistings
+- **Fractional shares** — `BigDecimal(20,8)` throughout; 3:2 splits, stock dividends, fractional purchases all preserved
+- **Average Cost (AVCO)** basis methodology with explicit disclosure in every `/pnl` response (IRC §1012 disclaimer)
+- **Return of capital** distributions reduce cost basis; excess ROC recognized as realized gain
+- **Delisting with cash consideration** — buyout/going-private proceeds computed correctly (not always treated as total loss)
+- **Qualified dividend flag** (`Boolean qualified`) on every dividend; `GET /pnl/total-return` splits income accordingly
+- **FIFO tax-lot reporting** — `GET /pnl/tax-lots` returns closed lots with STCG/LTCG classification (IRC §1222)
+- **Wash-sale detection** — IRC §1091 ±30-day window flagged with disallowed loss amount
+- **HPR & annualized return** — `GET /pnl/total-return` returns holding period return and geometric annualized return
+- **Dividend ex-date semantics** — CFA-correct holder-of-record quantity used at each ex-date (not period-end quantity)
 - Long and short position support
-- JWT authentication
-- Market data integration (Finnhub)
-- Circuit breaker pattern
-- Comprehensive test suite (255 tests, all passing)
-- Configurable timezone support
-- Input validation
-- Error handling
+- JWT authentication with per-user data isolation
+- Finnhub market data integration with circuit breaker + retry
+- 307 automated tests, all passing
 
-**Corporate actions:** See [docs/corporate-actions/README.md](docs/corporate-actions/README.md). Production M&A data optional (fixtures for dev/test).
-
-🚧 **Future Enhancements:**
-- Event-driven architecture with message queues
-- Real-time transaction ingestion
-- Advanced caching strategies
-- Tax implications (short-term/long-term gains)
-- Margin calculations
-- ITD/YTD/MTD snapshots
-- Transaction costs
-- Fractional shares
-- Attribution analysis (beta/alpha)
-- FIFO/LIFO lot tracking
+For deferred work see [docs/FUTURE_ENHANCEMENTS.md](docs/FUTURE_ENHANCEMENTS.md).
 
 ## 🧪 Testing
 
-### Test Coverage
+**307 tests** — full suite green.
 
-- **257 tests** — full suite green
-
-```powershell
-.\mvnw.cmd test
+```bash
+mvn test
 ```
 
-See [docs/RUNNING_TESTS.md](docs/RUNNING_TESTS.md) and [docs/TEST_COVERAGE_REPORT.md](docs/TEST_COVERAGE_REPORT.md).
+See [docs/RUNNING_TESTS.md](docs/RUNNING_TESTS.md) for details.
 
-## Known Issues
+## 🔒 Security
 
-**No open bugs.** Initial code-review findings (controller types, timezone, validation, exceptions) are resolved and covered by tests.
+- JWT-based authentication with BCrypt password encryption
+- Spring Security integration
+- Per-user data isolation on all transaction and P&L queries
+- Input validation on all endpoints
+- SQL injection protection (JPA/Hibernate)
+- Secured actuator endpoints
+- HTTPS recommended for production
 
-Optional product work — not bugs:
+## 📊 Monitoring & Health
 
-- **Production M&A data** — Complex-event logic works; live secondary provider deferred. Fixtures cover FOX→DIS, EBAY→PYPL, FB→META, TWTR.
-- **Load testing / prod deploy** — See [docs/FUTURE_ENHANCEMENTS.md](docs/FUTURE_ENHANCEMENTS.md).
+**Actuator Endpoints (dev):**
+```bash
+curl http://localhost:8080/actuator/health
+curl http://localhost:8080/actuator/metrics
+curl http://localhost:8080/actuator/info
+```
 
-See [docs/PROJECT_STATUS.md](docs/PROJECT_STATUS.md) for current status.
+Production: health checks via `/actuator/health`, metrics for Prometheus integration, circuit breaker status monitoring.
 
 ## 📦 Project Structure
 
@@ -194,50 +192,17 @@ equity-pnl-service/
 ├── docs/                   # Start: PORTFOLIO_DEMO.md
 ├── postman/
 ├── .github/workflows/      # CI: test, OWASP, Docker
-├── src/main · src/test/    # 257 tests
+├── src/main · src/test/    # 307 tests
 ├── spec/CHECKLIST.md
 ├── Dockerfile
 └── docker-compose.staging.yml
 ```
 
-## 🔒 Security
-
-- JWT-based authentication with BCrypt password encryption
-- Spring Security integration
-- Input validation on all endpoints
-- SQL injection protection (JPA/Hibernate)
-- Secured actuator endpoints
-- HTTPS recommended for production
-
-## 📊 Monitoring & Health
-
-### Actuator Endpoints
-
-Development:
-```bash
-curl http://localhost:8080/actuator/health
-curl http://localhost:8080/actuator/metrics
-curl http://localhost:8080/actuator/info
-```
-
-Production (secured):
-- Health checks via `/actuator/health`
-- Metrics available for Prometheus integration
-- Circuit breaker status monitoring
-
-## 🤝 Contributing
-
-1. Review [docs/PORTFOLIO_DEMO.md](docs/PORTFOLIO_DEMO.md) and [docs/PROJECT_STATUS.md](docs/PROJECT_STATUS.md)
-2. Run tests: `.\mvnw.cmd test` (257 tests must pass)
-3. Follow existing code patterns and conventions
-4. Update documentation for any changes
-5. Add tests for new functionality
-
 ## 📄 License
 
 **Proprietary / All Rights Reserved**
 
-This code is available for **viewing and portfolio evaluation only**. 
+This code is available for **viewing and portfolio evaluation only**.
 
 You may:
 - ✅ View the code on GitHub
@@ -255,22 +220,14 @@ See [LICENSE](LICENSE) for full terms.
 
 ## 📞 Support & Resources
 
-### Documentation
 - [Complete Documentation Index](docs/README.md)
 - [Portfolio Demo Guide](docs/PORTFOLIO_DEMO.md)
 - [Project Status](docs/PROJECT_STATUS.md)
 - [Testing Guide](docs/RUNNING_TESTS.md)
-- [Timezone Configuration](docs/TIMEZONE_CONFIGURATION.md)
-
-### External Resources
 - [Finnhub API Documentation](https://finnhub.io/docs/api)
 - [Spring Boot Documentation](https://spring.io/projects/spring-boot)
 - [Resilience4j Documentation](https://resilience4j.readme.io/)
 
 ---
 
-**Latest Update:** June 20, 2026  
-**Tests:** 257 passing on `main`  
-**Status:** Portfolio-ready — see [docs/PORTFOLIO_DEMO.md](docs/PORTFOLIO_DEMO.md)
-
-*For detailed documentation, see the [`docs/`](docs/) directory.*
+**Last updated:** June 27, 2026 · **Tests:** 307 passing on `main`
