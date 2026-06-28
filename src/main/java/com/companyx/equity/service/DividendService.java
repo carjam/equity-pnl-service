@@ -9,7 +9,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Collections;
@@ -41,7 +40,7 @@ public class DividendService {
      * @param dividends          list of dividends (cash and stock; stock are ignored)
      * @return total dividend income for the period
      */
-    public BigDecimal calculateIncome(BigInteger startQuantity,
+    public BigDecimal calculateIncome(BigDecimal startQuantity,
                                       List<Transaction> periodTransactions,
                                       List<Dividend> dividends) {
         if (dividends == null || dividends.isEmpty()) {
@@ -63,7 +62,7 @@ public class DividendService {
                 .collect(Collectors.toList());
 
         BigDecimal totalIncome = BigDecimal.ZERO;
-        BigInteger currentQuantity = startQuantity;
+        BigDecimal currentQuantity = startQuantity;
         int txIdx = 0;
 
         for (Dividend div : cashDividends) {
@@ -86,7 +85,7 @@ public class DividendService {
                 txIdx++;
             }
 
-            totalIncome = totalIncome.add(div.getAmount().multiply(new BigDecimal(currentQuantity)));
+            totalIncome = totalIncome.add(div.getAmount().multiply(currentQuantity));
         }
 
         log.debug("Calculated dividend income: {} (timeline-aware)", totalIncome);
@@ -97,7 +96,7 @@ public class DividendService {
      * Convenience overload for callers that know the quantity is constant throughout
      * the period (no share purchases or sales between dividends).
      */
-    public BigDecimal calculateIncome(BigInteger shares, List<Dividend> dividends) {
+    public BigDecimal calculateIncome(BigDecimal shares, List<Dividend> dividends) {
         return calculateIncome(shares, Collections.emptyList(), dividends);
     }
     
@@ -138,21 +137,19 @@ public class DividendService {
         Position adjusted = copyPosition(position);
         
         for (Dividend dividend : stockDividends) {
-            BigInteger oldQuantity = adjusted.getQuantity();
+            BigDecimal oldQuantity = adjusted.getQuantity();
             BigDecimal totalBasis = adjusted.getValue();
-            
+
             // Stock dividend is like a small split: qty increases, basis per share decreases
             BigDecimal ratio = BigDecimal.ONE.add(dividend.getSharesPerShare());
-            BigDecimal newQuantityDecimal = new BigDecimal(oldQuantity).multiply(ratio);
-            BigInteger newQuantity = newQuantityDecimal.setScale(0, java.math.RoundingMode.HALF_UP).toBigInteger();
-            
-            log.debug("Applying stock dividend {} to position: oldQty={}, ratio={}, newQty={}", 
+            BigDecimal newQuantity = oldQuantity.multiply(ratio);
+
+            log.debug("Applying stock dividend {} to position: oldQty={}, ratio={}, newQty={}",
                     dividend, oldQuantity, ratio, newQuantity);
-            
+
             adjusted.setQuantity(newQuantity);
-            
-            log.debug("After stock dividend: newQty={}, basis={} (unchanged)", 
-                    newQuantity, totalBasis);
+
+            log.debug("After stock dividend: newQty={}, basis={} (unchanged)", newQuantity, totalBasis);
         }
         
         return adjusted;

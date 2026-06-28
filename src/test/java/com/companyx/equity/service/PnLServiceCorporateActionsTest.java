@@ -79,18 +79,18 @@ class PnLServiceCorporateActionsTest {
 
         Position rawPosition = new Position();
         rawPosition.setSymbol("AAPL");
-        rawPosition.setQuantity(BigInteger.valueOf(100));
+        rawPosition.setQuantity(BigDecimal.valueOf(100));
         rawPosition.setValue(new BigDecimal("-20000.00"));
         rawPosition.setRealized(BigDecimal.ZERO);
         rawPosition.setUnrealized(BigDecimal.ZERO);
 
         Position splitAdjusted = new Position(rawPosition);
-        splitAdjusted.setQuantity(BigInteger.valueOf(400));
+        splitAdjusted.setQuantity(BigDecimal.valueOf(400));
 
         when(corporateActionService.applyPositionAdjustments(any(), eq("AAPL"), any(), any()))
                 .thenAnswer(inv -> {
                     Position p = inv.getArgument(0);
-                    if (p.getQuantity().equals(BigInteger.valueOf(100))) {
+                    if (p.getQuantity().equals(BigDecimal.valueOf(100))) {
                         return splitAdjusted;
                     }
                     return p;
@@ -114,7 +114,7 @@ class PnLServiceCorporateActionsTest {
 
         Position aapl = result.get("AAPL");
         assertNotNull(aapl);
-        assertEquals(BigInteger.valueOf(400), aapl.getQuantity());
+        assertEquals(BigDecimal.valueOf(400), aapl.getQuantity());
         assertEquals(0, new BigDecimal("0.00").compareTo(aapl.getUnrealized()),
                 "After 4:1 split at $50, unrealized P&L should be break-even");
     }

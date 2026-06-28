@@ -165,7 +165,7 @@ public class PnLServiceTest {
         assertTrue(result.containsKey("AAPL"));
         
         Position position = result.get("AAPL");
-        assertEquals(BigInteger.valueOf(100), position.getQuantity());
+        assertEquals(0, BigDecimal.valueOf(100).compareTo(position.getQuantity()));
         
         // Unrealized P&L should be: (60 * 100) - basis
         // With the current implementation's sign convention, we need to verify
@@ -207,7 +207,7 @@ public class PnLServiceTest {
         
         Position position = result.get("AAPL");
         // Should have zero quantity after closing position
-        assertEquals(BigInteger.ZERO, position.getQuantity());
+        assertEquals(0, BigDecimal.ZERO.compareTo(position.getQuantity()));
         
         // Realized P&L should be $1,000 profit
         BigDecimal realized = position.getRealized();
@@ -242,7 +242,7 @@ public class PnLServiceTest {
         Map<String, Position> result = pnLService.getPositions("test-user", start, end);
         
         Position position = result.get("AAPL");
-        assertEquals(BigInteger.ZERO, position.getQuantity());
+        assertEquals(0, BigDecimal.ZERO.compareTo(position.getQuantity()));
         
         // Should show $1,000 loss
         BigDecimal realized = position.getRealized();
@@ -284,7 +284,7 @@ public class PnLServiceTest {
         
         Position position = result.get("AAPL");
         // Should still have 50 shares
-        assertEquals(BigInteger.valueOf(50), position.getQuantity());
+        assertEquals(0, BigDecimal.valueOf(50).compareTo(position.getQuantity()));
         
         // Realized: (60 - 50) * 50 = $500
         // Unrealized: (60 - 50) * 50 = $500
@@ -326,7 +326,7 @@ public class PnLServiceTest {
         Map<String, Position> result = pnLService.getPositions("test-user", start, end);
         
         Position position = result.get("AAPL");
-        assertEquals(BigInteger.valueOf(200), position.getQuantity());
+        assertEquals(0, BigDecimal.valueOf(200).compareTo(position.getQuantity()));
         
         // Unrealized: (65 - 55) * 200 = $2,000
     }
@@ -362,7 +362,7 @@ public class PnLServiceTest {
         Map<String, Position> result = pnLService.getPositions("test-user", start, end);
         
         Position position = result.get("AAPL");
-        assertEquals(BigInteger.ZERO, position.getQuantity());
+        assertEquals(0, BigDecimal.ZERO.compareTo(position.getQuantity()));
         
         // Should show $1,000 profit from short
     }
@@ -402,7 +402,7 @@ public class PnLServiceTest {
         
         Position position = result.get("AAPL");
         // Should be short 50 shares
-        assertEquals(BigInteger.valueOf(-50), position.getQuantity());
+        assertEquals(0, BigDecimal.valueOf(-50).compareTo(position.getQuantity()));
     }
     
     // ==================== GET TRANSACTIONS BY DATES ====================
@@ -496,7 +496,7 @@ public class PnLServiceTest {
         List<Transaction> transactions = Arrays.asList(
                 TestDataBuilder.createTransaction(testUser, buyType, "AAPL",
                         Timestamp.valueOf(LocalDateTime.of(2024, 1, 15, 10, 0)),
-                        BigInteger.ZERO, BigDecimal.ZERO)
+                        BigDecimal.ZERO, BigDecimal.ZERO)
         );
         when(transactionRepository.findAllBetween(anyLong(), any(Date.class), any(Date.class)))
                 .thenReturn(transactions);
@@ -555,8 +555,8 @@ public class PnLServiceTest {
         assertTrue(result.containsKey("MSFT"));
         assertTrue(result.containsKey("cash"));
         
-        assertEquals(BigInteger.valueOf(100), result.get("AAPL").getQuantity());
-        assertEquals(BigInteger.valueOf(50), result.get("GOOGL").getQuantity());
-        assertEquals(BigInteger.valueOf(200), result.get("MSFT").getQuantity());
+        assertEquals(0, BigDecimal.valueOf(100).compareTo(result.get("AAPL").getQuantity()));
+        assertEquals(0, BigDecimal.valueOf(50).compareTo(result.get("GOOGL").getQuantity()));
+        assertEquals(0, BigDecimal.valueOf(200).compareTo(result.get("MSFT").getQuantity()));
     }
 }

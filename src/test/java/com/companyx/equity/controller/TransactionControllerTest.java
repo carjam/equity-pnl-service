@@ -73,7 +73,7 @@ class TransactionControllerTest {
                 Timestamp.valueOf(LocalDateTime.now()),
                 "AAPL"
         );
-        aaplPosition.setQuantity(BigInteger.valueOf(100));
+        aaplPosition.setQuantity(BigDecimal.valueOf(100));
         aaplPosition.setValue(BigDecimal.valueOf(-5000));
         aaplPosition.setRealized(BigDecimal.valueOf(1000));
         aaplPosition.setUnrealized(BigDecimal.valueOf(500));

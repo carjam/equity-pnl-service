@@ -40,8 +40,8 @@ public class SpinoffService {
         var spunoffQty = spinoff.spunoffQuantity(parentQty);
         var totalBasis = parentPosition.getValue();
 
-        var parentMarketValue = parentPrice.multiply(new BigDecimal(parentQty.abs()));
-        var spunoffMarketValue = spunoffPrice.multiply(new BigDecimal(spunoffQty.abs()));
+        var parentMarketValue = parentPrice.multiply(parentQty.abs());
+        var spunoffMarketValue = spunoffPrice.multiply(spunoffQty.abs());
         var totalMarketValue = parentMarketValue.add(spunoffMarketValue);
 
         var parentBasis = totalMarketValue.compareTo(BigDecimal.ZERO) == 0

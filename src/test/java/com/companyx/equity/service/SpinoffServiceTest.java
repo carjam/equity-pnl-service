@@ -33,8 +33,8 @@ class SpinoffServiceTest {
         SpinoffService.SpinoffResult result = spinoffService.applySpinoff(
                 parent, spinoff, new BigDecimal("90.00"), new BigDecimal("10.00"));
 
-        assertEquals(BigInteger.valueOf(100), result.parentPosition().getQuantity());
-        assertEquals(BigInteger.valueOf(10), result.spinoffPosition().getQuantity());
+        assertEquals(0, BigDecimal.valueOf(100).compareTo(result.parentPosition().getQuantity()));
+        assertEquals(0, BigDecimal.valueOf(10).compareTo(result.spinoffPosition().getQuantity()));
         assertEquals("SPIN", result.spinoffPosition().getSymbol());
         assertEquals(0, new BigDecimal("-9890.11").compareTo(result.parentPosition().getValue()));
         assertEquals(0, new BigDecimal("-109.89").compareTo(result.spinoffPosition().getValue()));
@@ -43,7 +43,7 @@ class SpinoffServiceTest {
     private Position longPosition(String symbol, int quantity, BigDecimal basis) {
         Position position = new Position();
         position.setSymbol(symbol);
-        position.setQuantity(BigInteger.valueOf(quantity));
+        position.setQuantity(BigDecimal.valueOf(quantity));
         position.setValue(basis);
         position.setRealized(BigDecimal.ZERO);
         position.setUnrealized(BigDecimal.ZERO);

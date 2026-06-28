@@ -70,13 +70,13 @@ class StockSplitTest {
                 .toFactor(4)
                 .build();
 
-        BigInteger originalQuantity = BigInteger.valueOf(100);
+        BigDecimal originalQuantity = BigDecimal.valueOf(100);
 
         // Act
-        BigInteger newQuantity = split.applyToQuantity(originalQuantity);
+        BigDecimal newQuantity = split.applyToQuantity(originalQuantity);
 
         // Assert
-        assertEquals(BigInteger.valueOf(400), newQuantity);
+        assertEquals(0, BigDecimal.valueOf(400).compareTo(newQuantity));
     }
 
     @Test
@@ -89,13 +89,13 @@ class StockSplitTest {
                 .toFactor(1)
                 .build();
 
-        BigInteger originalQuantity = BigInteger.valueOf(1000);
+        BigDecimal originalQuantity = BigDecimal.valueOf(1000);
 
         // Act
-        BigInteger newQuantity = split.applyToQuantity(originalQuantity);
+        BigDecimal newQuantity = split.applyToQuantity(originalQuantity);
 
         // Assert
-        assertEquals(BigInteger.valueOf(100), newQuantity);
+        assertEquals(0, BigDecimal.valueOf(100).compareTo(newQuantity));
     }
 
     @Test
@@ -114,7 +114,7 @@ class StockSplitTest {
         BigDecimal newBasisPerShare = split.applyToCostBasis(originalBasisPerShare);
 
         // Assert
-        assertEquals(new BigDecimal("50.00"), newBasisPerShare);
+        assertEquals(0, new BigDecimal("50.00").compareTo(newBasisPerShare));
     }
 
     @Test
@@ -133,7 +133,7 @@ class StockSplitTest {
         BigDecimal newBasisPerShare = split.applyToCostBasis(originalBasisPerShare);
 
         // Assert
-        assertEquals(new BigDecimal("50.00"), newBasisPerShare);
+        assertEquals(0, new BigDecimal("50.00").compareTo(newBasisPerShare));
     }
 
     @Test
@@ -146,19 +146,19 @@ class StockSplitTest {
                 .toFactor(4)
                 .build();
 
-        BigInteger originalQuantity = BigInteger.valueOf(100);
+        BigDecimal originalQuantity = BigDecimal.valueOf(100);
         BigDecimal originalBasisPerShare = new BigDecimal("200.00");
-        BigDecimal totalBasis = new BigDecimal(originalQuantity).multiply(originalBasisPerShare);
+        BigDecimal totalBasis = originalQuantity.multiply(originalBasisPerShare);
 
         // Act
-        BigInteger newQuantity = split.applyToQuantity(originalQuantity);
+        BigDecimal newQuantity = split.applyToQuantity(originalQuantity);
         BigDecimal newBasisPerShare = split.applyToCostBasis(originalBasisPerShare);
-        BigDecimal newTotalBasis = new BigDecimal(newQuantity).multiply(newBasisPerShare);
+        BigDecimal newTotalBasis = newQuantity.multiply(newBasisPerShare);
 
         // Assert
-        assertEquals(totalBasis, newTotalBasis);
-        assertEquals(new BigDecimal("20000.00"), totalBasis);
-        assertEquals(new BigDecimal("20000.00"), newTotalBasis);
+        assertEquals(0, totalBasis.compareTo(newTotalBasis), "Total basis must be preserved after split");
+        assertEquals(0, new BigDecimal("20000.00").compareTo(totalBasis));
+        assertEquals(0, new BigDecimal("20000.00").compareTo(newTotalBasis));
     }
 
     @Test
@@ -310,20 +310,20 @@ class StockSplitTest {
                 .toFactor(3)
                 .build();
 
-        BigInteger originalQuantity = BigInteger.valueOf(100);
+        BigDecimal originalQuantity = BigDecimal.valueOf(100);
         BigDecimal originalBasisPerShare = new BigDecimal("30.00");
 
         // Act
-        BigInteger newQuantity = split.applyToQuantity(originalQuantity);
+        BigDecimal newQuantity = split.applyToQuantity(originalQuantity);
         BigDecimal newBasisPerShare = split.applyToCostBasis(originalBasisPerShare);
 
         // Assert
-        assertEquals(BigInteger.valueOf(150), newQuantity);
-        assertEquals(new BigDecimal("20.00"), newBasisPerShare);
-        
+        assertEquals(0, BigDecimal.valueOf(150).compareTo(newQuantity));
+        assertEquals(0, new BigDecimal("20.00").compareTo(newBasisPerShare));
+
         // Verify total basis unchanged
-        BigDecimal oldTotal = new BigDecimal(originalQuantity).multiply(originalBasisPerShare);
-        BigDecimal newTotal = new BigDecimal(newQuantity).multiply(newBasisPerShare);
-        assertEquals(oldTotal, newTotal);
+        BigDecimal oldTotal = originalQuantity.multiply(originalBasisPerShare);
+        BigDecimal newTotal = newQuantity.multiply(newBasisPerShare);
+        assertEquals(0, oldTotal.compareTo(newTotal), "Total basis must be preserved after 3:2 split");
     }
 }

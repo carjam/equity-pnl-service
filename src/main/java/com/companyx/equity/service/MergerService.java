@@ -6,7 +6,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.math.RoundingMode;
 
 /**
@@ -28,7 +27,7 @@ public class MergerService {
         if (merger == null) {
             throw new IllegalArgumentException("Merger cannot be null");
         }
-        if (position.getQuantity().equals(BigInteger.ZERO)) {
+        if (position.getQuantity().compareTo(BigDecimal.ZERO) == 0) {
             return unchanged(position);
         }
 
@@ -55,7 +54,7 @@ public class MergerService {
         BigDecimal additionalRealized = cashReceived.add(position.getValue());
 
         Position adjusted = copy(position);
-        adjusted.setQuantity(BigInteger.ZERO);
+        adjusted.setQuantity(BigDecimal.ZERO);
         adjusted.setValue(BigDecimal.ZERO.setScale(SCALE, RoundingMode.HALF_UP));
         adjusted.setUnrealized(BigDecimal.ZERO);
 
@@ -71,10 +70,10 @@ public class MergerService {
             throw new IllegalArgumentException("Acquirer fair value required for mixed merger");
         }
 
-        BigInteger stockQuantity = merger.applyExchangeRatio(position.getQuantity());
+        BigDecimal stockQuantity = merger.applyExchangeRatio(position.getQuantity());
         BigDecimal cashReceived = merger.totalCashConsideration(position.getQuantity());
         BigDecimal stockFairValue = merger.getAcquirerFairValuePerShare()
-                .multiply(new BigDecimal(stockQuantity.abs()));
+                .multiply(stockQuantity.abs());
         BigDecimal totalFairValue = cashReceived.add(stockFairValue);
 
         BigDecimal totalBasis = position.getValue();

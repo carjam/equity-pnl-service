@@ -7,7 +7,6 @@ import lombok.Setter;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.sql.Timestamp;
 
 /**
@@ -22,7 +21,7 @@ public class Position implements Serializable {
         this.user = user;
         this.timestamp = timestamp;
         this.symbol = symbol;
-        this.quantity = BigInteger.ZERO;
+        this.quantity = BigDecimal.ZERO;
         this.value = BigDecimal.ZERO;
         this.realized = BigDecimal.ZERO;
         this.unrealized = BigDecimal.ZERO;
@@ -43,7 +42,7 @@ public class Position implements Serializable {
     private int id;
     private Timestamp timestamp;
     private String symbol;
-    private BigInteger quantity;
+    private BigDecimal quantity;
     private BigDecimal value;
     private BigDecimal realized;
     private BigDecimal unrealized;

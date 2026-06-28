@@ -218,7 +218,7 @@ public class PnLServiceBugFixTest {
         Transaction negativeTransaction = TestDataBuilder.createTransaction(
                 testUser, buyType, "AAPL",
                 Timestamp.valueOf(LocalDateTime.of(2024, 1, 15, 10, 0)),
-                BigInteger.valueOf(-100), BigDecimal.valueOf(5000.0)
+                BigDecimal.valueOf(-100), BigDecimal.valueOf(5000.0)
         );
         
         when(transactionRepository.findAllBetween(anyLong(), any(Date.class), any(Date.class)))
@@ -245,7 +245,7 @@ public class PnLServiceBugFixTest {
         Transaction negativeTransaction = TestDataBuilder.createTransaction(
                 testUser, buyType, "AAPL",
                 Timestamp.valueOf(LocalDateTime.of(2024, 1, 15, 10, 0)),
-                BigInteger.valueOf(100), BigDecimal.valueOf(-5000.0)
+                BigDecimal.valueOf(100), BigDecimal.valueOf(-5000.0)
         );
         
         when(transactionRepository.findAllBetween(anyLong(), any(Date.class), any(Date.class)))

@@ -5,8 +5,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.math.RoundingMode;
+import java.math.MathContext;
 import java.time.LocalDate;
 
 /**
@@ -47,8 +46,7 @@ public class Spinoff implements CorporateAction {
         return CorporateActionType.SPINOFF;
     }
 
-    public BigInteger spunoffQuantity(BigInteger parentQuantity) {
-        BigDecimal spunoff = new BigDecimal(parentQuantity).multiply(distributionRatio);
-        return spunoff.setScale(0, RoundingMode.HALF_UP).toBigInteger();
+    public BigDecimal spunoffQuantity(BigDecimal parentQuantity) {
+        return parentQuantity.multiply(distributionRatio, MathContext.DECIMAL128);
     }
 }

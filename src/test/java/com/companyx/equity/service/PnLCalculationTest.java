@@ -135,7 +135,7 @@ public class PnLCalculationTest {
             assertNotNull(aaplPosition, "AAPL position should exist");
             
             // Expected: Closed position (qty = 0)
-            assertEquals(BigInteger.ZERO, aaplPosition.getQuantity(), 
+            assertEquals(0, BigDecimal.ZERO.compareTo(aaplPosition.getQuantity()),
                 "Position should be closed (quantity = 0)");
             
             // Expected: Realized P&L = (60 - 50) * 100 = $1,000
@@ -181,7 +181,7 @@ public class PnLCalculationTest {
             Position aaplPosition = result.get("AAPL");
             
             // Expected: Closed position
-            assertEquals(BigInteger.ZERO, aaplPosition.getQuantity());
+            assertEquals(0, BigDecimal.ZERO.compareTo(aaplPosition.getQuantity()));
             
             // Expected: Realized P&L = (40 - 50) * 100 = -$1,000
             assertBigDecimalEquals(new BigDecimal("-1000.0"), aaplPosition.getRealized(), 
@@ -226,7 +226,7 @@ public class PnLCalculationTest {
             Position aaplPosition = result.get("AAPL");
             
             // Expected: Open long position
-            assertEquals(BigInteger.valueOf(100), aaplPosition.getQuantity());
+            assertEquals(0, BigDecimal.valueOf(100).compareTo(aaplPosition.getQuantity()));
             
             // Expected: No realized P&L (haven't sold)
             assertBigDecimalEquals(BigDecimal.ZERO, aaplPosition.getRealized(), 
@@ -273,7 +273,7 @@ public class PnLCalculationTest {
             Position aaplPosition = result.get("AAPL");
             
             // Expected: Still holding 50 shares
-            assertEquals(BigInteger.valueOf(50), aaplPosition.getQuantity());
+            assertEquals(0, BigDecimal.valueOf(50).compareTo(aaplPosition.getQuantity()));
             
             // Expected: Realized P&L = (60 - 50) * 50 = $500
             assertBigDecimalEquals(new BigDecimal("500.0"), aaplPosition.getRealized(), 
@@ -320,7 +320,7 @@ public class PnLCalculationTest {
             Position aaplPosition = result.get("AAPL");
             
             // Expected: Closed position
-            assertEquals(BigInteger.ZERO, aaplPosition.getQuantity());
+            assertEquals(0, BigDecimal.ZERO.compareTo(aaplPosition.getQuantity()));
             
             // Expected: Realized P&L = (50 - 40) * 100 = $1,000 profit
             assertBigDecimalEquals(new BigDecimal("1000.0"), aaplPosition.getRealized(), 
@@ -360,7 +360,7 @@ public class PnLCalculationTest {
             Position aaplPosition = result.get("AAPL");
             
             // Expected: Closed position
-            assertEquals(BigInteger.ZERO, aaplPosition.getQuantity());
+            assertEquals(0, BigDecimal.ZERO.compareTo(aaplPosition.getQuantity()));
             
             // Expected: Realized P&L = (50 - 60) * 100 = -$1,000 loss
             assertBigDecimalEquals(new BigDecimal("-1000.0"), aaplPosition.getRealized(), 
@@ -405,7 +405,7 @@ public class PnLCalculationTest {
             Position aaplPosition = result.get("AAPL");
             
             // Expected: Open short position (negative quantity)
-            assertEquals(BigInteger.valueOf(-100), aaplPosition.getQuantity());
+            assertEquals(0, BigDecimal.valueOf(-100).compareTo(aaplPosition.getQuantity()));
             
             // Expected: No realized P&L
             assertBigDecimalEquals(BigDecimal.ZERO, aaplPosition.getRealized(), 
@@ -460,7 +460,7 @@ public class PnLCalculationTest {
             Position aaplPosition = result.get("AAPL");
             
             // Expected: Short 50 shares
-            assertEquals(BigInteger.valueOf(-50), aaplPosition.getQuantity(), 
+            assertEquals(0, BigDecimal.valueOf(-50).compareTo(aaplPosition.getQuantity()),
                 "Should have short position of 50 shares");
             
             // Expected: Realized P&L from closing long = (60 - 50) * 100 = $1,000
@@ -509,7 +509,7 @@ public class PnLCalculationTest {
             Position aaplPosition = result.get("AAPL");
             
             // Expected: Long 50 shares
-            assertEquals(BigInteger.valueOf(50), aaplPosition.getQuantity(), 
+            assertEquals(0, BigDecimal.valueOf(50).compareTo(aaplPosition.getQuantity()),
                 "Should have long position of 50 shares");
             
             // Expected: Realized P&L from closing short = (50 - 40) * 100 = $1,000
@@ -569,7 +569,7 @@ public class PnLCalculationTest {
             Position aaplPosition = result.get("AAPL");
             
             // Expected: Holding 50 shares
-            assertEquals(BigInteger.valueOf(50), aaplPosition.getQuantity());
+            assertEquals(0, BigDecimal.valueOf(50).compareTo(aaplPosition.getQuantity()));
             
             // Expected: Realized P&L = (65 - 55) * 150 = $1,500
             assertBigDecimalEquals(new BigDecimal("1500.0"), aaplPosition.getRealized(), 
@@ -622,7 +622,7 @@ public class PnLCalculationTest {
             Position aaplPosition = result.get("AAPL");
             
             // Expected: Flat (no position)
-            assertEquals(BigInteger.ZERO, aaplPosition.getQuantity());
+            assertEquals(0, BigDecimal.ZERO.compareTo(aaplPosition.getQuantity()));
             
             // Expected: Realized P&L = Trip1($500) + Trip2($500) = $1,000
             assertBigDecimalEquals(new BigDecimal("1000.0"), aaplPosition.getRealized(), 

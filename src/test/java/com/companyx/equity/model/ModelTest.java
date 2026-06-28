@@ -4,7 +4,6 @@ import com.companyx.equity.TestDataBuilder;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
@@ -28,7 +27,7 @@ public class ModelTest {
         
         assertNotNull(transaction);
         assertEquals("AAPL", transaction.getSymbol());
-        assertEquals(BigInteger.valueOf(100), transaction.getQuantity());
+        assertEquals(BigDecimal.valueOf(100), transaction.getQuantity());
         assertEquals(BigDecimal.valueOf(5000.0), transaction.getValue());
         assertEquals(user, transaction.getUser());
         assertEquals(buyType, transaction.getTransactionType());
@@ -43,7 +42,7 @@ public class ModelTest {
         
         assertNotNull(position);
         assertEquals("AAPL", position.getSymbol());
-        assertEquals(BigInteger.ZERO, position.getQuantity());
+        assertEquals(BigDecimal.ZERO, position.getQuantity());
         assertEquals(BigDecimal.ZERO, position.getValue());
         assertEquals(BigDecimal.ZERO, position.getRealized());
         assertEquals(BigDecimal.ZERO, position.getUnrealized());
@@ -82,7 +81,7 @@ public class ModelTest {
         Timestamp timestamp = Timestamp.valueOf(LocalDateTime.of(2024, 1, 15, 10, 0));
         
         Position position = new Position(user, timestamp, "AAPL");
-        position.setQuantity(BigInteger.valueOf(100));
+        position.setQuantity(BigDecimal.valueOf(100));
         position.setValue(BigDecimal.valueOf(-5000.0));
         position.setRealized(BigDecimal.valueOf(1000.0));
         position.setUnrealized(BigDecimal.valueOf(500.0));

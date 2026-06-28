@@ -5,8 +5,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.math.RoundingMode;
+import java.math.MathContext;
 import java.time.LocalDate;
 
 /**
@@ -58,12 +57,11 @@ public class Merger implements CorporateAction {
         return CorporateActionType.MERGER;
     }
 
-    public BigInteger applyExchangeRatio(BigInteger quantity) {
-        BigDecimal newQuantity = new BigDecimal(quantity).multiply(exchangeRatio);
-        return newQuantity.setScale(0, RoundingMode.HALF_UP).toBigInteger();
+    public BigDecimal applyExchangeRatio(BigDecimal quantity) {
+        return quantity.multiply(exchangeRatio, MathContext.DECIMAL128);
     }
 
-    public BigDecimal totalCashConsideration(BigInteger quantity) {
-        return cashPerShare.multiply(new BigDecimal(quantity.abs()));
+    public BigDecimal totalCashConsideration(BigDecimal quantity) {
+        return cashPerShare.multiply(quantity.abs(), MathContext.DECIMAL128);
     }
 }

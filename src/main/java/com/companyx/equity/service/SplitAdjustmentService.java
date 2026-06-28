@@ -6,7 +6,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -52,20 +51,17 @@ public class SplitAdjustmentService {
         Position adjusted = copyPosition(position);
         
         for (StockSplit split : sortedSplits) {
-            BigInteger oldQuantity = adjusted.getQuantity();
+            BigDecimal oldQuantity = adjusted.getQuantity();
             BigDecimal totalBasis = adjusted.getValue();
-            
-            log.debug("Applying {} to position: oldQty={}, basis={}", 
-                    split, oldQuantity, totalBasis);
-            
-            // Apply split to quantity: newQty = oldQty × ratio
-            BigInteger newQuantity = split.applyToQuantity(oldQuantity);
-            
-            // Total basis remains unchanged
+
+            log.debug("Applying {} to position: oldQty={}, basis={}", split, oldQuantity, totalBasis);
+
+            // Apply split to quantity: newQty = oldQty × ratio (fractional shares preserved)
+            BigDecimal newQuantity = split.applyToQuantity(oldQuantity);
+
             adjusted.setQuantity(newQuantity);
-            
-            log.debug("After split: newQty={}, basis={} (unchanged)", 
-                    newQuantity, totalBasis);
+
+            log.debug("After split: newQty={}, basis={} (unchanged)", newQuantity, totalBasis);
         }
         
         return adjusted;

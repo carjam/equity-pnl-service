@@ -36,7 +36,7 @@ class MergerServiceTest {
         MergerService.MergerResult result = mergerService.applyMerger(position, merger);
 
         assertEquals("ABC", result.position().getSymbol());
-        assertEquals(BigInteger.valueOf(80), result.position().getQuantity());
+        assertEquals(0, BigDecimal.valueOf(80).compareTo(result.position().getQuantity()));
         assertEquals(0, new BigDecimal("-5000.00").compareTo(result.position().getValue()));
         assertEquals(0, BigDecimal.ZERO.compareTo(result.additionalRealized()));
     }
@@ -54,7 +54,7 @@ class MergerServiceTest {
 
         MergerService.MergerResult result = mergerService.applyMerger(position, merger);
 
-        assertEquals(BigInteger.ZERO, result.position().getQuantity());
+        assertEquals(0, BigDecimal.ZERO.compareTo(result.position().getQuantity()));
         assertEquals(0, new BigDecimal("1000.00").compareTo(result.additionalRealized()));
     }
 
@@ -75,7 +75,7 @@ class MergerServiceTest {
         MergerService.MergerResult result = mergerService.applyMerger(position, merger);
 
         assertEquals("ABC", result.position().getSymbol());
-        assertEquals(BigInteger.valueOf(50), result.position().getQuantity());
+        assertEquals(0, BigDecimal.valueOf(50).compareTo(result.position().getQuantity()));
         assertEquals(0, BigDecimal.ZERO.compareTo(result.additionalRealized()));
         assertEquals(0, new BigDecimal("-1500.00").compareTo(result.position().getValue()));
     }
@@ -83,7 +83,7 @@ class MergerServiceTest {
     private Position longPosition(String symbol, int quantity, BigDecimal basis) {
         Position position = new Position();
         position.setSymbol(symbol);
-        position.setQuantity(BigInteger.valueOf(quantity));
+        position.setQuantity(BigDecimal.valueOf(quantity));
         position.setValue(basis);
         position.setRealized(BigDecimal.ZERO);
         position.setUnrealized(BigDecimal.ZERO);

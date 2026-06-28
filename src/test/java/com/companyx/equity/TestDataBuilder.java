@@ -5,7 +5,6 @@ import com.companyx.equity.model.TransactionType;
 import com.companyx.equity.model.User;
 
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
@@ -40,11 +39,11 @@ public class TestDataBuilder {
             TransactionType type,
             String symbol,
             Timestamp timestamp,
-            BigInteger quantity,
+            BigDecimal quantity,
             BigDecimal value) {
         return new Transaction(null, timestamp, symbol, quantity, value, user, type);
     }
-    
+
     public static Transaction createBuyTransaction(
             User user,
             TransactionType buyType,
@@ -57,11 +56,11 @@ public class TestDataBuilder {
                 buyType,
                 symbol,
                 Timestamp.valueOf(dateTime),
-                BigInteger.valueOf(quantity),
+                BigDecimal.valueOf(quantity),
                 BigDecimal.valueOf(totalValue)
         );
     }
-    
+
     public static Transaction createSellTransaction(
             User user,
             TransactionType sellType,
@@ -74,11 +73,11 @@ public class TestDataBuilder {
                 sellType,
                 symbol,
                 Timestamp.valueOf(dateTime),
-                BigInteger.valueOf(quantity),
+                BigDecimal.valueOf(quantity),
                 BigDecimal.valueOf(totalValue)
         );
     }
-    
+
     public static Transaction createDepositTransaction(
             User user,
             TransactionType depositType,
@@ -89,11 +88,11 @@ public class TestDataBuilder {
                 depositType,
                 null,
                 Timestamp.valueOf(dateTime),
-                BigInteger.ZERO,
+                BigDecimal.ZERO,
                 BigDecimal.valueOf(amount)
         );
     }
-    
+
     public static Transaction createWithdrawalTransaction(
             User user,
             TransactionType withdrawalType,
@@ -104,7 +103,7 @@ public class TestDataBuilder {
                 withdrawalType,
                 null,
                 Timestamp.valueOf(dateTime),
-                BigInteger.ZERO,
+                BigDecimal.ZERO,
                 BigDecimal.valueOf(amount)
         );
     }

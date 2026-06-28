@@ -17,7 +17,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.sql.Timestamp;
 import java.text.ParseException;
@@ -146,11 +145,11 @@ public class PnLService {
             Position startPos = positions.containsKey(sym) ? positions.get(sym) : new Position(user, transaction.getTimestamp(), sym);
 
             BigDecimal transPrice, transVal, startPrice, startVal, endVal, cash, realized;
-            BigInteger startQuant, transQuant, endQuant;
+            BigDecimal startQuant, transQuant, endQuant;
             startVal = startPos.getValue();
             startQuant = startPos.getQuantity();
-            startPrice = startQuant.equals(BigInteger.ZERO) ? BigDecimal.ZERO
-                    : startVal.divide(new BigDecimal(startQuant), ROUNDING_SCALE, RoundingMode.HALF_UP).abs();
+            startPrice = startQuant.compareTo(BigDecimal.ZERO) == 0 ? BigDecimal.ZERO
+                    : startVal.divide(startQuant, ROUNDING_SCALE, RoundingMode.HALF_UP).abs();
             cash = transaction.getValue();
             log.debug("Processing transaction - startVal: {}, startQuant: {}, startPrice: {}, cash: {}",
                     startVal, startQuant, startPrice, cash);
@@ -172,22 +171,22 @@ public class PnLService {
                     //trans inputs always >= 0
                     transVal = transaction.getValue();
                     transQuant = transaction.getQuantity();
-                    transPrice = transQuant.equals(BigInteger.ZERO) ? BigDecimal.ZERO
-                            : transVal.divide(new BigDecimal(transQuant), ROUNDING_SCALE, RoundingMode.HALF_UP);
+                    transPrice = transQuant.compareTo(BigDecimal.ZERO) == 0 ? BigDecimal.ZERO
+                            : transVal.divide(transQuant, ROUNDING_SCALE, RoundingMode.HALF_UP);
                     endQuant = startQuant.add(transQuant);
 
                     //long -> long
-                    if((endQuant.compareTo(BigInteger.ZERO) > 0) && (startQuant.compareTo(BigInteger.ZERO) > 0)) {
+                    if((endQuant.compareTo(BigDecimal.ZERO) > 0) && (startQuant.compareTo(BigDecimal.ZERO) > 0)) {
                         endVal = startVal.subtract(transVal);
                         realized = BigDecimal.ZERO;
                     // short -> short
-                    } else if((endQuant.compareTo(BigInteger.ZERO) < 0) && (startQuant.compareTo(BigInteger.ZERO) < 0)) {
-                        endVal = startPrice.multiply(new BigDecimal(endQuant)).multiply(new BigDecimal(-1));
-                        realized = new BigDecimal(transQuant).multiply(startPrice.subtract(transPrice));
+                    } else if((endQuant.compareTo(BigDecimal.ZERO) < 0) && (startQuant.compareTo(BigDecimal.ZERO) < 0)) {
+                        endVal = startPrice.multiply(endQuant).multiply(new BigDecimal(-1));
+                        realized = transQuant.multiply(startPrice.subtract(transPrice));
                     //short -> long
                     } else {
-                        endVal = transPrice.multiply(new BigDecimal(endQuant)).multiply(new BigDecimal(-1));
-                        realized = startVal.add(new BigDecimal(startQuant).multiply(transPrice)); // basis - (startQ * transP)
+                        endVal = transPrice.multiply(endQuant).multiply(new BigDecimal(-1));
+                        realized = startVal.add(startQuant.multiply(transPrice)); // basis - (startQ * transP)
                     }
 
                     startPos.setValue(endVal);
@@ -202,22 +201,22 @@ public class PnLService {
                     //trans inputs always >= 0
                     transVal = transaction.getValue();
                     transQuant = transaction.getQuantity();
-                    transPrice = transQuant.equals(BigInteger.ZERO) ? BigDecimal.ZERO
-                            : transVal.divide(new BigDecimal(transQuant), ROUNDING_SCALE, RoundingMode.HALF_UP);
+                    transPrice = transQuant.compareTo(BigDecimal.ZERO) == 0 ? BigDecimal.ZERO
+                            : transVal.divide(transQuant, ROUNDING_SCALE, RoundingMode.HALF_UP);
                     endQuant = startQuant.subtract(transaction.getQuantity());
 
                     //long -> long
-                    if((endQuant.compareTo(BigInteger.ZERO) > 0) && (startQuant.compareTo(BigInteger.ZERO) > 0)) {
-                        endVal = startPrice.multiply(new BigDecimal(endQuant)).multiply(new BigDecimal(-1));
-                        realized = new BigDecimal(transQuant).multiply(transPrice.subtract(startPrice));
+                    if((endQuant.compareTo(BigDecimal.ZERO) > 0) && (startQuant.compareTo(BigDecimal.ZERO) > 0)) {
+                        endVal = startPrice.multiply(endQuant).multiply(new BigDecimal(-1));
+                        realized = transQuant.multiply(transPrice.subtract(startPrice));
                     //short -> short
-                    } else if((endQuant.compareTo(BigInteger.ZERO) < 0) && (startQuant.compareTo(BigInteger.ZERO) < 0)) {
+                    } else if((endQuant.compareTo(BigDecimal.ZERO) < 0) && (startQuant.compareTo(BigDecimal.ZERO) < 0)) {
                         endVal = startVal.add(transVal);
                         realized = BigDecimal.ZERO;
                     //long -> short
                     } else {
-                        endVal = transPrice.multiply(new BigDecimal(endQuant)).multiply(new BigDecimal(-1));
-                        realized = startVal.add(new BigDecimal(startQuant).multiply(transPrice)); // (startQ * transP) - basis
+                        endVal = transPrice.multiply(endQuant).multiply(new BigDecimal(-1));
+                        realized = startVal.add(startQuant.multiply(transPrice)); // (startQ * transP) - basis
                     }
 
                     startPos.setValue(endVal);
@@ -240,7 +239,7 @@ public class PnLService {
      * Validates transaction has valid quantities and values
      */
     private void validateTransaction(Transaction transaction) {
-        if (transaction.getQuantity() != null && transaction.getQuantity().compareTo(BigInteger.ZERO) < 0) {
+        if (transaction.getQuantity() != null && transaction.getQuantity().compareTo(BigDecimal.ZERO) < 0) {
             throw new InvalidInputException("Transaction quantity cannot be negative");
         }
         if (transaction.getValue() != null && transaction.getValue().compareTo(BigDecimal.ZERO) < 0) {
@@ -285,7 +284,7 @@ public class PnLService {
             }
 
             Position position = positions.get(symbol);
-            if (position == null || position.getQuantity().equals(BigInteger.ZERO)) {
+            if (position == null || position.getQuantity().compareTo(BigDecimal.ZERO) == 0) {
                 continue;
             }
 
@@ -302,8 +301,8 @@ public class PnLService {
 
             // Dividend income is quantity-timeline-aware: use start-of-period shares and
             // replay period transactions so each ex-date gets the correct holder quantity.
-            BigInteger startQty = Optional.ofNullable(startPositions.get(symbol))
-                    .map(Position::getQuantity).orElse(BigInteger.ZERO);
+            BigDecimal startQty = Optional.ofNullable(startPositions.get(symbol))
+                    .map(Position::getQuantity).orElse(BigDecimal.ZERO);
             List<Transaction> periodTx = transactionRepository.findAllByUserAndSymbol(
                     user.getId(), symbol, start, end);
             BigDecimal dividendIncome = corporateActionService.calculateDividendIncome(
@@ -366,8 +365,8 @@ public class PnLService {
                 continue;
             log.debug("Calculating unrealized for {}", sym);
             Position position = positions.get(sym);
-            BigInteger quantity = position.getQuantity();
-            if (quantity.equals(BigInteger.ZERO)) {
+            BigDecimal quantity = position.getQuantity();
+            if (quantity.compareTo(BigDecimal.ZERO) == 0) {
                 position.setUnrealized(BigDecimal.ZERO);
                 positions.put(sym, position);
                 continue;
@@ -383,7 +382,7 @@ public class PnLService {
                 price = prices.get(0);
             }
             BigDecimal basis = position.getValue();
-            BigDecimal unrealized = (price.multiply(new BigDecimal(quantity))).add(basis);
+            BigDecimal unrealized = price.multiply(quantity).add(basis);
             position.setUnrealized(unrealized);
             position.setPrice(price);
             positions.put(sym, position);

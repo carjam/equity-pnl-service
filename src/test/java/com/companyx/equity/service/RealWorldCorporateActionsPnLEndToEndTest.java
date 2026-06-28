@@ -98,7 +98,7 @@ class RealWorldCorporateActionsPnLEndToEndTest {
         when(transactionRepository.findEarliestByUserAndSymbol(1L, "FOX"))
                 .thenReturn(Optional.of(java.sql.Timestamp.valueOf(LocalDateTime.of(2019, 1, 15, 10, 0))));
 
-        // 100 FOX × 0.4517 = 45.17 → 45 DIS shares (rounded)
+        // 100 FOX × 0.4517 = 45.17 DIS shares (fractional, no longer rounded)
         Date end = java.sql.Date.valueOf("2019-12-31");
         stubEndPrice("DIS", end, new BigDecimal("114.18"));
 
@@ -109,8 +109,8 @@ class RealWorldCorporateActionsPnLEndToEndTest {
         assertNull(result.get("FOX"), "FOX should be replaced by DIS after merger");
         Position dis = result.get("DIS");
         assertNotNull(dis);
-        assertEquals(BigInteger.valueOf(45), dis.getQuantity(),
-                "100 FOX shares × 0.4517 exchange ratio → 45 DIS shares");
+        assertEquals(0, new BigDecimal("45.17").compareTo(dis.getQuantity().setScale(2, java.math.RoundingMode.HALF_UP)),
+                "100 FOX shares × 0.4517 exchange ratio → 45.17 DIS shares (fractional)");
         assertEquals(0, new BigDecimal("-5000.00").compareTo(dis.getValue()),
                 "Total cost basis should transfer unchanged from FOX to DIS");
     }
@@ -154,8 +154,8 @@ class RealWorldCorporateActionsPnLEndToEndTest {
         assertNotNull(ebay);
         assertNotNull(pypl);
 
-        assertEquals(BigInteger.valueOf(100), ebay.getQuantity());
-        assertEquals(BigInteger.valueOf(100), pypl.getQuantity(),
+        assertEquals(0, BigDecimal.valueOf(100).compareTo(ebay.getQuantity()));
+        assertEquals(0, BigDecimal.valueOf(100).compareTo(pypl.getQuantity()),
                 "1:1 distribution — one PYPL share per EBAY share");
 
         assertEquals(0, expectedEbayBasis.compareTo(ebay.getValue()),
@@ -197,7 +197,7 @@ class RealWorldCorporateActionsPnLEndToEndTest {
         assertNull(result.get("FB"), "FB should be retitled to META");
         Position meta = result.get("META");
         assertNotNull(meta);
-        assertEquals(BigInteger.valueOf(100), meta.getQuantity());
+        assertEquals(0, BigDecimal.valueOf(100).compareTo(meta.getQuantity()));
         assertEquals(0, new BigDecimal("-20000.00").compareTo(meta.getValue()),
                 "Cost basis should be unchanged after symbol change");
     }
@@ -224,7 +224,7 @@ class RealWorldCorporateActionsPnLEndToEndTest {
 
         Position twtr = result.get("TWTR");
         assertNotNull(twtr);
-        assertEquals(BigInteger.ZERO, twtr.getQuantity(), "Position should close after cash merger");
+        assertEquals(0, BigDecimal.ZERO.compareTo(twtr.getQuantity()), "Position should close after cash merger");
         assertEquals(0, new BigDecimal("2420.00").compareTo(twtr.getRealized()),
                 "100 shares × $54.20 cash − $3,000 basis = $2,420 realized gain");
     }

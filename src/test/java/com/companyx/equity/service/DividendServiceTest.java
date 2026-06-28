@@ -35,7 +35,7 @@ class DividendServiceTest {
     @Test
     void shouldReturnZeroIncomeWhenNoDividends() {
         // Arrange
-        BigInteger shares = BigInteger.valueOf(100);
+        BigDecimal shares = BigDecimal.valueOf(100);
         List<Dividend> dividends = Collections.emptyList();
 
         // Act
@@ -48,7 +48,7 @@ class DividendServiceTest {
     @Test
     void shouldCalculateSingleCashDividendIncome() {
         // Arrange
-        BigInteger shares = BigInteger.valueOf(100);
+        BigDecimal shares = BigDecimal.valueOf(100);
         Dividend dividend = Dividend.builder()
                 .symbol("AAPL")
                 .exDate(LocalDate.of(2024, 8, 9))
@@ -66,7 +66,7 @@ class DividendServiceTest {
     @Test
     void shouldCalculateMultipleCashDividendsIncome() {
         // Arrange
-        BigInteger shares = BigInteger.valueOf(100);
+        BigDecimal shares = BigDecimal.valueOf(100);
         
         Dividend q1 = createCashDividend("AAPL", LocalDate.of(2024, 2, 9), "0.25");
         Dividend q2 = createCashDividend("AAPL", LocalDate.of(2024, 5, 9), "0.25");
@@ -83,7 +83,7 @@ class DividendServiceTest {
     @Test
     void shouldIgnoreStockDividendsInIncomeCalculation() {
         // Arrange
-        BigInteger shares = BigInteger.valueOf(100);
+        BigDecimal shares = BigDecimal.valueOf(100);
         
         Dividend cashDiv = createCashDividend("KO", LocalDate.of(2024, 8, 9), "1.00");
         Dividend stockDiv = Dividend.builder()
@@ -104,7 +104,7 @@ class DividendServiceTest {
     @Test
     void shouldHandleZeroShares() {
         // Arrange
-        BigInteger shares = BigInteger.ZERO;
+        BigDecimal shares = BigDecimal.ZERO;
         Dividend dividend = createCashDividend("AAPL", LocalDate.of(2024, 8, 9), "0.25");
 
         // Act
@@ -117,7 +117,7 @@ class DividendServiceTest {
     @Test
     void shouldHandleNullDividendsList() {
         // Arrange
-        BigInteger shares = BigInteger.valueOf(100);
+        BigDecimal shares = BigDecimal.valueOf(100);
 
         // Act
         BigDecimal income = service.calculateIncome(shares, null);
@@ -143,7 +143,7 @@ class DividendServiceTest {
         Position result = service.applyStockDividends(position, List.of(stockDiv));
 
         // Assert
-        assertEquals(BigInteger.valueOf(105), result.getQuantity(), "100 shares + 5% = 105 shares");
+        assertEquals(0, BigDecimal.valueOf(105).compareTo(result.getQuantity()), "100 shares + 5% = 105 shares");
         assertEquals(new BigDecimal("6000.00"), result.getValue(), "Total basis unchanged");
     }
 
@@ -172,8 +172,8 @@ class DividendServiceTest {
         Position result = service.applyStockDividends(position, Arrays.asList(div1, div2));
 
         // Assert
-        // 100 * 1.05 = 105, then 105 * 1.10 = 115.5 ≈ 116 (rounded)
-        assertEquals(BigInteger.valueOf(116), result.getQuantity());
+        // 100 × 1.05 = 105, then 105 × 1.10 = 115.5 (fractional shares preserved, not rounded)
+        assertEquals(0, new BigDecimal("115.5").compareTo(result.getQuantity()));
         assertEquals(new BigDecimal("6000.00"), result.getValue(), "Total basis unchanged");
     }
 
@@ -195,7 +195,7 @@ class DividendServiceTest {
         Position result = service.applyStockDividends(position, Arrays.asList(cashDiv, stockDiv));
 
         // Assert
-        assertEquals(BigInteger.valueOf(105), result.getQuantity(), "Only stock dividend should affect quantity");
+        assertEquals(0, BigDecimal.valueOf(105).compareTo(result.getQuantity()), "Only stock dividend should affect quantity");
     }
 
     @Test
@@ -208,7 +208,7 @@ class DividendServiceTest {
         Position result = service.applyStockDividends(position, dividends);
 
         // Assert
-        assertEquals(BigInteger.valueOf(100), result.getQuantity());
+        assertEquals(0, BigDecimal.valueOf(100).compareTo(result.getQuantity()));
         assertEquals(new BigDecimal("20000.00"), result.getValue());
     }
 
@@ -245,7 +245,7 @@ class DividendServiceTest {
     @Test
     void shouldCalculateIncomeForLargePositions() {
         // Arrange
-        BigInteger shares = BigInteger.valueOf(10000);
+        BigDecimal shares = BigDecimal.valueOf(10000);
         Dividend dividend = createCashDividend("AAPL", LocalDate.of(2024, 8, 9), "0.25");
 
         // Act
@@ -258,7 +258,7 @@ class DividendServiceTest {
     @Test
     void shouldHandleNegativeSharesInIncomeCalculation() {
         // Arrange - short position
-        BigInteger shares = BigInteger.valueOf(-100);
+        BigDecimal shares = BigDecimal.valueOf(-100);
         Dividend dividend = createCashDividend("AAPL", LocalDate.of(2024, 8, 9), "0.25");
 
         // Act
@@ -271,7 +271,7 @@ class DividendServiceTest {
     @Test
     void shouldSortDividendsByDateBeforeCalculation() {
         // Arrange
-        BigInteger shares = BigInteger.valueOf(100);
+        BigDecimal shares = BigDecimal.valueOf(100);
         
         Dividend div3 = createCashDividend("AAPL", LocalDate.of(2024, 8, 9), "0.25");
         Dividend div1 = createCashDividend("AAPL", LocalDate.of(2024, 2, 9), "0.25");
@@ -287,7 +287,7 @@ class DividendServiceTest {
     @Test
     void shouldCalculateIncomeForFractionalDividends() {
         // Arrange
-        BigInteger shares = BigInteger.valueOf(100);
+        BigDecimal shares = BigDecimal.valueOf(100);
         Dividend dividend = createCashDividend("MSFT", LocalDate.of(2024, 8, 9), "0.83");
 
         // Act
@@ -306,7 +306,7 @@ class DividendServiceTest {
         Dividend div = createCashDividend("AAPL", LocalDate.of(2024, 1, 15), "1.00");
         Transaction buy = createBuyTransaction(100, LocalDate.of(2024, 1, 20));
 
-        BigDecimal income = service.calculateIncome(BigInteger.valueOf(100), List.of(buy), List.of(div));
+        BigDecimal income = service.calculateIncome(BigDecimal.valueOf(100), List.of(buy), List.of(div));
 
         assertEquals(new BigDecimal("100.00"), income,
                 "Buy after ex-date must not inflate that dividend");
@@ -318,7 +318,7 @@ class DividendServiceTest {
         Dividend div = createCashDividend("AAPL", LocalDate.of(2024, 1, 15), "1.00");
         Transaction buy = createBuyTransaction(50, LocalDate.of(2024, 1, 10));
 
-        BigDecimal income = service.calculateIncome(BigInteger.valueOf(100), List.of(buy), List.of(div));
+        BigDecimal income = service.calculateIncome(BigDecimal.valueOf(100), List.of(buy), List.of(div));
 
         assertEquals(new BigDecimal("150.00"), income,
                 "Buy before ex-date must be included in that dividend");
@@ -330,7 +330,7 @@ class DividendServiceTest {
         Dividend div = createCashDividend("AAPL", LocalDate.of(2024, 1, 15), "1.00");
         Transaction sell = createSellTransaction(50, LocalDate.of(2024, 1, 10));
 
-        BigDecimal income = service.calculateIncome(BigInteger.valueOf(200), List.of(sell), List.of(div));
+        BigDecimal income = service.calculateIncome(BigDecimal.valueOf(200), List.of(sell), List.of(div));
 
         assertEquals(new BigDecimal("150.00"), income,
                 "Sell before ex-date must reduce that dividend");
@@ -343,7 +343,7 @@ class DividendServiceTest {
         Dividend div = createCashDividend("AAPL", LocalDate.of(2024, 1, 15), "1.00");
         Transaction buy = createBuyTransaction(100, LocalDate.of(2024, 1, 15));
 
-        BigDecimal income = service.calculateIncome(BigInteger.valueOf(100), List.of(buy), List.of(div));
+        BigDecimal income = service.calculateIncome(BigDecimal.valueOf(100), List.of(buy), List.of(div));
 
         assertEquals(new BigDecimal("100.00"), income,
                 "Buy ON ex-date must not count for that dividend");
@@ -358,7 +358,7 @@ class DividendServiceTest {
         Transaction buy = createBuyTransaction(100, LocalDate.of(2024, 2, 1));
 
         BigDecimal income = service.calculateIncome(
-                BigInteger.valueOf(100), List.of(buy), List.of(div1, div2));
+                BigDecimal.valueOf(100), List.of(buy), List.of(div1, div2));
 
         assertEquals(new BigDecimal("300.00"), income,
                 "Each dividend must use the quantity held at its own ex-date");
@@ -373,7 +373,7 @@ class DividendServiceTest {
         Transaction sell = createSellTransaction(100, LocalDate.of(2024, 2, 1));
 
         BigDecimal income = service.calculateIncome(
-                BigInteger.valueOf(200), List.of(sell), List.of(div1, div2));
+                BigDecimal.valueOf(200), List.of(sell), List.of(div1, div2));
 
         assertEquals(new BigDecimal("300.00"), income,
                 "Sell between dividends must only affect subsequent dividends");
@@ -384,7 +384,7 @@ class DividendServiceTest {
         Dividend div = createCashDividend("AAPL", LocalDate.of(2024, 1, 15), "0.25");
 
         BigDecimal income = service.calculateIncome(
-                BigInteger.valueOf(100), Collections.emptyList(), List.of(div));
+                BigDecimal.valueOf(100), Collections.emptyList(), List.of(div));
 
         assertEquals(new BigDecimal("25.00"), income);
     }
@@ -397,7 +397,7 @@ class DividendServiceTest {
         Transaction cover = createBuyTransaction(100, LocalDate.of(2024, 2, 1));
 
         BigDecimal income = service.calculateIncome(
-                BigInteger.valueOf(-200), List.of(cover), List.of(div1, div2));
+                BigDecimal.valueOf(-200), List.of(cover), List.of(div1, div2));
 
         assertEquals(new BigDecimal("-300.00"), income,
                 "Short positions pay dividends; partial cover reduces obligation");
@@ -416,7 +416,7 @@ class DividendServiceTest {
     private Position createPosition(String symbol, long quantity, BigDecimal value) {
         Position position = new Position();
         position.setSymbol(symbol);
-        position.setQuantity(BigInteger.valueOf(quantity));
+        position.setQuantity(BigDecimal.valueOf(quantity));
         position.setValue(value);
         position.setTimestamp(new Timestamp(System.currentTimeMillis()));
         position.setUser(testUser);
@@ -430,7 +430,7 @@ class DividendServiceTest {
         return new Transaction(null,
                 Timestamp.valueOf(date.atTime(12, 0)),
                 "AAPL",
-                BigInteger.valueOf(qty),
+                BigDecimal.valueOf(qty),
                 BigDecimal.valueOf(qty * 10L),
                 testUser,
                 buyType);
@@ -441,7 +441,7 @@ class DividendServiceTest {
         return new Transaction(null,
                 Timestamp.valueOf(date.atTime(12, 0)),
                 "AAPL",
-                BigInteger.valueOf(qty),
+                BigDecimal.valueOf(qty),
                 BigDecimal.valueOf(qty * 10L),
                 testUser,
                 sellType);

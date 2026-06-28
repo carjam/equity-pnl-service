@@ -3,8 +3,7 @@ package com.companyx.equity.model.corporateaction;
 import lombok.*;
 
 import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.math.RoundingMode;
+import java.math.MathContext;
 import java.time.LocalDate;
 
 /**
@@ -50,9 +49,9 @@ public class StockSplit implements CorporateAction {
         this.fromFactor = fromFactor;
         this.toFactor = toFactor;
         
-        // Calculate split ratio
+        // Calculate split ratio with sufficient precision for fractional splits
         this.splitRatio = BigDecimal.valueOf(toFactor)
-                .divide(BigDecimal.valueOf(fromFactor), 10, RoundingMode.HALF_UP);
+                .divide(BigDecimal.valueOf(fromFactor), MathContext.DECIMAL128);
     }
     
     @Override
@@ -65,21 +64,21 @@ public class StockSplit implements CorporateAction {
     /**
      * Apply this split to a share quantity.
      * New Quantity = Old Quantity × Split Ratio
+     *
+     * Fractional shares are preserved (e.g. a 3:2 split on 101 shares yields 151.5).
      */
-    public BigInteger applyToQuantity(BigInteger originalQuantity) {
-        BigDecimal quantityDecimal = new BigDecimal(originalQuantity);
-        BigDecimal newQuantityDecimal = quantityDecimal.multiply(splitRatio);
-        return newQuantityDecimal.setScale(0, RoundingMode.HALF_UP).toBigInteger();
+    public BigDecimal applyToQuantity(BigDecimal originalQuantity) {
+        return originalQuantity.multiply(splitRatio, MathContext.DECIMAL128);
     }
-    
+
     /**
      * Apply this split to cost basis per share.
      * New Cost Basis = Old Cost Basis ÷ Split Ratio
-     * 
-     * Note: Total basis (quantity × cost per share) remains unchanged
+     *
+     * Note: Total basis (quantity × cost per share) remains unchanged.
      */
     public BigDecimal applyToCostBasis(BigDecimal originalBasisPerShare) {
-        return originalBasisPerShare.divide(splitRatio, 2, RoundingMode.HALF_UP);
+        return originalBasisPerShare.divide(splitRatio, MathContext.DECIMAL128);
     }
     
     @Override

@@ -38,7 +38,7 @@ class SplitAdjustmentServiceTest {
         Position result = service.applySplits(position, splits);
 
         // Assert
-        assertEquals(BigInteger.valueOf(100), result.getQuantity());
+        assertEquals(0, BigDecimal.valueOf(100).compareTo(result.getQuantity()));
         assertEquals(new BigDecimal("20000.00"), result.getValue());
     }
 
@@ -57,7 +57,7 @@ class SplitAdjustmentServiceTest {
         Position result = service.applySplits(position, List.of(split));
 
         // Assert
-        assertEquals(BigInteger.valueOf(400), result.getQuantity(), "Quantity should be 4x after 4:1 split");
+        assertEquals(0, BigDecimal.valueOf(400).compareTo(result.getQuantity()), "Quantity should be 4x after 4:1 split");
         assertEquals(new BigDecimal("20000.00"), result.getValue(), "Total basis should remain unchanged");
     }
 
@@ -76,7 +76,7 @@ class SplitAdjustmentServiceTest {
         Position result = service.applySplits(position, List.of(split));
 
         // Assert
-        assertEquals(BigInteger.valueOf(100), result.getQuantity(), "Quantity should be 1/10 after 1:10 split");
+        assertEquals(0, BigDecimal.valueOf(100).compareTo(result.getQuantity()), "Quantity should be 1/10 after 1:10 split");
         assertEquals(new BigDecimal("5000.00"), result.getValue(), "Total basis should remain unchanged");
     }
 
@@ -95,7 +95,7 @@ class SplitAdjustmentServiceTest {
         Position result = service.applySplits(position, List.of(split));
 
         // Assert
-        assertEquals(BigInteger.valueOf(150), result.getQuantity(), "Quantity should be 1.5x after 3:2 split");
+        assertEquals(0, BigDecimal.valueOf(150).compareTo(result.getQuantity()), "Quantity should be 1.5x after 3:2 split");
         assertEquals(new BigDecimal("3000.00"), result.getValue(), "Total basis should remain unchanged");
     }
 
@@ -123,7 +123,7 @@ class SplitAdjustmentServiceTest {
 
         // Assert
         // 100 * 7 = 700, then 700 * 4 = 2800
-        assertEquals(BigInteger.valueOf(2800), result.getQuantity(), "Quantity should be 28x after two splits");
+        assertEquals(0, BigDecimal.valueOf(2800).compareTo(result.getQuantity()), "Quantity should be 28x after two splits");
         assertEquals(new BigDecimal("20000.00"), result.getValue(), "Total basis should remain unchanged");
     }
 
@@ -142,7 +142,7 @@ class SplitAdjustmentServiceTest {
         Position result = service.applySplits(position, List.of(split));
 
         // Assert
-        assertEquals(BigInteger.ZERO, result.getQuantity());
+        assertEquals(0, BigDecimal.ZERO.compareTo(result.getQuantity()));
         assertEquals(BigDecimal.ZERO, result.getValue());
     }
 
@@ -203,7 +203,7 @@ class SplitAdjustmentServiceTest {
         Position result = service.applySplits(position, List.of(split));
 
         // Assert
-        assertEquals(BigInteger.valueOf(-400), result.getQuantity(), "Short position should also be adjusted");
+        assertEquals(0, BigDecimal.valueOf(-400).compareTo(result.getQuantity()), "Short position should also be adjusted");
         assertEquals(new BigDecimal("20000.00"), result.getValue());
     }
 
@@ -260,7 +260,7 @@ class SplitAdjustmentServiceTest {
         Position result = service.applySplits(position, Arrays.asList(split2, split1));
 
         // Assert - should apply in chronological order (7x then 4x = 28x)
-        assertEquals(BigInteger.valueOf(2800), result.getQuantity());
+        assertEquals(0, BigDecimal.valueOf(2800).compareTo(result.getQuantity()));
     }
 
     @Test
@@ -277,11 +277,11 @@ class SplitAdjustmentServiceTest {
         // Act
         Position result = service.applySplits(position, List.of(split));
         BigDecimal costBasisPerShare = result.getValue()
-                .divide(new BigDecimal(result.getQuantity()), 2, java.math.RoundingMode.HALF_UP)
+                .divide(result.getQuantity(), 2, java.math.RoundingMode.HALF_UP)
                 .abs();
 
         // Assert
-        assertEquals(BigInteger.valueOf(400), result.getQuantity());
+        assertEquals(0, BigDecimal.valueOf(400).compareTo(result.getQuantity()));
         assertEquals(new BigDecimal("50.00"), costBasisPerShare, "Cost basis per share should be $50 after 4:1 split from $200");
     }
 
@@ -300,7 +300,7 @@ class SplitAdjustmentServiceTest {
         Position result = service.applySplits(position, List.of(split));
 
         // Assert
-        assertEquals(BigInteger.valueOf(1000), result.getQuantity());
+        assertEquals(0, BigDecimal.valueOf(1000).compareTo(result.getQuantity()));
         assertEquals(new BigDecimal("100.00"), result.getValue());
     }
 
@@ -319,15 +319,33 @@ class SplitAdjustmentServiceTest {
         Position result = service.applySplits(position, List.of(split));
 
         // Assert
-        assertEquals(BigInteger.valueOf(10), result.getQuantity());
+        assertEquals(0, BigDecimal.valueOf(10).compareTo(result.getQuantity()));
         assertEquals(new BigDecimal("100.00"), result.getValue());
+    }
+
+    @Test
+    void shouldPreserveFractionalSharesFrom3to2Split() {
+        // 3:2 split on 101 shares: exact result is 151.5 — no rounding to whole shares
+        Position position = createPosition("AAPL", 101, new BigDecimal("-10100.00"));
+        StockSplit split = StockSplit.builder()
+                .symbol("AAPL")
+                .date(LocalDate.of(2024, 1, 1))
+                .fromFactor(2)
+                .toFactor(3)
+                .build();
+
+        Position result = service.applySplits(position, List.of(split));
+
+        assertEquals(0, new BigDecimal("151.5").compareTo(result.getQuantity()),
+                "3:2 split on 101 shares should yield 151.5 fractional shares, not rounded to 152");
+        assertEquals(new BigDecimal("-10100.00"), result.getValue(), "Basis must be unchanged after split");
     }
 
     // Helper method to create test positions
     private Position createPosition(String symbol, long quantity, BigDecimal value) {
         Position position = new Position();
         position.setSymbol(symbol);
-        position.setQuantity(BigInteger.valueOf(quantity));
+        position.setQuantity(new BigDecimal(quantity));
         position.setValue(value);
         position.setTimestamp(new Timestamp(System.currentTimeMillis()));
         position.setUser(testUser);

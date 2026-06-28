@@ -16,7 +16,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -80,7 +79,7 @@ public class CorporateActionService {
      * Timeline-aware dividend income: uses the quantity at each ex-date rather than
      * a flat period-end quantity.
      */
-    public BigDecimal calculateDividendIncome(BigInteger startQuantity,
+    public BigDecimal calculateDividendIncome(BigDecimal startQuantity,
                                                List<Transaction> periodTransactions,
                                                String symbol, LocalDate from, LocalDate to) {
         List<Dividend> dividends = corporateActionProvider.getDividends(symbol, from, to);
@@ -88,7 +87,7 @@ public class CorporateActionService {
     }
 
     /** Convenience overload for constant-quantity scenarios (no intra-period trading). */
-    public BigDecimal calculateDividendIncome(BigInteger shares, String symbol, LocalDate from, LocalDate to) {
+    public BigDecimal calculateDividendIncome(BigDecimal shares, String symbol, LocalDate from, LocalDate to) {
         List<Dividend> dividends = corporateActionProvider.getDividends(symbol, from, to);
         return dividendService.calculateIncome(shares, dividends);
     }

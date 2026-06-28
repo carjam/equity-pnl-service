@@ -138,7 +138,7 @@ class CorporateActionsPnLEndToEndTest {
         Position aapl = result.get("AAPL");
 
         assertNotNull(aapl);
-        assertEquals(BigInteger.valueOf(400), aapl.getQuantity(),
+        assertEquals(0, BigDecimal.valueOf(400).compareTo(aapl.getQuantity()),
                 "100 shares should become 400 after the 4:1 split");
         assertEquals(0, new BigDecimal("0.00").compareTo(aapl.getUnrealized()),
                 "400 shares @ $50 with $20,000 basis should be break-even");
@@ -175,7 +175,7 @@ class CorporateActionsPnLEndToEndTest {
         Position ko = result.get("KO");
 
         assertNotNull(ko);
-        assertEquals(BigInteger.valueOf(100), ko.getQuantity());
+        assertEquals(0, BigDecimal.valueOf(100).compareTo(ko.getQuantity()));
         assertEquals(0, new BigDecimal("100.00").compareTo(ko.getRealized()),
                 "Four $0.25 dividends on 100 shares = $100 income");
         assertEquals(0, new BigDecimal("300.00").compareTo(ko.getUnrealized()),
@@ -211,7 +211,7 @@ class CorporateActionsPnLEndToEndTest {
         assertNull(result.get("XYZ"), "Original symbol should be replaced after merger");
         Position abc = result.get("ABC");
         assertNotNull(abc);
-        assertEquals(BigInteger.valueOf(80), abc.getQuantity());
+        assertEquals(0, BigDecimal.valueOf(80).compareTo(abc.getQuantity()));
         assertEquals(0, new BigDecimal("0.00").compareTo(abc.getUnrealized()),
                 "80 shares @ $62.50 with $5,000 basis should be break-even");
     }

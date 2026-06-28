@@ -18,7 +18,7 @@ class SymbolMappingServiceTest {
     void shouldUpdateSymbolWithoutChangingEconomics() {
         Position position = new Position();
         position.setSymbol("FB");
-        position.setQuantity(BigInteger.valueOf(50));
+        position.setQuantity(BigDecimal.valueOf(50));
         position.setValue(new BigDecimal("-5000.00"));
         position.setRealized(new BigDecimal("100.00"));
 
@@ -31,7 +31,7 @@ class SymbolMappingServiceTest {
         Position adjusted = symbolMappingService.applySymbolChange(position, change);
 
         assertEquals("META", adjusted.getSymbol());
-        assertEquals(BigInteger.valueOf(50), adjusted.getQuantity());
+        assertEquals(BigDecimal.valueOf(50), adjusted.getQuantity());
         assertEquals(0, new BigDecimal("-5000.00").compareTo(adjusted.getValue()));
         assertEquals(0, new BigDecimal("100.00").compareTo(adjusted.getRealized()));
     }

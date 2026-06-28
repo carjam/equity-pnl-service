@@ -6,11 +6,8 @@ import jakarta.validation.constraints.PositiveOrZero;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
 
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.sql.Timestamp;
 
 @NoArgsConstructor
@@ -27,8 +24,8 @@ public class Transaction {
     private String symbol;
     
     @PositiveOrZero(message = "Quantity cannot be negative")
-    @JdbcTypeCode(SqlTypes.BIGINT)
-    private BigInteger quantity;
+    @Column(precision = 20, scale = 8)
+    private BigDecimal quantity;
     
     @PositiveOrZero(message = "Value cannot be negative")
     @Column(precision = 15, scale = 2)

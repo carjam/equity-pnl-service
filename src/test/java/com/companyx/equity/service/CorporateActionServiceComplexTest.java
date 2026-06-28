@@ -61,14 +61,14 @@ class CorporateActionServiceComplexTest {
                 position, "XYZ", LocalDate.of(2024, 1, 1), LocalDate.of(2024, 12, 31), (sym, date) -> BigDecimal.TEN);
 
         assertEquals("ABC", result.getPosition().getSymbol());
-        assertEquals(BigInteger.valueOf(80), result.getPosition().getQuantity());
+        assertEquals(0, BigDecimal.valueOf(80).compareTo(result.getPosition().getQuantity()));
         assertTrue(result.getAdditionalPositions().isEmpty());
     }
 
     private Position longPosition(String symbol, int quantity, BigDecimal basis) {
         Position position = new Position();
         position.setSymbol(symbol);
-        position.setQuantity(BigInteger.valueOf(quantity));
+        position.setQuantity(BigDecimal.valueOf(quantity));
         position.setValue(basis);
         position.setRealized(BigDecimal.ZERO);
         position.setUnrealized(BigDecimal.ZERO);
